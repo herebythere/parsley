@@ -1,7 +1,7 @@
 // brian taylor vann
 // text vector
 
-import { samestuff } from "jackrabbit/src/samestuff/samestuff";
+import { samestuff } from "../../../node_modules/jackrabbit/src/samestuff/samestuff";
 import {
   copy,
   create,

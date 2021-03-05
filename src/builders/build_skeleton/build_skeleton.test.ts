@@ -1,7 +1,7 @@
 // brian taylor vann
 // build skeleton
 
-import { samestuff } from "jackrabbit/src/samestuff/samestuff";
+import { samestuff } from "../../../node_modules/jackrabbit/src/samestuff/samestuff";
 
 import { Template } from "../../type_flyweight/template";
 import { SkeletonNodes, buildSkeleton } from "./build_skeleton";

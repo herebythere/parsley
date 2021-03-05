@@ -125,14 +125,14 @@ const getText: GetTextFromVector = (template, vector) => {
   }
 
   // otherwise, stack and arrayy
-  let texts: string[] = [];
+  const texts: string[] = [];
 
   // get head text
   let templateText = template.templateArray[vector.origin.arrayIndex];
   if (templateText === undefined) {
     return;
   }
-  let templateTextIndex = vector.origin.stringIndex;
+  const templateTextIndex = vector.origin.stringIndex;
   let distance = templateText.length - templateTextIndex;
   let copiedText = templateText.substr(templateTextIndex, distance);
   texts.push(copiedText);

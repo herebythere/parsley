@@ -1,7 +1,7 @@
 // brian taylor vann
 // attribute crawl
 
-import { samestuff } from "jackrabbit/src/samestuff/samestuff";
+import { samestuff } from "../../../node_modules/jackrabbit/src/samestuff/samestuff";
 import { Template } from "../../type_flyweight/template";
 import { create, incrementTarget } from "../../text_vector/text_vector";
 import { crawlForAttribute } from "./attribute_crawl";

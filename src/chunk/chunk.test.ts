@@ -227,7 +227,7 @@ const createAndUpdateDescendantSiblingContextArray = () => {
 
   const parentContext = new Context({ hooks, params, chunker: parentChunker });
 
-  let siblings = parentContext.getSiblings();
+  const siblings = parentContext.getSiblings();
 
   if (siblings.length !== 5) {
     assertions.push("context should have 5 siblings");
@@ -280,7 +280,7 @@ const createAndUpdateMultipleDescendants = () => {
 
   const parentContext = new Context({ hooks, params, chunker: parentChunker });
 
-  let siblings = parentContext.getSiblings();
+  const siblings = parentContext.getSiblings();
 
   if (siblings.length !== 8) {
     assertions.push("context should have 8 siblings");

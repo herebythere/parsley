@@ -382,13 +382,33 @@ const updateDescendants: UpdateDescendantsFunc = ({
       },
     };
 
+    // add sibling to render structure to get mounted later
+
     let currLeftNode = leftNode;
     for (const contextID in descendant) {
-      currLeftNode = contextArray[contextID].mount(
+      const chunk = contextArray[contextID];      
+      currLeftNode = chunk.mount(
         parentNode ?? contextParentNode,
         currLeftNode
       );
     }
+
+    // new ness
+    //
+    // if (siblingIndex !== undefined) {
+    //   let updatedSiblings = [];    
+    //   for (const contextID in descendant) {
+    //     const chunk = contextArray[contextID];
+
+    //     const siblings = chunk.getSiblings();
+    //     for (const siblingID in siblings) {
+    //       updatedSiblings.push(siblings[siblingID]);
+    //     }
+    //   }
+    //   rs.siblings[siblingIndex] = updatedSiblings;
+
+    // }
+    
 
     if (pastDescendant.kind === "CONTEXT_ARRAY") {
       const contextArray = pastDescendant.params.contextArray;

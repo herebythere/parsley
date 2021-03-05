@@ -1,7 +1,7 @@
 // brian taylor vann
 // text position
 
-import { samestuff } from "jackrabbit/src/samestuff/samestuff";
+import { samestuff } from "../../../node_modules/jackrabbit/src/samestuff/samestuff";
 import { Position } from "../type_flyweight/text_vector";
 import { Template } from "../type_flyweight/template";
 

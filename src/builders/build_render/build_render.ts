@@ -53,7 +53,7 @@ type popSelfClosingNode = <N, A>(rs: RenderStructure<N, A>) => void;
 
 // add integral on to stack
 const popSelfClosingNode: popSelfClosingNode = (rs) => {
-  let parent = rs.stack[rs.stack.length - 1];
+  const parent = rs.stack[rs.stack.length - 1];
   if (
     parent !== undefined &&
     parent.kind === "NODE" &&

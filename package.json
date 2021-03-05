@@ -17,6 +17,9 @@
     },
     "scripts": {
         "format": "eslint --config ./.eslintrc.json --fix ./src && prettier --write ./src",
-        "build": "tsc --p ./src/tsconfig.json"
-    }
+        "build": "tsc --p ./src/tsconfig.json && tsc -p ./src/tsconfig-nodejs.json",
+        "dist": "rollup -c ./rollup.config.js"
+    },
+    "main": "./nodejs/parsley.js",
+    "types": "./src/parsley.d.ts"
 }

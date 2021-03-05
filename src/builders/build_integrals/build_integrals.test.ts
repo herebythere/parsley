@@ -3,7 +3,7 @@
 
 // we need an injection test or two
 
-import { samestuff } from "jackrabbit/src/samestuff/samestuff";
+import { samestuff } from "../../../node_modules/jackrabbit/src/samestuff/samestuff";
 import { BuildIntegralsParams } from "./build_integrals";
 import { buildSkeleton } from "../build_skeleton/build_skeleton";
 import { buildIntegrals } from "./build_integrals";

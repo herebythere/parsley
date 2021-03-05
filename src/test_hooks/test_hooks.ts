@@ -45,7 +45,7 @@ const hooks: Hooks<TestNode, TestAttributes> = {
 
     // set descendant
     if (leftNode !== undefined) {
-      let leftRightDescendant = leftNode.right;
+      const leftRightDescendant = leftNode.right;
       descendant.right = leftRightDescendant;
       if (leftRightDescendant !== undefined) {
         leftRightDescendant.left = descendant;

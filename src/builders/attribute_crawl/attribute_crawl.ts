@@ -199,7 +199,7 @@ const crawlForAttribute: AttributeCrawl = (template, vectorBounds) => {
   }
 
   // get bounds for attribute value
-  let valBounds: Vector = copy(vectorBounds);
+  const valBounds: Vector = copy(vectorBounds);
   valBounds.origin = {
     ...attrResults.attributeVector.target,
   };
