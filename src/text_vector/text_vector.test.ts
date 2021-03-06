@@ -1,7 +1,7 @@
 // brian taylor vann
 // text vector
 
-import { samestuff } from "../../../node_modules/jackrabbit/src/samestuff/samestuff";
+import { samestuff } from "https://github.com/taylor-vann/jackrabbit/blob/main/src/samestuff/samestuff.ts";
 import {
   copy,
   create,
@@ -9,9 +9,9 @@ import {
   incrementTarget,
   hasOriginEclipsedTaraget,
   getText,
-} from "./text_vector";
-import { Vector } from "../type_flyweight/text_vector";
-import { Template } from "../type_flyweight/template";
+} from "./text_vector.ts";
+import { Vector } from "../type_flyweight/text_vector.ts";
+import { Template } from "../type_flyweight/template.ts";
 
 type TextTextInterpolator = <N, A>(
   templateArray: TemplateStringsArray,

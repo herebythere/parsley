@@ -11,4 +11,4 @@ interface Vector {
   target: Position;
 }
 
-export { Position, Vector };
+export type { Position, Vector };

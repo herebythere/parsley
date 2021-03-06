@@ -1,17 +1,17 @@
 // brian taylor vann
 // build skeleton
 
-import { crawl } from "../skeleton_crawl/skeleton_crawl";
+import { crawl } from "../skeleton_crawl/skeleton_crawl.ts";
 
 import {
   CrawlResults,
   SkeletonNodes,
-} from "../../type_flyweight/skeleton_crawl";
+} from "../../type_flyweight/skeleton_crawl.ts";
 
-import { Template } from "../../type_flyweight/template";
-import { Position } from "../../type_flyweight/text_vector";
-import { copy, decrement, increment } from "../../text_position/text_position";
-import { hasOriginEclipsedTaraget } from "../../text_vector/text_vector";
+import { Template } from "../../type_flyweight/template.ts";
+import { Position } from "../../type_flyweight/text_vector.ts";
+import { copy, decrement, increment } from "../../text_position/text_position.ts";
+import { hasOriginEclipsedTaraget } from "../../text_vector/text_vector.ts";
 
 type NodeType =
   | "OPEN_NODE"
@@ -160,4 +160,6 @@ const buildSkeleton: BuildSkeleton = (template) => {
   return skeleton;
 };
 
-export { SkeletonNodes, buildSkeleton };
+export { buildSkeleton };
+
+export type { SkeletonNodes };

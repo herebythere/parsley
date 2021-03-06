@@ -1,15 +1,15 @@
 // brian taylor vann
 // build render
 
-import { buildIntegrals } from "../build_integrals/build_integrals";
-import { buildRender } from "./build_render";
-import { buildSkeleton } from "../build_skeleton/build_skeleton";
-import { Context } from "../../chunk/chunk";
-import { hooks, render, TestAttributes } from "../../test_hooks/test_hooks";
-import { Integrals } from "../../type_flyweight/integrals";
-import { Template, AttributeValue } from "../../type_flyweight/template";
-import { TestNode } from "../../test_hooks/test_element";
-import { Chunker } from "../../type_flyweight/chunker";
+import { buildIntegrals } from "../build_integrals/build_integrals.ts";
+import { buildRender } from "./build_render.ts";
+import { buildSkeleton } from "../build_skeleton/build_skeleton.ts";
+import { Context } from "../../chunk/chunk.ts";
+import { hooks, render, TestAttributes } from "../../test_hooks/test_hooks.ts";
+import { Integrals } from "../../type_flyweight/integrals.ts";
+import { Template, AttributeValue } from "../../type_flyweight/template.ts";
+import { TestNode } from "../../test_hooks/test_element.ts";
+import { Chunker } from "../../type_flyweight/chunker.ts";
 
 interface InterpolatorResults<N, A> {
   template: Template<N, A>;

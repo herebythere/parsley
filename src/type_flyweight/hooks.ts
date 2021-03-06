@@ -1,8 +1,8 @@
 // brian taylor vann
 // hooks
 
-import { AttributeValue } from "./template";
-import {ReferenceMap} from "./render";
+import { AttributeValue } from "./template.ts";
+import {ReferenceMap} from "./render.ts";
 
 interface SetAttributeParams<N, A> {
   references: ReferenceMap<N>;
@@ -35,7 +35,7 @@ interface Hooks<N, A> {
   setAttribute: SetAttribute<N, A>;
 }
 
-export {
+export type {
   CreateNode,
   CreateTextNode,
   GetSibling,

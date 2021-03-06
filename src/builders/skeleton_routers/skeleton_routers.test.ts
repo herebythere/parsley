@@ -1,7 +1,7 @@
 // brian taylor vann
 // skeleton routers
 
-import { routers } from "./skeleton_routers";
+import { routers } from "./skeleton_routers.ts";
 
 const title = "skeleton routers";
 const runTestsAsynchronously = true;

@@ -1,7 +1,7 @@
 // brian taylor vann
 // attribute crawl
 
-import { Vector } from "./text_vector";
+import { Vector } from "./text_vector.ts";
 
 type ImplicitAttributeAction = {
   kind: "IMPLICIT_ATTRIBUTE";
@@ -26,7 +26,7 @@ type AttributeAction =
   | ExplicitAttributeAction
   | InjectedAttributeAction;
 
-export {
+export type {
   ImplicitAttributeAction,
   ExplicitAttributeAction,
   InjectedAttributeAction,

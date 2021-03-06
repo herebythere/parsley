@@ -1,16 +1,14 @@
 // brian taylor vann
 // integrals
 
-// this is definietly gonna change
-
 import {
   ImplicitAttributeAction,
   ExplicitAttributeAction,
   InjectedAttributeAction,
   AttributeAction,
-} from "./attribute_crawl";
+} from "./attribute_crawl.ts";
 
-import { Vector } from "./text_vector";
+import { Vector } from "./text_vector.ts";
 
 interface NodeAction {
   kind: "NODE";
@@ -48,7 +46,7 @@ type IntegralAction =
 
 type Integrals = IntegralAction[];
 
-export {
+export type {
   AttributeAction,
   CloseNodeAction,
   ContextInjectionAction,

@@ -1,7 +1,7 @@
 // brian taylor vann
-// context
+// chunk
 
-import { ReferenceMap } from "./render";
+import { ReferenceMap } from "./render.ts";
 
 // UNMOUNTED      // siblings have no parent
 // MOUNTED        // siblings have a parent
@@ -65,10 +65,13 @@ class ContextBase<N> {
 
 type ContextBaseArray<N> = ContextBase<N>[];
 
-export {
+export type {
   BangerBase,
-  ContextBase,
   ContextBaseArray,
   ContextEffect,
   EffectQuality,
 };
+
+export { 
+  ContextBase,
+}

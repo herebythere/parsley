@@ -1,14 +1,14 @@
 // brian taylor vann
 // attribute crawl
 
-import { samestuff } from "../../../node_modules/jackrabbit/src/samestuff/samestuff";
-import { Template } from "../../type_flyweight/template";
-import { create, incrementTarget } from "../../text_vector/text_vector";
-import { crawlForAttribute } from "./attribute_crawl";
-import {
+import { samestuff } from "https://github.com/taylor-vann/jackrabbit/blob/main/src/samestuff/samestuff.ts";
+import type { Template } from "../../type_flyweight/template.ts";
+import { create, incrementTarget } from "../../text_vector/text_vector.ts";
+import { crawlForAttribute } from "./attribute_crawl.ts";
+import type {
   ExplicitAttributeAction,
   InjectedAttributeAction,
-} from "../../type_flyweight/attribute_crawl";
+} from "../../type_flyweight/attribute_crawl.ts";
 
 type TextTextInterpolator = <N, A>(
   templateArray: TemplateStringsArray,

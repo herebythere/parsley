@@ -1,15 +1,15 @@
 // brian taylor vann
 // build integrals
 
-import { Template } from "../../type_flyweight/template";
+import { Template } from "../../type_flyweight/template.ts";
 
 import {
   SkeletonNodes,
   CrawlResults,
-} from "../../type_flyweight/skeleton_crawl";
+} from "../../type_flyweight/skeleton_crawl.ts";
 
-import { Integrals } from "../../type_flyweight/integrals";
-import { Vector } from "../../type_flyweight/text_vector";
+import { Integrals } from "../../type_flyweight/integrals.ts";
+import { Vector } from "../../type_flyweight/text_vector.ts";
 
 import {
   copy,
@@ -17,11 +17,11 @@ import {
   decrementTarget,
   hasOriginEclipsedTaraget,
   incrementOrigin,
-} from "../../text_vector/text_vector";
+} from "../../text_vector/text_vector.ts";
 
-import { getCharAtPosition } from "../../text_position/text_position";
-import { crawlForTagName } from "../tag_name_crawl/tag_name_crawl";
-import { crawlForAttribute } from "../attribute_crawl/attribute_crawl";
+import { getCharAtPosition } from "../../text_position/text_position.ts";
+import { crawlForTagName } from "../tag_name_crawl/tag_name_crawl.ts";
+import { crawlForAttribute } from "../attribute_crawl/attribute_crawl.ts";
 
 type VectorCrawl = <N, A>(
   template: Template<N, A>,
@@ -332,4 +332,6 @@ const buildIntegrals: BuildIntegrals = ({ template, skeleton }) => {
   return integrals;
 };
 
-export { BuildIntegralsParams, buildIntegrals };
+export { buildIntegrals };
+
+export type { BuildIntegralsParams };

@@ -1,9 +1,9 @@
 // brian taylor vann
 // attribute crawl
 
-import { AttributeAction } from "../../type_flyweight/attribute_crawl";
-import { Template } from "../../type_flyweight/template";
-import { Vector } from "../../type_flyweight/text_vector";
+import { AttributeAction } from "../../type_flyweight/attribute_crawl.ts";
+import { Template } from "../../type_flyweight/template.ts";
+import { Vector } from "../../type_flyweight/text_vector.ts";
 
 import {
   copy,
@@ -11,9 +11,9 @@ import {
   hasOriginEclipsedTaraget,
   incrementOrigin,
   incrementTarget,
-} from "../../text_vector/text_vector";
+} from "../../text_vector/text_vector.ts";
 
-import { getCharAtPosition } from "../../text_position/text_position";
+import { getCharAtPosition } from "../../text_position/text_position.ts";
 
 type AttributeCrawl = <N, A>(
   template: Template<N, A>,

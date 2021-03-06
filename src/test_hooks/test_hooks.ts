@@ -1,10 +1,10 @@
 // brian taylor vann
 // test hooks
 
-import { Hooks } from "../type_flyweight/hooks";
-import { Render } from "../type_flyweight/render";
-import { TestNode } from "./test_element";
-import { Context } from "../chunk/chunk";
+import { Hooks } from "../type_flyweight/hooks.ts";
+import { Render } from "../type_flyweight/render.ts";
+import { TestNode } from "./test_element.ts";
+import { Context } from "../chunk/chunk.ts";
 
 type TestAttributes = string | number;
 
@@ -113,4 +113,6 @@ const render: Render<TestNode, TestAttributes> = (
   };
 };
 
-export { hooks, render, TestAttributes };
+export type { TestAttributes };
+
+export { hooks, render };

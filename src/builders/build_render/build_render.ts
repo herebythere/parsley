@@ -1,10 +1,10 @@
 // brian taylor vann
 // build render
 
-import { Hooks } from "../../type_flyweight/hooks";
-import { Template } from "../../type_flyweight/template";
-import { RenderStructure } from "../../type_flyweight/render";
-import { ContextBase } from "../../type_flyweight/chunk";
+import { Hooks } from "../../type_flyweight/hooks.ts";
+import { Template } from "../../type_flyweight/template.ts";
+import { RenderStructure } from "../../type_flyweight/render.ts";
+import { ContextBase } from "../../type_flyweight/chunk.ts";
 
 import {
   CloseNodeAction,
@@ -16,13 +16,13 @@ import {
   Integrals,
   ContextInjectionAction,
   TextAction,
-} from "../../type_flyweight/integrals";
+} from "../../type_flyweight/integrals.ts";
 
 import {
   decrementTarget,
   getText,
   incrementOrigin,
-} from "../../text_vector/text_vector";
+} from "../../text_vector/text_vector.ts";
 
 interface BuildRenderParams<N, A> {
   hooks: Hooks<N, A>;

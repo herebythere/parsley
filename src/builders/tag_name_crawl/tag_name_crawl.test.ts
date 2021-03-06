@@ -1,11 +1,11 @@
 // brian taylor vann
 // tag name crawl
 
-import { samestuff } from "../../../node_modules/jackrabbit/src/samestuff/samestuff";
-import { Template } from "../../type_flyweight/template";
-import { create, incrementTarget } from "../../text_vector/text_vector";
+import { samestuff } from "https://github.com/taylor-vann/jackrabbit/blob/main/src/samestuff/samestuff.ts";
+import { Template } from "../../type_flyweight/template.ts";
+import { create, incrementTarget } from "../../text_vector/text_vector.ts";
 
-import { crawlForTagName } from "./tag_name_crawl";
+import { crawlForTagName } from "./tag_name_crawl.ts";
 
 type TextTextInterpolator = <N, A>(
   templateArray: TemplateStringsArray,

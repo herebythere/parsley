@@ -1,8 +1,8 @@
 // brian taylor vann
 // text position
 
-import { Template } from "../type_flyweight/template";
-import { Position } from "../type_flyweight/text_vector";
+import type { Template } from "../type_flyweight/template.ts";
+import type { Position } from "../type_flyweight/text_vector.ts";
 
 type Create = (position?: Position) => Position;
 type Copy = (position: Position) => Position;
