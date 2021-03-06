@@ -1,7 +1,6 @@
 // brian taylor vann
 // text vector
 
-// @ts-ignore - remote import
 import { samestuff } from "https://github.com/taylor-vann/jackrabbit/blob/main/src/samestuff/samestuff.ts";
 import {
   copy,

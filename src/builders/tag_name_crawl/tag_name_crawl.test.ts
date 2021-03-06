@@ -1,7 +1,6 @@
 // brian taylor vann
 // tag name crawl
 
-// @ts-ignore - remote import
 import { samestuff } from "https://github.com/taylor-vann/jackrabbit/blob/main/src/samestuff/samestuff.ts";
 import { Template } from "../../type_flyweight/template.ts";
 import { create, incrementTarget } from "../../text_vector/text_vector.ts";

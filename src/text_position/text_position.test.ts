@@ -1,7 +1,6 @@
 // brian taylor vann
 // text position
 
-// @ts-ignore - remote import
 import { samestuff } from "https://github.com/taylor-vann/jackrabbit/blob/main/src/samestuff/samestuff.ts";
 import { Position } from "../type_flyweight/text_vector.ts";
 import { Template } from "../type_flyweight/template.ts";

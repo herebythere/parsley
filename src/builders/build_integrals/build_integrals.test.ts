@@ -3,7 +3,6 @@
 
 // we need an injection test or two
 
-// @ts-ignore - remote import
 import { samestuff } from "https://github.com/taylor-vann/jackrabbit/blob/main/src/samestuff/samestuff.ts";
 import { BuildIntegralsParams } from "./build_integrals.ts";
 import { buildSkeleton } from "../build_skeleton/build_skeleton.ts";
