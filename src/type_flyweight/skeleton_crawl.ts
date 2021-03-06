@@ -1,7 +1,7 @@
 // brian taylor vann
-// crawl
+// skeleton crawl
 
-import { Vector } from "./text_vector";
+import { Vector } from "./text_vector.ts";
 
 type CrawlStatus =
   | "CONTENT_NODE"
@@ -22,4 +22,4 @@ interface CrawlResults {
 
 type SkeletonNodes = CrawlResults[];
 
-export { CrawlResults, CrawlStatus, SkeletonNodes };
+export type { CrawlResults, CrawlStatus, SkeletonNodes };

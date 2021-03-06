@@ -1,21 +1,21 @@
 // brian taylor vann
 // skeleton crawl
 
-import { routers } from "../skeleton_routers/skeleton_routers";
-import { Template } from "../../type_flyweight/template";
-import { CrawlResults, CrawlStatus } from "../../type_flyweight/skeleton_crawl";
-import { Position } from "../../type_flyweight/text_vector";
+import { routers } from "../skeleton_routers/skeleton_routers.ts";
+import { Template } from "../../type_flyweight/template.ts";
+import { CrawlResults, CrawlStatus } from "../../type_flyweight/skeleton_crawl.ts";
+import { Position } from "../../type_flyweight/text_vector.ts";
 
 import {
   create,
   createFollowingVector,
   incrementTarget,
-} from "../../text_vector/text_vector";
+} from "../../text_vector/text_vector.ts";
 
 import {
   copy as copyPosition,
   getCharAtPosition,
-} from "../../text_position/text_position";
+} from "../../text_position/text_position.ts";
 
 type Sieve = Partial<Record<CrawlStatus, CrawlStatus>>;
 

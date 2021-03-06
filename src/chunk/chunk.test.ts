@@ -1,10 +1,10 @@
 // brian taylor vann
 // context
 
-import { Context } from "./chunk";
-import { hooks, render, TestAttributes } from "../test_hooks/test_hooks";
-import { Chunker } from "../type_flyweight/chunker";
-import { TestNode } from "../test_hooks/test_element";
+import { Context } from "./chunk.ts";
+import { hooks, render, TestAttributes } from "../test_hooks/test_hooks.ts";
+import { Chunker } from "../type_flyweight/chunker.ts";
+import { TestNode } from "../test_hooks/test_element.ts";
 
 const title = "context";
 const runTestsAsynchronously = true;

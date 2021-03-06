@@ -3,13 +3,14 @@
 
 // we need an injection test or two
 
-import { samestuff } from "../../../node_modules/jackrabbit/src/samestuff/samestuff";
-import { BuildIntegralsParams } from "./build_integrals";
-import { buildSkeleton } from "../build_skeleton/build_skeleton";
-import { buildIntegrals } from "./build_integrals";
-import { Integrals } from "../../type_flyweight/integrals";
-import { TestAttributes, TestNode } from "../../test_hooks/test_element";
-import { AttributeValue } from "../../type_flyweight/template";
+// @ts-ignore - remote import
+import { samestuff } from "https://github.com/taylor-vann/jackrabbit/blob/main/src/samestuff/samestuff.ts";
+import { BuildIntegralsParams } from "./build_integrals.ts";
+import { buildSkeleton } from "../build_skeleton/build_skeleton.ts";
+import { buildIntegrals } from "./build_integrals.ts";
+import { Integrals } from "../../type_flyweight/integrals.ts";
+import { TestAttributes, TestNode } from "../../test_hooks/test_element.ts";
+import { AttributeValue } from "../../type_flyweight/template.ts";
 
 type TextTextInterpolator<N, A> = (
   templateArray: TemplateStringsArray,

@@ -1,10 +1,10 @@
-import { Hooks } from "../type_flyweight/hooks";
-import { Template } from "../type_flyweight/template";
-import { RenderStructure } from "../type_flyweight/render";
+import { Hooks } from "../type_flyweight/hooks.ts";
+import { Template } from "../type_flyweight/template.ts";
+import { RenderStructure } from "../type_flyweight/render.ts";
 
-import { buildIntegrals } from "./build_integrals/build_integrals";
-import { buildSkeleton } from "./build_skeleton/build_skeleton";
-import { buildRender } from "./build_render/build_render";
+import { buildIntegrals } from "./build_integrals/build_integrals.ts";
+import { buildSkeleton } from "./build_skeleton/build_skeleton.ts";
+import { buildRender } from "./build_render/build_render.ts";
 
 type BuildRenderStructure = <N, A>(
   hooks: Hooks<N, A>,

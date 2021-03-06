@@ -1,9 +1,11 @@
 // brian taylor vann
 // skeleton crawl
 
-import { samestuff } from "../../../node_modules/jackrabbit/src/samestuff/samestuff";
-import { Template } from "../../type_flyweight/template";
-import { crawl } from "./skeleton_crawl";
+import type{ Template } from "../../type_flyweight/template.ts";
+
+// @ts-ignore - remote import
+import { samestuff } from "https://github.com/taylor-vann/jackrabbit/blob/main/src/samestuff/samestuff.ts";
+import { crawl } from "./skeleton_crawl.ts";
 
 type TextTextInterpolator = <N, A>(
   templateArray: TemplateStringsArray,

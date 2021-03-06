@@ -1,7 +1,7 @@
 // brian taylor vann
 // test hooks
 
-import { hooks } from "./test_hooks";
+import { hooks } from "./test_hooks.ts";
 
 const title = "test_hooks";
 const runTestsAsynchronously = true;

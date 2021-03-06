@@ -1,17 +1,17 @@
 // brian taylor vann
 // tag name crawl
 
-import { Template } from "../../type_flyweight/template";
-import { Vector } from "../../type_flyweight/text_vector";
+import { Template } from "../../type_flyweight/template.ts";
+import { Vector } from "../../type_flyweight/text_vector.ts";
 
 import {
   copy,
   decrementTarget,
   hasOriginEclipsedTaraget,
   incrementOrigin,
-} from "../../text_vector/text_vector";
+} from "../../text_vector/text_vector.ts";
 
-import { getCharAtPosition } from "../../text_position/text_position";
+import { getCharAtPosition } from "../../text_position/text_position.ts";
 
 type BreakRunes = Record<string, boolean>;
 

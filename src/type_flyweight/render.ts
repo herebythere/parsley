@@ -4,10 +4,8 @@
 // N Node
 // A Attributables
 
-// attribute injection
-
-import { Template, AttributeValue } from "./template";
-import { ContextBaseArray } from "./chunk";
+import { Template, AttributeValue } from "./template.ts";
+import { ContextBaseArray } from "./chunk.ts";
 
 interface AttributeInjectionParams<N, A> {
   references: ReferenceMap<N>;
@@ -83,7 +81,7 @@ type Render<N, A> = (
   ...injections: AttributeValue<N, A>[]
 ) => Template<N, A>;
 
-export {
+export type {
   Render,
   RenderStructure,
   ReferenceMap,

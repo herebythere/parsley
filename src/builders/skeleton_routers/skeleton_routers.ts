@@ -1,7 +1,7 @@
 // brian taylor vann
 // skeleton routers
 
-import { CrawlStatus } from "../../type_flyweight/skeleton_crawl";
+import { CrawlStatus } from "../../type_flyweight/skeleton_crawl.ts";
 
 type Routes = Record<string, CrawlStatus>;
 type Routers = Partial<Record<CrawlStatus, Routes>>;
@@ -42,4 +42,6 @@ const routers: Routers = {
   },
 };
 
-export { CrawlStatus, routers };
+export { routers };
+
+export type { CrawlStatus };

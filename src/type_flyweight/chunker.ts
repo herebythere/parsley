@@ -1,8 +1,8 @@
 // brian taylor vann
 // chunker
 
-import { Template } from "./template";
-import { BangerBase } from "./chunk";
+import { Template } from "./template.ts";
+import { BangerBase } from "./chunk.ts";
 
 interface UpdateParams<N, P, S> {
   params: P;
@@ -23,4 +23,4 @@ interface RequiredChunker<N, A, P, S> {
 
 type Chunker<N, A, P, S> = RequiredChunker<N, A, P, S>;
 
-export { Chunker };
+export type { Chunker };

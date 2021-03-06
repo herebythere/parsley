@@ -1,16 +1,15 @@
-import { Chunker } from "../type_flyweight/chunker";
-
-import {
+import type { Chunker } from "../type_flyweight/chunker.ts";
+import type {
   BangerBase,
-  ContextBase,
   ContextEffect,
   EffectQuality,
-} from "../type_flyweight/chunk";
+} from "../type_flyweight/chunk.ts";
+import type { Hooks } from "../type_flyweight/hooks.ts";
+import type { ReferenceMap, RenderStructure } from "../type_flyweight/render.ts";
+import type { Template } from "../type_flyweight/template.ts";
 
-import { Hooks } from "../type_flyweight/hooks";
-import { ReferenceMap, RenderStructure } from "../type_flyweight/render";
-import { Template } from "../type_flyweight/template";
-import { buildRenderStructure } from "../builders/builder";
+import { ContextBase } from "../type_flyweight/chunk.ts";
+import { buildRenderStructure } from "../builders/builder.ts";
 
 // Nodes
 // Attributes

@@ -1,7 +1,7 @@
 // brian taylor vann
 // test element
 
-import { AttributeValue } from "../type_flyweight/template";
+import { AttributeValue } from "../type_flyweight/template.ts";
 
 // boolean, string, and undefined are included in Attributes by default
 type TestAttributes = AttributeValue<TestNode, string | number>;
@@ -27,4 +27,4 @@ interface TestText {
 
 type TestNode = TestElement | TestText;
 
-export { TestAttributes, TestNode };
+export type { TestAttributes, TestNode };
