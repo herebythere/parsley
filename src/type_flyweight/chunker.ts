@@ -23,4 +23,4 @@ interface RequiredChunker<N, A, P, S> {
 
 type Chunker<N, A, P, S> = RequiredChunker<N, A, P, S>;
 
-export type { Chunker };
+export type { Chunker, ConnectParams, UpdateParams };

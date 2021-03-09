@@ -6,21 +6,13 @@ Build chunks of XML without dependencies.
 
 Render any document structure in XML.
 
-## How does Parsley parse XML?
-
-Parsley linearly streams XML. It does not use ASTs. It's more akin to audio buffers and DSP.
-
 ## Notes for developers
 
-Parsley was built to decouple XML parsing from the DOM.
-
-XML is well suited for many kinds of document structures. However, it's usually restricted to the DOM in the browser.
+I built Parsley to decouple XML from the DOM.
 
 I render lots of stuff in the browser that isn't DOM: audio, video, WebGL, and SVG.
 
-Consistent multimedia experiences need document structure and could benefit from being represented in XML.
-
-So I built Parsley to help me render whatever I want in the browser.
+Consistent multimedia experiences can benefit from document structure and being represented in XML.
 
 ## License
 

@@ -5,7 +5,7 @@
 // A Attributables
 
 import { Template, AttributeValue } from "./template.ts";
-import { ContextBaseArray } from "./chunk.ts";
+import { ChunkBaseArray } from "./chunk.ts";
 
 interface AttributeInjectionParams<N, A> {
   references: ReferenceMap<N>;
@@ -22,31 +22,30 @@ interface AttributeInjection<N, A> {
 type Injection<N, A> = AttributeInjection<N, A>;
 type AttributeMap<N, A> = Record<number, Injection<N, A>>;
 
-interface ContextDescendantParams<N> {
-  contextArray: ContextBaseArray<N>;
+interface ChunkDescendantParams<N> {
+  chunkArray: ChunkBaseArray<N>;
   parentNode?: N;
   leftNode?: N;
   siblingIndex?: number;
 }
-interface ContextDescendant<N> {
-  kind: "CONTEXT_ARRAY";
-  params: ContextDescendantParams<N>;
+interface ChunkDescendant<N> {
+  kind: "CHUNK_ARRAY";
+  params: ChunkDescendantParams<N>;
 }
 
-// content injection
-interface ContentInjectionParams<N> {
+interface TextInjectionParams<N> {
   textNode: N;
   text: string;
   leftNode?: N;
   parentNode?: N;
   siblingIndex?: number;
 }
-interface ContentInjection<N> {
+interface TextInjection<N> {
   kind: "TEXT";
-  params: ContentInjectionParams<N>;
+  params: TextInjectionParams<N>;
 }
 
-type Descendant<N> = ContentInjection<N> | ContextDescendant<N>;
+type Descendant<N> = TextInjection<N> | ChunkDescendant<N>;
 type DescendantMap<N> = Record<number, Descendant<N>>;
 
 type ReferenceMap<N> = Record<string, N>;
@@ -76,16 +75,4 @@ interface RenderStructure<N, A> {
   template: Template<N, A>;
 }
 
-type Render<N, A> = (
-  templateArray: TemplateStringsArray,
-  ...injections: AttributeValue<N, A>[]
-) => Template<N, A>;
-
-export type {
-  Render,
-  RenderStructure,
-  ReferenceMap,
-  Injection,
-  ElementNode,
-  TextNode,
-};
+export type { RenderStructure, ReferenceMap, Injection, ElementNode, TextNode };

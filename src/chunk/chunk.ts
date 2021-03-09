@@ -1,14 +1,20 @@
+// brian taylor vann
+// chunk
+
 import type { Chunker } from "../type_flyweight/chunker.ts";
 import type {
   BangerBase,
-  ContextEffect,
+  ChunkEffect,
   EffectQuality,
 } from "../type_flyweight/chunk.ts";
 import type { Hooks } from "../type_flyweight/hooks.ts";
-import type { ReferenceMap, RenderStructure } from "../type_flyweight/render.ts";
+import type {
+  ReferenceMap,
+  RenderStructure,
+} from "../type_flyweight/render.ts";
 import type { Template } from "../type_flyweight/template.ts";
+import { ChunkBase } from "../type_flyweight/chunk.ts";
 
-import { ContextBase } from "../type_flyweight/chunk.ts";
 import { buildRenderStructure } from "../builders/builder.ts";
 
 // Nodes
@@ -55,21 +61,21 @@ interface ContextParams<N, A, P, S> {
 type GetUpdatedSiblings = <N, A>(rs: RenderStructure<N, A>) => N[];
 
 class Banger<N, A, P, S> implements BangerBase<N> {
-  context: Context<N, A, P, S>;
+  chunk: ChunkBase<N>;
 
-  constructor(context: Context<N, A, P, S>) {
-    this.context = context;
+  constructor(chunk: ChunkBase<N>) {
+    this.chunk = chunk;
   }
 
   bang() {
-    this.context.bang();
+    this.chunk.bang();
   }
   getReferences() {
-    return this.context.getReferences();
+    return this.chunk.getReferences();
   }
 }
 
-class Context<N, A, P, S> extends ContextBase<N> {
+class Chunk<N, A, P, S> extends ChunkBase<N> {
   // INIT PARAMS
   private hooks: Hooks<N, A>;
   private chunker: Chunker<N, A, P, S>;
@@ -81,7 +87,7 @@ class Context<N, A, P, S> extends ContextBase<N> {
   // GENERATED EFFECTS
   private params: P;
   private state: S;
-  private effect: ContextEffect;
+  private effect: ChunkEffect;
 
   // EXTERNAL EFFECTS
   private parentNode?: N;
@@ -106,8 +112,8 @@ class Context<N, A, P, S> extends ContextBase<N> {
     });
 
     const template = this.getTemplate();
-    this.rs = buildRenderStructure(this.hooks, template);
 
+    this.rs = buildRenderStructure(this.hooks, template);
     this.siblings = getUpdatedSiblings(this.rs);
     this.effect = this.updateEffect("UNMOUNTED");
   }
@@ -192,29 +198,32 @@ class Context<N, A, P, S> extends ContextBase<N> {
 
   disconnect(): void {
     disconnectDescendants(this.hooks, this.rs);
-    this.chunker.disconnect(this.state);
+    if (this.state !== undefined && this.chunker.disconnect !== undefined) {
+      this.chunker.disconnect(this.state);
+    }
     this.updateEffect("DISCONNECTED");
   }
 
   // CONTEXT API
-
+ 
   getSiblings(): N[] {
     return this.siblings;
   }
+
   getReferences(): ReferenceMap<N> | undefined {
     // interesting base case outside of contrucutor, might (not) exist
-
     if (this.rs !== undefined) {
       return this.rs.references;
     }
   }
 
-  getEffect(): ContextEffect {
+  getEffect(): ChunkEffect {
     return this.effect;
   }
 
   private remount(template: Template<N, A>): void {
-    this.unmount();
+    // recent change, possibly uneccessary
+    // this.unmount();
 
     this.rs = buildRenderStructure(this.hooks, template);
     this.siblings = getUpdatedSiblings(this.rs);
@@ -224,7 +233,7 @@ class Context<N, A, P, S> extends ContextBase<N> {
     this.effect = this.updateEffect("CONNECTED");
   }
 
-  private updateEffect(quality: EffectQuality): ContextEffect {
+  private updateEffect(quality: EffectQuality): ChunkEffect {
     this.effect = {
       timestamp: performance.now(),
       quality,
@@ -321,10 +330,10 @@ const updateDescendants: UpdateDescendantsFunc = ({
     }
 
     // unmount previous contexts, they could be stale
-    if (pastDescendant.kind === "CONTEXT_ARRAY") {
-      const contextArray = pastDescendant.params.contextArray;
-      for (const contextID in contextArray) {
-        contextArray[contextID].unmount();
+    if (pastDescendant.kind === "CHUNK_ARRAY") {
+      const chunkArray = pastDescendant.params.chunkArray;
+      for (const contextID in chunkArray) {
+        chunkArray[contextID].unmount();
       }
     }
 
@@ -370,49 +379,31 @@ const updateDescendants: UpdateDescendantsFunc = ({
       continue;
     }
 
-    const contextArray = descendant;
+    const chunkArray = descendant;
     rs.descendants[descenantID] = {
-      kind: "CONTEXT_ARRAY",
+      kind: "CHUNK_ARRAY",
       params: {
-        contextArray,
+        chunkArray,
         leftNode,
         parentNode, // save original parent, important
         siblingIndex,
       },
     };
 
-    // add sibling to render structure to get mounted later
-
     let currLeftNode = leftNode;
     for (const contextID in descendant) {
-      const chunk = contextArray[contextID];      
-      currLeftNode = chunk.mount(
-        parentNode ?? contextParentNode,
-        currLeftNode
-      );
+      const chunk = chunkArray[contextID];
+      currLeftNode = chunk.mount(parentNode ?? contextParentNode, currLeftNode);
     }
 
-    // new ness
-    //
-    // if (siblingIndex !== undefined) {
-    //   let updatedSiblings = [];    
-    //   for (const contextID in descendant) {
-    //     const chunk = contextArray[contextID];
+    // we could possibly create a new sibling set here
+    // however, its not realy necessary
+    // when a context is mounted
 
-    //     const siblings = chunk.getSiblings();
-    //     for (const siblingID in siblings) {
-    //       updatedSiblings.push(siblings[siblingID]);
-    //     }
-    //   }
-    //   rs.siblings[siblingIndex] = updatedSiblings;
-
-    // }
-    
-
-    if (pastDescendant.kind === "CONTEXT_ARRAY") {
-      const contextArray = pastDescendant.params.contextArray;
-      for (const contextID in contextArray) {
-        const context = contextArray[contextID];
+    if (pastDescendant.kind === "CHUNK_ARRAY") {
+      const chunkArray = pastDescendant.params.chunkArray;
+      for (const contextID in chunkArray) {
+        const context = chunkArray[contextID];
         const effect = context.getEffect();
         if (effect.quality === "UNMOUNTED") {
           context.disconnect();
@@ -437,10 +428,10 @@ const disconnectDescendants: DisconnectDescendants = (hooks, rs) => {
     if (descendant.kind === "TEXT") {
       hooks.removeDescendant(descendant.params.textNode);
     }
-    if (descendant.kind === "CONTEXT_ARRAY") {
-      const contextArray = descendant.params.contextArray;
-      for (const contextID in contextArray) {
-        const context = contextArray[contextID];
+    if (descendant.kind === "CHUNK_ARRAY") {
+      const chunkArray = descendant.params.chunkArray;
+      for (const contextID in chunkArray) {
+        const context = chunkArray[contextID];
         context.unmount();
         context.disconnect();
       }
@@ -448,4 +439,4 @@ const disconnectDescendants: DisconnectDescendants = (hooks, rs) => {
   }
 };
 
-export { Banger, Context };
+export { Banger, Chunk };

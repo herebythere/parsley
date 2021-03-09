@@ -10,18 +10,18 @@ import { ReferenceMap } from "./render.ts";
 
 type EffectQuality = "CONNECTED" | "UNMOUNTED" | "MOUNTED" | "DISCONNECTED";
 
-type ContextEffect = {
+type ChunkEffect = {
   quality: EffectQuality;
   timestamp: number;
 };
 
 interface BangerBase<N> {
-  context: ContextBase<N>;
+  chunk: ChunkBase<N>;
   bang(): void;
   getReferences(): ReferenceMap<N> | undefined;
 }
 
-class ContextBase<N> {
+class ChunkBase<N> {
   // parent node reference
   // left node reference
 
@@ -55,7 +55,7 @@ class ContextBase<N> {
     // return siblings so parent chunk can mount
     return [];
   }
-  getEffect(): ContextEffect {
+  getEffect(): ChunkEffect {
     return {
       quality: "UNMOUNTED",
       timestamp: performance.now(),
@@ -63,15 +63,8 @@ class ContextBase<N> {
   }
 }
 
-type ContextBaseArray<N> = ContextBase<N>[];
+type ChunkBaseArray<N> = ChunkBase<N>[];
 
-export type {
-  BangerBase,
-  ContextBaseArray,
-  ContextEffect,
-  EffectQuality,
-};
+export type { BangerBase, ChunkBaseArray, ChunkEffect, EffectQuality };
 
-export { 
-  ContextBase,
-}
+export { ChunkBase };

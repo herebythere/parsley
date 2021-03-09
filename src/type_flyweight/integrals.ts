@@ -28,15 +28,15 @@ interface TextAction {
   textVector: Vector;
 }
 
-interface ContextInjectionAction {
-  kind: "CONTEXT_INJECTION";
+interface ChunkArrayInjectionAction {
+  kind: "CHUNK_ARRAY_INJECTION";
   injectionID: number;
 }
 
 type IntegralAction =
   | AttributeAction
   | CloseNodeAction
-  | ContextInjectionAction
+  | ChunkArrayInjectionAction
   | ExplicitAttributeAction
   | ImplicitAttributeAction
   | InjectedAttributeAction
@@ -49,7 +49,7 @@ type Integrals = IntegralAction[];
 export type {
   AttributeAction,
   CloseNodeAction,
-  ContextInjectionAction,
+  ChunkArrayInjectionAction,
   ExplicitAttributeAction,
   ImplicitAttributeAction,
   InjectedAttributeAction,

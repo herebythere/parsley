@@ -1,4 +1,4 @@
-class ContextBase {
+class ChunkBase {
     mount(parentNode, leftNode) {
         return;
     }
@@ -67,7 +67,7 @@ const decrement = (template, position)=>{
 };
 const getCharAtPosition = (template, position)=>{
     const templateArray = template.templateArray;
-    return templateArray?.[position.arrayIndex]?.[position.stringIndex];
+    return templateArray[position.arrayIndex]?.[position.stringIndex];
 };
 const DEFAULT_POSITION = {
     arrayIndex: 0,
@@ -495,7 +495,7 @@ const appendContentIntegrals = ({ integrals , template , chunk ,  })=>{
         textVector
     });
     integrals.push({
-        kind: "CONTEXT_INJECTION",
+        kind: "CHUNK_ARRAY_INJECTION",
         injectionID: origin.arrayIndex
     });
     let arrayIndex = origin.arrayIndex + 1;
@@ -516,7 +516,7 @@ const appendContentIntegrals = ({ integrals , template , chunk ,  })=>{
             textVector
         });
         integrals.push({
-            kind: "CONTEXT_INJECTION",
+            kind: "CHUNK_ARRAY_INJECTION",
             injectionID: arrayIndex
         });
         arrayIndex += 1;
@@ -541,7 +541,7 @@ const buildIntegrals = ({ template , skeleton  })=>{
         const origin = chunk.vector.origin;
         if (origin.stringIndex === 0 && origin.arrayIndex !== 0) {
             integrals.push({
-                kind: "CONTEXT_INJECTION",
+                kind: "CHUNK_ARRAY_INJECTION",
                 injectionID: origin.arrayIndex - 1
             });
         }
@@ -835,7 +835,7 @@ const closeNode = ({ hooks , rs , integral  })=>{
         rs.lastNodes.pop();
     }
 };
-const createContextInjection = ({ hooks , rs , integral ,  })=>{
+const createChunkArrayInjection = ({ hooks , rs , integral ,  })=>{
     popSelfClosingNode(rs);
     const parentNode = rs.stack[rs.stack.length - 1]?.node;
     const lastNodeIndex = rs.lastNodes.length - 1;
@@ -891,9 +891,9 @@ const createContextInjection = ({ hooks , rs , integral ,  })=>{
         siblingIndex = rs.siblings.length - 1;
     }
     rs.descendants[integral.injectionID] = {
-        kind: "CONTEXT_ARRAY",
+        kind: "CHUNK_ARRAY",
         params: {
-            contextArray: injection,
+            chunkArray: injection,
             leftNode,
             parentNode,
             siblingIndex
@@ -948,7 +948,7 @@ const appendInjectedAttribute = ({ hooks , rs , integral ,  })=>{
     }
     const { injectionID  } = integral;
     const value = rs.template.injections[injectionID];
-    if (value instanceof ContextBase) {
+    if (value instanceof ChunkBase) {
         return;
     }
     rs.attributes[injectionID] = {
@@ -1011,8 +1011,8 @@ const buildRender = ({ hooks , template , integrals  })=>{
                 integral
             });
         }
-        if (integral.kind === "CONTEXT_INJECTION") {
-            createContextInjection({
+        if (integral.kind === "CHUNK_ARRAY_INJECTION") {
+            createChunkArrayInjection({
                 hooks,
                 rs,
                 integral
@@ -1056,17 +1056,17 @@ const buildRenderStructure = (hooks, template)=>{
     return render;
 };
 class Banger {
-    constructor(context){
-        this.context = context;
+    constructor(chunk){
+        this.chunk = chunk;
     }
     bang() {
-        this.context.bang();
+        this.chunk.bang();
     }
     getReferences() {
-        return this.context.getReferences();
+        return this.chunk.getReferences();
     }
 }
-class Context1 extends ContextBase {
+class Chunk1 extends ChunkBase {
     constructor(baseParams){
         super();
         this.banger = new Banger(this);
@@ -1136,7 +1136,9 @@ class Context1 extends ContextBase {
     }
     disconnect() {
         disconnectDescendants(this.hooks, this.rs);
-        this.chunker.disconnect(this.state);
+        if (this.state !== undefined && this.chunker.disconnect !== undefined) {
+            this.chunker.disconnect(this.state);
+        }
         this.updateEffect("DISCONNECTED");
     }
     getSiblings() {
@@ -1151,7 +1153,6 @@ class Context1 extends ContextBase {
         return this.effect;
     }
     remount(template) {
-        this.unmount();
         this.rs = buildRenderStructure(this.hooks, template);
         this.siblings = getUpdatedSiblings(this.rs);
         this.mount(this.parentNode, this.leftNode);
@@ -1226,10 +1227,10 @@ const updateDescendants = ({ hooks , rs , template: template2 , contextParentNod
                 continue;
             }
         }
-        if (pastDescendant.kind === "CONTEXT_ARRAY") {
-            const contextArray = pastDescendant.params.contextArray;
-            for(const contextID in contextArray){
-                contextArray[contextID].unmount();
+        if (pastDescendant.kind === "CHUNK_ARRAY") {
+            const chunkArray = pastDescendant.params.chunkArray;
+            for(const contextID in chunkArray){
+                chunkArray[contextID].unmount();
             }
         }
         const { leftNode , parentNode , siblingIndex  } = pastDescendant.params;
@@ -1264,11 +1265,11 @@ const updateDescendants = ({ hooks , rs , template: template2 , contextParentNod
             }
             continue;
         }
-        const contextArray = descendant;
+        const chunkArray = descendant;
         rs.descendants[descenantID] = {
-            kind: "CONTEXT_ARRAY",
+            kind: "CHUNK_ARRAY",
             params: {
-                contextArray,
+                chunkArray,
                 leftNode,
                 parentNode,
                 siblingIndex
@@ -1276,16 +1277,16 @@ const updateDescendants = ({ hooks , rs , template: template2 , contextParentNod
         };
         let currLeftNode = leftNode;
         for(const contextID in descendant){
-            const chunk = contextArray[contextID];
-            currLeftNode = chunk.mount(parentNode ?? contextParentNode, currLeftNode);
+            const chunk1 = chunkArray[contextID];
+            currLeftNode = chunk1.mount(parentNode ?? contextParentNode, currLeftNode);
         }
-        if (pastDescendant.kind === "CONTEXT_ARRAY") {
-            const contextArray1 = pastDescendant.params.contextArray;
-            for(const contextID1 in contextArray1){
-                const context1 = contextArray1[contextID1];
-                const effect = context1.getEffect();
+        if (pastDescendant.kind === "CHUNK_ARRAY") {
+            const chunkArray1 = pastDescendant.params.chunkArray;
+            for(const contextID1 in chunkArray1){
+                const context = chunkArray1[contextID1];
+                const effect = context.getEffect();
                 if (effect.quality === "UNMOUNTED") {
-                    context1.disconnect();
+                    context.disconnect();
                 }
             }
         }
@@ -1303,14 +1304,14 @@ const disconnectDescendants = (hooks, rs)=>{
         if (descendant.kind === "TEXT") {
             hooks.removeDescendant(descendant.params.textNode);
         }
-        if (descendant.kind === "CONTEXT_ARRAY") {
-            const contextArray = descendant.params.contextArray;
-            for(const contextID in contextArray){
-                const context1 = contextArray[contextID];
-                context1.unmount();
-                context1.disconnect();
+        if (descendant.kind === "CHUNK_ARRAY") {
+            const chunkArray = descendant.params.chunkArray;
+            for(const contextID in chunkArray){
+                const context = chunkArray[contextID];
+                context.unmount();
+                context.disconnect();
             }
         }
     }
 };
-export { Context1 as Context };
+export { Chunk1 as Chunk };

@@ -1,8 +1,8 @@
 // brian taylor vann
 // tag name crawl
 
-import { Template } from "../../type_flyweight/template.ts";
-import { Vector } from "../../type_flyweight/text_vector.ts";
+import type { Template } from "../../type_flyweight/template.ts";
+import type { Vector } from "../../type_flyweight/text_vector.ts";
 
 import {
   copy,
@@ -49,7 +49,7 @@ const crawlForTagName = <N, A>(
     target: { ...tagVector.origin },
   };
 
-  // walk back a step if successive space found
+  // decrement target if break rune found
   if (BREAK_RUNES[positionChar]) {
     decrementTarget(template, adjustedVector);
   }

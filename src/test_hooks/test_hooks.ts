@@ -2,9 +2,9 @@
 // test hooks
 
 import { Hooks } from "../type_flyweight/hooks.ts";
-import { Render } from "../type_flyweight/render.ts";
+import { Draw } from "../type_flyweight/template.ts";
 import { TestNode } from "./test_element.ts";
-import { Context } from "../chunk/chunk.ts";
+import { Chunk } from "../chunk/chunk.ts";
 
 type TestAttributes = string | number;
 
@@ -17,7 +17,7 @@ const hooks: Hooks<TestNode, TestAttributes> = {
   },
   setAttribute: (params) => {
     const { node, attribute, value } = params;
-    if (value instanceof Context) {
+    if (value instanceof Chunk) {
       return;
     }
 
@@ -27,7 +27,7 @@ const hooks: Hooks<TestNode, TestAttributes> = {
   },
   removeAttribute: (params) => {
     const { node, attribute, value } = params;
-    if (value instanceof Context) {
+    if (value instanceof Chunk) {
       return;
     }
 
@@ -103,10 +103,7 @@ const hooks: Hooks<TestNode, TestAttributes> = {
   },
 };
 
-const render: Render<TestNode, TestAttributes> = (
-  templateArray,
-  ...injections
-) => {
+const draw: Draw<TestNode, TestAttributes> = (templateArray, ...injections) => {
   return {
     injections,
     templateArray,
@@ -115,4 +112,4 @@ const render: Render<TestNode, TestAttributes> = (
 
 export type { TestAttributes };
 
-export { hooks, render };
+export { hooks, draw };

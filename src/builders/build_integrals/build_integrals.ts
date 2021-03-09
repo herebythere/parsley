@@ -1,15 +1,13 @@
 // brian taylor vann
 // build integrals
 
-import { Template } from "../../type_flyweight/template.ts";
-
-import {
+import type { Template } from "../../type_flyweight/template.ts";
+import type {
   SkeletonNodes,
   CrawlResults,
 } from "../../type_flyweight/skeleton_crawl.ts";
-
-import { Integrals } from "../../type_flyweight/integrals.ts";
-import { Vector } from "../../type_flyweight/text_vector.ts";
+import type { Integrals } from "../../type_flyweight/integrals.ts";
+import type { Vector } from "../../type_flyweight/text_vector.ts";
 
 import {
   copy,
@@ -18,7 +16,6 @@ import {
   hasOriginEclipsedTaraget,
   incrementOrigin,
 } from "../../text_vector/text_vector.ts";
-
 import { getCharAtPosition } from "../../text_position/text_position.ts";
 import { crawlForTagName } from "../tag_name_crawl/tag_name_crawl.ts";
 import { crawlForAttribute } from "../attribute_crawl/attribute_crawl.ts";
@@ -259,7 +256,7 @@ const appendContentIntegrals: AppendNodeIntegrals = ({
 
   integrals.push({ kind: "TEXT", textVector });
   integrals.push({
-    kind: "CONTEXT_INJECTION",
+    kind: "CHUNK_ARRAY_INJECTION",
     injectionID: origin.arrayIndex,
   });
 
@@ -280,7 +277,7 @@ const appendContentIntegrals: AppendNodeIntegrals = ({
 
     integrals.push({ kind: "TEXT", textVector });
     integrals.push({
-      kind: "CONTEXT_INJECTION",
+      kind: "CHUNK_ARRAY_INJECTION",
       injectionID: arrayIndex,
     });
 
@@ -310,7 +307,7 @@ const buildIntegrals: BuildIntegrals = ({ template, skeleton }) => {
 
     if (origin.stringIndex === 0 && origin.arrayIndex !== 0) {
       integrals.push({
-        kind: "CONTEXT_INJECTION",
+        kind: "CHUNK_ARRAY_INJECTION",
         injectionID: origin.arrayIndex - 1,
       });
     }

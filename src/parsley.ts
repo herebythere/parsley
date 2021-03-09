@@ -6,11 +6,12 @@
 // P Params
 // S State
 
-import { Hooks } from "./type_flyweight/hooks.ts";
-import { Context } from "./chunk/chunk.ts";
-import { Position, Vector } from "./type_flyweight/text_vector.ts";
-import { Chunker } from "./type_flyweight/chunker.ts";
-import { Render, Template } from "./type_flyweight/template.ts";
+import type { Hooks } from "./type_flyweight/hooks.ts";
+import { Chunk } from "./chunk/chunk.ts";
+import type { Position, Vector } from "./type_flyweight/text_vector.ts";
+import type { Chunker } from "./type_flyweight/chunker.ts";
+import type { BangerBase, ChunkBaseArray } from "./type_flyweight/chunk.ts";
+import type { Draw, Template } from "./type_flyweight/template.ts";
 
-export type {Chunker, Hooks, Position, Render, Template, Vector}
-export { Context,  };
+export type {Chunker, BangerBase, ChunkBaseArray, Hooks, Position, Draw, Template, Vector}
+export { Chunk };

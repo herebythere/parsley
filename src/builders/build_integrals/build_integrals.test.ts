@@ -3,7 +3,9 @@
 
 // we need an injection test or two
 
-import { samestuff } from "https://github.com/taylor-vann/jackrabbit/blob/main/src/samestuff/samestuff.ts";
+// @ts-ignore remote file
+import { samestuff } from "https://raw.githubusercontent.com/taylor-vann/jackrabbit/main/src/samestuff/samestuff.ts";
+
 import { BuildIntegralsParams } from "./build_integrals.ts";
 import { buildSkeleton } from "../build_skeleton/build_skeleton.ts";
 import { buildIntegrals } from "./build_integrals.ts";
@@ -432,7 +434,7 @@ const testFindContentWithInjection = () => {
       },
     },
     {
-      kind: "CONTEXT_INJECTION",
+      kind: "CHUNK_ARRAY_INJECTION",
       injectionID: 0,
     },
     {
@@ -478,7 +480,7 @@ const testFindContentWithInitialMultipleInjections = () => {
       },
     },
     {
-      kind: "CONTEXT_INJECTION",
+      kind: "CHUNK_ARRAY_INJECTION",
       injectionID: 0,
     },
     {
@@ -495,7 +497,7 @@ const testFindContentWithInitialMultipleInjections = () => {
       },
     },
     {
-      kind: "CONTEXT_INJECTION",
+      kind: "CHUNK_ARRAY_INJECTION",
       injectionID: 1,
     },
     {
@@ -528,7 +530,7 @@ const testFindContentWithEdgeCaseInjections = () => {
 
   const expectedResults: Integrals = [
     {
-      kind: "CONTEXT_INJECTION",
+      kind: "CHUNK_ARRAY_INJECTION",
       injectionID: 0,
     },
     {
@@ -558,7 +560,7 @@ const testFindContentWithEdgeCaseInjections = () => {
       },
     },
     {
-      kind: "CONTEXT_INJECTION",
+      kind: "CHUNK_ARRAY_INJECTION",
       injectionID: 1,
     },
     {
@@ -696,7 +698,7 @@ const testSimpleInjectionNodes = () => {
       },
     },
     {
-      kind: "CONTEXT_INJECTION",
+      kind: "CHUNK_ARRAY_INJECTION",
       injectionID: 0,
     },
     {

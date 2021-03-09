@@ -1,8 +1,8 @@
 // brian taylor vann
-// context
+// chunk
 
-import { Context } from "./chunk.ts";
-import { hooks, render, TestAttributes } from "../test_hooks/test_hooks.ts";
+import { Chunk } from "./chunk.ts";
+import { hooks, draw, TestAttributes } from "../test_hooks/test_hooks.ts";
 import { Chunker } from "../type_flyweight/chunker.ts";
 import { TestNode } from "../test_hooks/test_element.ts";
 
@@ -16,7 +16,7 @@ const runTestsAsynchronously = true;
 
 const numberChunker: Chunker<TestNode, TestAttributes, number, void> = {
   update: ({ params }) => {
-    return render`${params}`;
+    return draw`${params}`;
   },
   connect: () => {},
   disconnect: () => {},
@@ -26,7 +26,7 @@ const createSimpleContext = () => {
   const assertions = [];
 
   const params = 5;
-  const context = new Context({ hooks, params, chunker: numberChunker });
+  const context = new Chunk({ hooks, params, chunker: numberChunker });
   const siblings = context.getSiblings();
 
   if (siblings.length !== 3) {
@@ -52,7 +52,7 @@ const mountAndUnmountSimpleComponent = () => {
   const assertions = [];
 
   const params = 5;
-  const context = new Context({ hooks, params, chunker: numberChunker });
+  const context = new Chunk({ hooks, params, chunker: numberChunker });
 
   const parentNode = hooks.createNode("div");
   let siblings = context.getSiblings();
@@ -105,7 +105,7 @@ const updateContextSimpleContext = () => {
   // we want siblings to update
 
   const params = 5;
-  const context = new Context({ hooks, params, chunker: numberChunker });
+  const context = new Chunk({ hooks, params, chunker: numberChunker });
 
   const parentNode = hooks.createNode("div");
   context.mount(parentNode);
@@ -157,17 +157,17 @@ const createAndUpdateDescendantContextArray = () => {
 
   const params = 5;
 
-  const numberContext = new Context({ hooks, params, chunker: numberChunker });
+  const numberContext = new Chunk({ hooks, params, chunker: numberChunker });
   const parentChunker: Chunker<TestNode, TestAttributes, number, void> = {
     update: ({ params, state }) => {
       numberContext.update(params);
-      return render`<p>${[numberContext]}</p>`;
+      return draw`<p>${[numberContext]}</p>`;
     },
     connect: () => {},
     disconnect: () => {},
   };
 
-  const parentContext = new Context({ hooks, params, chunker: parentChunker });
+  const parentContext = new Chunk({ hooks, params, chunker: parentChunker });
 
   let siblings = parentContext.getSiblings();
 
@@ -215,17 +215,17 @@ const createAndUpdateDescendantSiblingContextArray = () => {
 
   const params = 5;
 
-  const numberContext = new Context({ hooks, params, chunker: numberChunker });
+  const numberContext = new Chunk({ hooks, params, chunker: numberChunker });
   const parentChunker: Chunker<TestNode, TestAttributes, number, void> = {
     update: ({ params, state }) => {
       numberContext.update(params);
-      return render`${[numberContext]}`;
+      return draw`${[numberContext]}`;
     },
     connect: () => {},
     disconnect: () => {},
   };
 
-  const parentContext = new Context({ hooks, params, chunker: parentChunker });
+  const parentContext = new Chunk({ hooks, params, chunker: parentChunker });
 
   const siblings = parentContext.getSiblings();
 
@@ -262,8 +262,8 @@ const createAndUpdateMultipleDescendants = () => {
 
   const params = 5;
 
-  const numberContext = new Context({ hooks, params, chunker: numberChunker });
-  const otherNumberContext = new Context({
+  const numberContext = new Chunk({ hooks, params, chunker: numberChunker });
+  const otherNumberContext = new Chunk({
     hooks,
     params,
     chunker: numberChunker,
@@ -272,13 +272,13 @@ const createAndUpdateMultipleDescendants = () => {
   const parentChunker: Chunker<TestNode, TestAttributes, number, void> = {
     update: ({ params }) => {
       numberContext.update(params);
-      return render`${[numberContext, otherNumberContext]}`;
+      return draw`${[numberContext, otherNumberContext]}`;
     },
     connect: () => {},
     disconnect: () => {},
   };
 
-  const parentContext = new Context({ hooks, params, chunker: parentChunker });
+  const parentContext = new Chunk({ hooks, params, chunker: parentChunker });
 
   const siblings = parentContext.getSiblings();
 
