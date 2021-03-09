@@ -116,7 +116,7 @@ const hasOriginEclipsedTaraget: HasOriginEclipsedTaraget = (vector) => {
 };
 
 const getText: GetTextFromVector = (template, vector) => {
-  // edge case, only one array length
+  // array length of one
   if (vector.target.arrayIndex === vector.origin.arrayIndex) {
     const distance = vector.target.stringIndex - vector.origin.stringIndex + 1;
     const templateText = template.templateArray[vector.origin.arrayIndex];
@@ -124,10 +124,10 @@ const getText: GetTextFromVector = (template, vector) => {
     return copiedText;
   }
 
-  // otherwise, stack and arrayy
+  // otherwise, stack beginning, middle, and tail
   const texts: string[] = [];
 
-  // get head text
+  // get beginning text
   let templateText = template.templateArray[vector.origin.arrayIndex];
   if (templateText === undefined) {
     return;
@@ -137,7 +137,7 @@ const getText: GetTextFromVector = (template, vector) => {
   let copiedText = templateText.substr(templateTextIndex, distance);
   texts.push(copiedText);
 
-  // get in between
+  // get middle
   let tail = vector.origin.arrayIndex + 1;
   while (tail < vector.target.arrayIndex) {
     texts.push(template.templateArray[tail]);

@@ -1,6 +1,4 @@
-// brian taylor vann
-// samestuff
-const samestuff$1 = (source, comparator) => {
+const samestuff = (source, comparator)=>{
     if (source === null || comparator === null) {
         return source === comparator;
     }
@@ -19,53 +17,48 @@ const samestuff$1 = (source, comparator) => {
     if (isSourceArray !== isComparatorArray) {
         return source === comparator;
     }
-    // compare source to comparator
     if (source instanceof Object && comparator instanceof Object) {
-        for (const sourceKey in source) {
-            // this is not ideal
+        for(const sourceKey in source){
             const typedSourceKey = sourceKey;
             const nextSource = source[typedSourceKey];
             const nextComparator = comparator[typedSourceKey];
-            if (!samestuff$1(nextSource, nextComparator)) {
+            if (!samestuff(nextSource, nextComparator)) {
                 return false;
             }
         }
-        // compare comparator to source
-        for (const comparatorKey in comparator) {
-            // this is not ideal
+        for(const comparatorKey in comparator){
             const typedComparatorKey = comparatorKey;
             const nextComparator = comparator[typedComparatorKey];
             const nextSource = source[typedComparatorKey];
-            if (!samestuff$1(nextComparator, nextSource)) {
+            if (!samestuff(nextComparator, nextSource)) {
                 return false;
             }
         }
     }
     return true;
 };
-
-// brian taylor vann
-// text position
-const DEFAULT_POSITION$1 = {
+const DEFAULT_POSITION = {
     arrayIndex: 0,
-    stringIndex: 0,
+    stringIndex: 0
 };
-const create$1 = (position = DEFAULT_POSITION$1) => (Object.assign({}, position));
-const copy$1 = (position) => {
-    return Object.assign({}, position);
+const create = (position = DEFAULT_POSITION)=>({
+        ...position
+    })
+;
+const copy1 = (position)=>{
+    return {
+        ...position
+    };
 };
-const increment = (template, position) => {
+const increment = (template, position)=>{
     const chunk = template.templateArray[position.arrayIndex];
     if (chunk === undefined) {
         return;
     }
-    // template boundaries
     const templateLength = template.templateArray.length - 1;
-    if (position.arrayIndex >= templateLength &&
-        position.stringIndex >= chunk.length - 1) {
+    if (position.arrayIndex >= templateLength && position.stringIndex >= chunk.length - 1) {
         return;
     }
-    // cannot % modulo by 0
     if (chunk.length > 0) {
         position.stringIndex += 1;
         position.stringIndex %= chunk.length;
@@ -75,91 +68,104 @@ const increment = (template, position) => {
     }
     return position;
 };
-const decrement = (template, position) => {
+const decrement = (template, position)=>{
     const chunk = template.templateArray[position.arrayIndex];
     if (chunk === undefined) {
         return;
     }
-    // template boundaries
     if (position.arrayIndex <= 0 && position.stringIndex <= 0) {
         return;
     }
     position.stringIndex -= 1;
     if (position.arrayIndex > 0 && position.stringIndex < 0) {
         position.arrayIndex -= 1;
-        const chunk = template.templateArray[position.arrayIndex];
-        position.stringIndex = chunk.length - 1;
-        // undefined case akin to divide by zero
-        if (chunk === "") {
-            position.stringIndex = chunk.length;
+        const chunk1 = template.templateArray[position.arrayIndex];
+        position.stringIndex = chunk1.length - 1;
+        if (chunk1 === "") {
+            position.stringIndex = chunk1.length;
         }
     }
     return position;
 };
-const getCharAtPosition = (template, position) => {
-    var _a;
+const getCharAtPosition = (template, position)=>{
     const templateArray = template.templateArray;
-    return (_a = templateArray === null || templateArray === void 0 ? void 0 : templateArray[position.arrayIndex]) === null || _a === void 0 ? void 0 : _a[position.stringIndex];
+    return templateArray[position.arrayIndex]?.[position.stringIndex];
 };
-
-// brian taylor vann
-const DEFAULT_POSITION = {
+const DEFAULT_POSITION1 = {
     arrayIndex: 0,
-    stringIndex: 0,
+    stringIndex: 0
 };
-const create = (position = DEFAULT_POSITION) => ({
-    origin: Object.assign({}, position),
-    target: Object.assign({}, position),
-});
-const createFollowingVector = (template, vector) => {
-    const followingVector = copy(vector);
+const create1 = (position = DEFAULT_POSITION1)=>({
+        origin: {
+            ...position
+        },
+        target: {
+            ...position
+        }
+    })
+;
+const createFollowingVector = (template, vector)=>{
+    const followingVector = copy2(vector);
     if (increment(template, followingVector.target)) {
-        followingVector.origin = copy$1(followingVector.target);
+        followingVector.origin = copy1(followingVector.target);
         return followingVector;
     }
 };
-const copy = (vector) => {
+const copy2 = (vector)=>{
     return {
-        origin: copy$1(vector.origin),
-        target: copy$1(vector.target),
+        origin: copy1(vector.origin),
+        target: copy1(vector.target)
     };
 };
-const incrementOrigin = (template, vector) => {
+const incrementOrigin = (template, vector)=>{
     if (increment(template, vector.origin)) {
         return vector;
     }
     return;
 };
-const incrementTarget = (template, vector) => {
+const decrementOrigin = (template, vector)=>{
+    if (decrement(template, vector.origin)) {
+        return vector;
+    }
+    return;
+};
+const incrementTarget = (template, vector)=>{
     if (increment(template, vector.target)) {
         return vector;
     }
     return;
 };
-const decrementTarget = (template, vector) => {
+const decrementTarget = (template, vector)=>{
     if (decrement(template, vector.target)) {
         return vector;
     }
     return;
 };
-const hasOriginEclipsedTaraget = (vector) => {
-    if (vector.origin.arrayIndex >= vector.target.arrayIndex &&
-        vector.origin.stringIndex >= vector.target.stringIndex) {
+const getTextFromTarget = (template, vector)=>{
+    const templateArray = template.templateArray;
+    const { arrayIndex , stringIndex  } = vector.target;
+    if (arrayIndex > templateArray.length - 1) {
+        return;
+    }
+    if (stringIndex > templateArray[arrayIndex].length - 1) {
+        return;
+    }
+    return templateArray[arrayIndex][stringIndex];
+};
+const hasOriginEclipsedTaraget = (vector)=>{
+    if (vector.origin.arrayIndex >= vector.target.arrayIndex && vector.origin.stringIndex >= vector.target.stringIndex) {
         return true;
     }
     return false;
 };
-const getText = (template, vector) => {
-    // edge case, only one array length
+const getText = (template, vector)=>{
     if (vector.target.arrayIndex === vector.origin.arrayIndex) {
         const distance = vector.target.stringIndex - vector.origin.stringIndex + 1;
         const templateText = template.templateArray[vector.origin.arrayIndex];
         const copiedText = templateText.substr(vector.origin.stringIndex, distance);
         return copiedText;
     }
-    // otherwise, stack and arrayy
     const texts = [];
-    // get head text
     let templateText = template.templateArray[vector.origin.arrayIndex];
     if (templateText === undefined) {
         return;
@@ -168,13 +174,11 @@ const getText = (template, vector) => {
     let distance = templateText.length - templateTextIndex;
     let copiedText = templateText.substr(templateTextIndex, distance);
     texts.push(copiedText);
-    // get in between
     let tail = vector.origin.arrayIndex + 1;
-    while (tail < vector.target.arrayIndex) {
+    while(tail < vector.target.arrayIndex){
         texts.push(template.templateArray[tail]);
         tail += 1;
     }
-    // get tail text
     templateText = template.templateArray[vector.target.arrayIndex];
     if (templateText === undefined) {
         return;
@@ -184,8 +188,6 @@ const getText = (template, vector) => {
     texts.push(copiedText);
     return texts.join("");
 };
-
-// brian taylor vann
 const QUOTE_RUNE = '"';
 const ASSIGN_RUNE = "=";
 const ATTRIBUTE_FOUND = "ATTRIBUTE_FOUND";
@@ -193,19 +195,18 @@ const ATTRIBUTE_ASSIGNMENT = "ATTRIBUTE_ASSIGNMENT";
 const IMPLICIT_ATTRIBUTE = "IMPLICIT_ATTRIBUTE";
 const EXPLICIT_ATTRIBUTE = "EXPLICIT_ATTRIBUTE";
 const INJECTED_ATTRIBUTE = "INJECTED_ATTRIBUTE";
-const BREAK_RUNES$1 = {
+const BREAK_RUNES = {
     " ": true,
-    "\n": true,
+    "\n": true
 };
-const getAttributeName = (template, vectorBounds) => {
+const getAttributeName = (template, vectorBounds)=>{
     let positionChar = getCharAtPosition(template, vectorBounds.origin);
-    if (positionChar === undefined || BREAK_RUNES$1[positionChar]) {
+    if (positionChar === undefined || BREAK_RUNES[positionChar]) {
         return;
     }
     let tagNameCrawlState = ATTRIBUTE_FOUND;
-    const bounds = copy(vectorBounds);
-    while (tagNameCrawlState === ATTRIBUTE_FOUND &&
-        !hasOriginEclipsedTaraget(bounds)) {
+    const bounds = copy2(vectorBounds);
+    while(tagNameCrawlState === ATTRIBUTE_FOUND && !hasOriginEclipsedTaraget(bounds)){
         if (incrementOrigin(template, bounds) === undefined) {
             return;
         }
@@ -214,33 +215,34 @@ const getAttributeName = (template, vectorBounds) => {
             return;
         }
         tagNameCrawlState = ATTRIBUTE_FOUND;
-        if (BREAK_RUNES$1[positionChar]) {
+        if (BREAK_RUNES[positionChar]) {
             tagNameCrawlState = IMPLICIT_ATTRIBUTE;
         }
         if (positionChar === ASSIGN_RUNE) {
             tagNameCrawlState = ATTRIBUTE_ASSIGNMENT;
         }
     }
-    // we have found a tag, copy vector
     const attributeVector = {
-        origin: Object.assign({}, vectorBounds.origin),
-        target: Object.assign({}, bounds.origin),
+        origin: {
+            ...vectorBounds.origin
+        },
+        target: {
+            ...bounds.origin
+        }
     };
-    // edge case, we've found text but no break runes
     if (tagNameCrawlState === ATTRIBUTE_FOUND) {
         return {
             kind: IMPLICIT_ATTRIBUTE,
-            attributeVector,
+            attributeVector
         };
     }
-    // if implict attribute
     if (tagNameCrawlState === IMPLICIT_ATTRIBUTE) {
-        if (BREAK_RUNES$1[positionChar]) {
+        if (BREAK_RUNES[positionChar]) {
             decrementTarget(template, attributeVector);
         }
         return {
             kind: IMPLICIT_ATTRIBUTE,
-            attributeVector,
+            attributeVector
         };
     }
     if (tagNameCrawlState === ATTRIBUTE_ASSIGNMENT) {
@@ -248,17 +250,16 @@ const getAttributeName = (template, vectorBounds) => {
         return {
             kind: EXPLICIT_ATTRIBUTE,
             valueVector: attributeVector,
-            attributeVector,
+            attributeVector
         };
     }
 };
-const getAttributeValue = (template, vectorBounds, attributeAction) => {
+const getAttributeValue = (template, vectorBounds, attributeAction)=>{
     let positionChar = getCharAtPosition(template, vectorBounds.origin);
     if (positionChar !== ASSIGN_RUNE) {
         return;
     }
-    // this could use some rewritting
-    const bound = copy(vectorBounds);
+    const bound = copy2(vectorBounds);
     incrementOrigin(template, bound);
     if (hasOriginEclipsedTaraget(bound)) {
         return;
@@ -267,10 +268,8 @@ const getAttributeValue = (template, vectorBounds, attributeAction) => {
     if (positionChar !== QUOTE_RUNE) {
         return;
     }
-    // we have an attribute!
-    const { arrayIndex } = bound.origin;
-    const valVector = copy(bound);
-    // check for injected attribute
+    const { arrayIndex  } = bound.origin;
+    const valVector = copy2(bound);
     if (incrementOrigin(template, valVector) === undefined) {
         return;
     }
@@ -278,7 +277,6 @@ const getAttributeValue = (template, vectorBounds, attributeAction) => {
     if (positionChar === undefined) {
         return;
     }
-    // check if there is a valid injection
     const arrayIndexDistance = Math.abs(arrayIndex - valVector.origin.arrayIndex);
     if (arrayIndexDistance === 1 && positionChar === QUOTE_RUNE) {
         return {
@@ -286,17 +284,19 @@ const getAttributeValue = (template, vectorBounds, attributeAction) => {
             injectionID: arrayIndex,
             attributeVector: attributeAction.attributeVector,
             valueVector: {
-                origin: Object.assign({}, bound.origin),
-                target: Object.assign({}, valVector.origin),
-            },
+                origin: {
+                    ...bound.origin
+                },
+                target: {
+                    ...valVector.origin
+                }
+            }
         };
     }
-    // explore potential for explicit attribute
-    while (positionChar !== QUOTE_RUNE && !hasOriginEclipsedTaraget(valVector)) {
+    while(positionChar !== QUOTE_RUNE && !hasOriginEclipsedTaraget(valVector)){
         if (incrementOrigin(template, valVector) === undefined) {
             return;
         }
-        // return if unexpected injection found
         if (arrayIndex < valVector.origin.arrayIndex) {
             return;
         }
@@ -305,18 +305,19 @@ const getAttributeValue = (template, vectorBounds, attributeAction) => {
             return;
         }
     }
-    // exlpicit attribute found
-    if (attributeAction.kind === "EXPLICIT_ATTRIBUTE" &&
-        positionChar === QUOTE_RUNE) {
+    if (attributeAction.kind === "EXPLICIT_ATTRIBUTE" && positionChar === QUOTE_RUNE) {
         attributeAction.valueVector = {
-            origin: Object.assign({}, bound.origin),
-            target: Object.assign({}, valVector.origin),
+            origin: {
+                ...bound.origin
+            },
+            target: {
+                ...valVector.origin
+            }
         };
         return attributeAction;
     }
 };
-const crawlForAttribute = (template, vectorBounds) => {
-    // get first character of attribute or return
+const crawlForAttribute = (template, vectorBounds)=>{
     const attrResults = getAttributeName(template, vectorBounds);
     if (attrResults === undefined) {
         return;
@@ -324,36 +325,36 @@ const crawlForAttribute = (template, vectorBounds) => {
     if (attrResults.kind === "IMPLICIT_ATTRIBUTE") {
         return attrResults;
     }
-    // get bounds for attribute value
-    const valBounds = copy(vectorBounds);
-    valBounds.origin = Object.assign({}, attrResults.attributeVector.target);
+    const valBounds = copy2(vectorBounds);
+    valBounds.origin = {
+        ...attrResults.attributeVector.target
+    };
     incrementOrigin(template, valBounds);
     return getAttributeValue(template, valBounds, attrResults);
 };
-
-// brian taylor vann
-const RECURSION_SAFETY$2 = 256;
-const title$a = "attribute_crawl";
-const runTestsAsynchronously$a = true;
-const testTextInterpolator$7 = (templateArray, ...injections) => {
-    return { templateArray, injections };
+const title = "attribute_crawl";
+const testTextInterpolator = (templateArray, ...injections)=>{
+    return {
+        templateArray,
+        injections
+    };
 };
-const emptyString = () => {
+const emptyString = ()=>{
     const assertions = [];
-    const template = testTextInterpolator$7 ``;
-    const vector = create();
+    const template = testTextInterpolator``;
+    const vector = create1();
     const results = crawlForAttribute(template, vector);
     if (results !== undefined) {
         assertions.push("this should have failed");
     }
     return assertions;
 };
-const emptySpaceString = () => {
+const emptySpaceString = ()=>{
     const assertions = [];
-    const template = testTextInterpolator$7 ` `;
-    const vector = create();
+    const template = testTextInterpolator` `;
+    const vector = create1();
     let safety = 0;
-    while (incrementTarget(template, vector) && safety < RECURSION_SAFETY$2) {
+    while(incrementTarget(template, vector) && safety < 256){
         safety += 1;
     }
     const results = crawlForAttribute(template, vector);
@@ -362,12 +363,12 @@ const emptySpaceString = () => {
     }
     return assertions;
 };
-const emptyMultiSpaceString = () => {
+const emptyMultiSpaceString = ()=>{
     const assertions = [];
-    const template = testTextInterpolator$7 `   `;
-    const vector = create();
+    const template = testTextInterpolator`   `;
+    const vector = create1();
     let safety = 0;
-    while (incrementTarget(template, vector) && safety < RECURSION_SAFETY$2) {
+    while(incrementTarget(template, vector) && safety < 256){
         safety += 1;
     }
     const results = crawlForAttribute(template, vector);
@@ -376,66 +377,66 @@ const emptyMultiSpaceString = () => {
     }
     return assertions;
 };
-const implicitString = () => {
+const implicitString = ()=>{
     const assertions = [];
     const expectedResults = {
         kind: "IMPLICIT_ATTRIBUTE",
         attributeVector: {
             origin: {
                 arrayIndex: 0,
-                stringIndex: 0,
+                stringIndex: 0
             },
             target: {
                 arrayIndex: 0,
-                stringIndex: 6,
-            },
-        },
+                stringIndex: 6
+            }
+        }
     };
-    const template = testTextInterpolator$7 `checked`;
-    const vector = create();
+    const template = testTextInterpolator`checked`;
+    const vector = create1();
     let safety = 0;
-    while (incrementTarget(template, vector) && safety < RECURSION_SAFETY$2) {
+    while(incrementTarget(template, vector) && safety < 256){
         safety += 1;
     }
     const results = crawlForAttribute(template, vector);
-    if (!samestuff$1(expectedResults, results)) {
+    if (!samestuff(expectedResults, results)) {
         assertions.push("unexpected results found.");
     }
     return assertions;
 };
-const implicitStringWithTrailingSpaces = () => {
+const implicitStringWithTrailingSpaces = ()=>{
     const assertions = [];
     const expectedResults = {
         kind: "IMPLICIT_ATTRIBUTE",
         attributeVector: {
             origin: {
                 arrayIndex: 0,
-                stringIndex: 0,
+                stringIndex: 0
             },
             target: {
                 arrayIndex: 0,
-                stringIndex: 6,
-            },
-        },
+                stringIndex: 6
+            }
+        }
     };
-    const template = testTextInterpolator$7 `checked    `;
-    const vector = create();
+    const template = testTextInterpolator`checked    `;
+    const vector = create1();
     let safety = 0;
-    while (incrementTarget(template, vector) && safety < RECURSION_SAFETY$2) {
+    while(incrementTarget(template, vector) && safety < 256){
         safety += 1;
     }
     const results = crawlForAttribute(template, vector);
-    if (!samestuff$1(expectedResults, results)) {
+    if (!samestuff(expectedResults, results)) {
         assertions.push("unexpected results found.");
     }
     return assertions;
 };
-const malformedExplicitString = () => {
+const malformedExplicitString = ()=>{
     const assertions = [];
-    const template = testTextInterpolator$7 `checked=`;
-    const vector = create();
+    const template = testTextInterpolator`checked=`;
+    const vector = create1();
     let safety = 0;
-    while (incrementTarget(template, vector) && safety < RECURSION_SAFETY$2) {
+    while(incrementTarget(template, vector) && safety < 256){
         safety += 1;
     }
     const results = crawlForAttribute(template, vector);
@@ -444,12 +445,12 @@ const malformedExplicitString = () => {
     }
     return assertions;
 };
-const almostExplicitString = () => {
+const almostExplicitString = ()=>{
     const assertions = [];
-    const template = testTextInterpolator$7 `checked="`;
-    const vector = create();
+    const template = testTextInterpolator`checked="`;
+    const vector = create1();
     let safety = 0;
-    while (incrementTarget(template, vector) && safety < RECURSION_SAFETY$2) {
+    while(incrementTarget(template, vector) && safety < 256){
         safety += 1;
     }
     const results = crawlForAttribute(template, vector);
@@ -458,151 +459,151 @@ const almostExplicitString = () => {
     }
     return assertions;
 };
-const emptyExplicitString = () => {
+const emptyExplicitString = ()=>{
     const assertions = [];
     const expectedResults = {
         kind: "EXPLICIT_ATTRIBUTE",
         attributeVector: {
             origin: {
                 arrayIndex: 0,
-                stringIndex: 0,
+                stringIndex: 0
             },
             target: {
                 arrayIndex: 0,
-                stringIndex: 6,
-            },
+                stringIndex: 6
+            }
         },
         valueVector: {
             origin: {
                 arrayIndex: 0,
-                stringIndex: 8,
+                stringIndex: 8
             },
             target: {
                 arrayIndex: 0,
-                stringIndex: 9,
-            },
-        },
+                stringIndex: 9
+            }
+        }
     };
-    const template = testTextInterpolator$7 `checked=""`;
-    const vector = create();
+    const template = testTextInterpolator`checked=""`;
+    const vector = create1();
     let safety = 0;
-    while (incrementTarget(template, vector) && safety < RECURSION_SAFETY$2) {
+    while(incrementTarget(template, vector) && safety < 256){
         safety += 1;
     }
     const results = crawlForAttribute(template, vector);
-    if (!samestuff$1(expectedResults, results)) {
+    if (!samestuff(expectedResults, results)) {
         assertions.push("unexpected results found.");
     }
     return assertions;
 };
-const validExplicitString = () => {
+const validExplicitString = ()=>{
     const assertions = [];
     const expectedResults = {
         kind: "EXPLICIT_ATTRIBUTE",
         attributeVector: {
             origin: {
                 arrayIndex: 0,
-                stringIndex: 0,
+                stringIndex: 0
             },
             target: {
                 arrayIndex: 0,
-                stringIndex: 6,
-            },
+                stringIndex: 6
+            }
         },
         valueVector: {
             origin: {
                 arrayIndex: 0,
-                stringIndex: 8,
+                stringIndex: 8
             },
             target: {
                 arrayIndex: 0,
-                stringIndex: 16,
-            },
-        },
+                stringIndex: 16
+            }
+        }
     };
-    const template = testTextInterpolator$7 `checked="checked"`;
-    const vector = create();
+    const template = testTextInterpolator`checked="checked"`;
+    const vector = create1();
     let safety = 0;
-    while (incrementTarget(template, vector) && safety < RECURSION_SAFETY$2) {
+    while(incrementTarget(template, vector) && safety < 256){
         safety += 1;
     }
     const results = crawlForAttribute(template, vector);
-    if (!samestuff$1(expectedResults, results)) {
+    if (!samestuff(expectedResults, results)) {
         assertions.push("unexpected results found.");
     }
     return assertions;
 };
-const validExplicitStringWithTrailingSpaces = () => {
+const validExplicitStringWithTrailingSpaces = ()=>{
     const assertions = [];
     const expectedResults = {
         kind: "EXPLICIT_ATTRIBUTE",
         attributeVector: {
             origin: {
                 arrayIndex: 0,
-                stringIndex: 0,
+                stringIndex: 0
             },
             target: {
                 arrayIndex: 0,
-                stringIndex: 6,
-            },
+                stringIndex: 6
+            }
         },
         valueVector: {
             origin: {
                 arrayIndex: 0,
-                stringIndex: 8,
+                stringIndex: 8
             },
             target: {
                 arrayIndex: 0,
-                stringIndex: 19,
-            },
-        },
+                stringIndex: 19
+            }
+        }
     };
-    const template = testTextInterpolator$7 `checked="checked   "`;
-    const vector = create();
+    const template = testTextInterpolator`checked="checked   "`;
+    const vector = create1();
     let safety = 0;
-    while (incrementTarget(template, vector) && safety < RECURSION_SAFETY$2) {
+    while(incrementTarget(template, vector) && safety < 256){
         safety += 1;
     }
     const results = crawlForAttribute(template, vector);
-    if (!samestuff$1(expectedResults, results)) {
+    if (!samestuff(expectedResults, results)) {
         assertions.push("unexpected results found.");
     }
     return assertions;
 };
-const injectedString = () => {
+const injectedString = ()=>{
     const assertions = [];
     const expectedResults = {
         kind: "INJECTED_ATTRIBUTE",
         attributeVector: {
             origin: {
                 arrayIndex: 0,
-                stringIndex: 0,
+                stringIndex: 0
             },
             target: {
                 arrayIndex: 0,
-                stringIndex: 6,
-            },
+                stringIndex: 6
+            }
         },
         valueVector: {
             origin: {
                 arrayIndex: 0,
-                stringIndex: 8,
+                stringIndex: 8
             },
             target: {
                 arrayIndex: 1,
-                stringIndex: 0,
-            },
+                stringIndex: 0
+            }
         },
-        injectionID: 0,
+        injectionID: 0
     };
-    const template = testTextInterpolator$7 `checked="${"hello"}"`;
-    const vector = create();
+    const template = testTextInterpolator`checked="${"hello"}"`;
+    const vector = create1();
     let safety = 0;
-    while (incrementTarget(template, vector) && safety < RECURSION_SAFETY$2) {
+    while(incrementTarget(template, vector) && safety < 256){
         safety += 1;
     }
     const results = crawlForAttribute(template, vector);
-    if (!samestuff$1(expectedResults, results)) {
+    if (!samestuff(expectedResults, results)) {
         assertions.push("unexpected results found.");
     }
     if (results === undefined) {
@@ -610,12 +611,12 @@ const injectedString = () => {
     }
     return assertions;
 };
-const malformedInjectedString = () => {
+const malformedInjectedString = ()=>{
     const assertions = [];
-    const template = testTextInterpolator$7 `checked="${"hello"}`;
-    const vector = create();
+    const template = testTextInterpolator`checked="${"hello"}`;
+    const vector = create1();
     let safety = 0;
-    while (incrementTarget(template, vector) && safety < RECURSION_SAFETY$2) {
+    while(incrementTarget(template, vector) && safety < 256){
         safety += 1;
     }
     const results = crawlForAttribute(template, vector);
@@ -624,12 +625,12 @@ const malformedInjectedString = () => {
     }
     return assertions;
 };
-const malformedInjectedStringWithTrailingSpaces = () => {
+const malformedInjectedStringWithTrailingSpaces = ()=>{
     const assertions = [];
-    const template = testTextInterpolator$7 `checked="${"hello"} "`;
-    const vector = create();
+    const template = testTextInterpolator`checked="${"hello"} "`;
+    const vector = create1();
     let safety = 0;
-    while (incrementTarget(template, vector) && safety < RECURSION_SAFETY$2) {
+    while(incrementTarget(template, vector) && safety < 256){
         safety += 1;
     }
     const results = crawlForAttribute(template, vector);
@@ -638,12 +639,12 @@ const malformedInjectedStringWithTrailingSpaces = () => {
     }
     return assertions;
 };
-const malformedInjectedStringWithStartingSpaces = () => {
+const malformedInjectedStringWithStartingSpaces = ()=>{
     const assertions = [];
-    const template = testTextInterpolator$7 `checked=" ${"hello"}"`;
-    const vector = create();
+    const template = testTextInterpolator`checked=" ${"hello"}"`;
+    const vector = create1();
     let safety = 0;
-    while (incrementTarget(template, vector) && safety < RECURSION_SAFETY$2) {
+    while(incrementTarget(template, vector) && safety < 256){
         safety += 1;
     }
     const results = crawlForAttribute(template, vector);
@@ -652,7 +653,7 @@ const malformedInjectedStringWithStartingSpaces = () => {
     }
     return assertions;
 };
-const tests$b = [
+const tests12 = [
     emptyString,
     emptySpaceString,
     emptyMultiSpaceString,
@@ -666,71 +667,66 @@ const tests$b = [
     injectedString,
     malformedInjectedString,
     malformedInjectedStringWithTrailingSpaces,
-    malformedInjectedStringWithStartingSpaces,
+    malformedInjectedStringWithStartingSpaces, 
 ];
 const unitTestAttributeCrawl = {
-    title: title$a,
-    tests: tests$b,
-    runTestsAsynchronously: runTestsAsynchronously$a,
+    title,
+    tests: tests12,
+    runTestsAsynchronously: true
 };
-
-// brian taylor vann
-// skeleton routers
 const routers = {
     CONTENT_NODE: {
         "<": "OPEN_NODE",
-        DEFAULT: "CONTENT_NODE",
+        DEFAULT: "CONTENT_NODE"
     },
     OPEN_NODE: {
         " ": "CONTENT_NODE",
         "\n": "CONTENT_NODE",
         "<": "OPEN_NODE",
         "/": "CLOSE_NODE",
-        DEFAULT: "OPEN_NODE_VALID",
+        DEFAULT: "OPEN_NODE_VALID"
     },
     OPEN_NODE_VALID: {
         "<": "OPEN_NODE",
         "/": "SELF_CLOSING_NODE_VALID",
         ">": "OPEN_NODE_CONFIRMED",
-        DEFAULT: "OPEN_NODE_VALID",
+        DEFAULT: "OPEN_NODE_VALID"
     },
     CLOSE_NODE: {
         " ": "CONTENT_NODE",
         "\n": "CONTENT_NODE",
         "<": "OPEN_NODE",
-        DEFAULT: "CLOSE_NODE_VALID",
+        DEFAULT: "CLOSE_NODE_VALID"
     },
     CLOSE_NODE_VALID: {
         "<": "OPEN_NODE",
         ">": "CLOSE_NODE_CONFIRMED",
-        DEFAULT: "CLOSE_NODE_VALID",
+        DEFAULT: "CLOSE_NODE_VALID"
     },
     SELF_CLOSING_NODE_VALID: {
         "<": "OPEN_NODE",
         ">": "SELF_CLOSING_NODE_CONFIRMED",
-        DEFAULT: "SELF_CLOSING_NODE_VALID",
-    },
+        DEFAULT: "SELF_CLOSING_NODE_VALID"
+    }
 };
-
-// brian taylor vann
 const DEFAULT = "DEFAULT";
 const CONTENT_NODE = "CONTENT_NODE";
 const OPEN_NODE = "OPEN_NODE";
 const validSieve = {
     ["OPEN_NODE_VALID"]: "OPEN_NODE_VALID",
     ["CLOSE_NODE_VALID"]: "CLOSE_NODE_VALID",
-    ["SELF_CLOSING_NODE_VALID"]: "SELF_CLOSING_NODE_VALID",
+    ["SELF_CLOSING_NODE_VALID"]: "SELF_CLOSING_NODE_VALID"
 };
 const confirmedSieve = {
     ["OPEN_NODE_CONFIRMED"]: "OPEN_NODE_CONFIRMED",
     ["CLOSE_NODE_CONFIRMED"]: "CLOSE_NODE_CONFIRMED",
-    ["SELF_CLOSING_NODE_CONFIRMED"]: "SELF_CLOSING_NODE_CONFIRMED",
+    ["SELF_CLOSING_NODE_CONFIRMED"]: "SELF_CLOSING_NODE_CONFIRMED"
 };
-const setStartStateProperties = (template, previousCrawl) => {
+const setStartStateProperties = (template, previousCrawl)=>{
     if (previousCrawl === undefined) {
         return {
             nodeType: CONTENT_NODE,
-            vector: create(),
+            vector: create1()
         };
     }
     const followingVector = createFollowingVector(template, previousCrawl.vector);
@@ -739,35 +735,33 @@ const setStartStateProperties = (template, previousCrawl) => {
     }
     const crawlState = {
         nodeType: CONTENT_NODE,
-        vector: followingVector,
+        vector: followingVector
     };
     return crawlState;
 };
-const setNodeType = (template, crawlState) => {
-    var _a, _b;
+const setNodeType = (template, crawlState)=>{
     const nodeStates = routers[crawlState.nodeType];
-    const char = getCharAtPosition(template, crawlState.vector.target);
-    if (nodeStates !== undefined && char !== undefined) {
-        const defaultNodeType = (_a = nodeStates[DEFAULT]) !== null && _a !== void 0 ? _a : CONTENT_NODE;
-        crawlState.nodeType = (_b = nodeStates[char]) !== null && _b !== void 0 ? _b : defaultNodeType;
+    const __char = getCharAtPosition(template, crawlState.vector.target);
+    if (nodeStates !== undefined && __char !== undefined) {
+        const defaultNodeType = nodeStates[DEFAULT] ?? CONTENT_NODE;
+        crawlState.nodeType = nodeStates[__char] ?? defaultNodeType;
     }
     return crawlState;
 };
-const crawl = (template, previousCrawl) => {
+const crawl = (template, previousCrawl)=>{
     const crawlState = setStartStateProperties(template, previousCrawl);
     if (crawlState === undefined) {
         return;
     }
     let openPosition;
     setNodeType(template, crawlState);
-    while (incrementTarget(template, crawlState.vector)) {
-        if (validSieve[crawlState.nodeType] === undefined &&
-            crawlState.vector.target.stringIndex === 0) {
+    while(incrementTarget(template, crawlState.vector)){
+        if (validSieve[crawlState.nodeType] === undefined && crawlState.vector.target.stringIndex === 0) {
             crawlState.nodeType = CONTENT_NODE;
         }
         setNodeType(template, crawlState);
         if (crawlState.nodeType === OPEN_NODE) {
-            openPosition = copy$1(crawlState.vector.target);
+            openPosition = copy1(crawlState.vector.target);
         }
         if (confirmedSieve[crawlState.nodeType]) {
             if (openPosition !== undefined) {
@@ -778,54 +772,53 @@ const crawl = (template, previousCrawl) => {
     }
     return crawlState;
 };
-
-// brian taylor vann
-const MAX_DEPTH = 128;
 const DEFAULT_CRAWL_RESULTS = {
     nodeType: "CONTENT_NODE",
     vector: {
-        origin: { arrayIndex: 0, stringIndex: 0 },
-        target: { arrayIndex: 0, stringIndex: 0 },
-    },
+        origin: {
+            arrayIndex: 0,
+            stringIndex: 0
+        },
+        target: {
+            arrayIndex: 0,
+            stringIndex: 0
+        }
+    }
 };
 const SKELETON_SIEVE = {
     ["OPEN_NODE_CONFIRMED"]: "OPEN_NODE",
     ["SELF_CLOSING_NODE_CONFIRMED"]: "SELF_CLOSING_NODE",
     ["CLOSE_NODE_CONFIRMED"]: "CLOSE_NODE",
-    ["CONTENT_NODE"]: "CONTENT_NODE",
+    ["CONTENT_NODE"]: "CONTENT_NODE"
 };
-const isDistanceGreaterThanOne = ({ template, origin, target, }) => {
-    if (hasOriginEclipsedTaraget({ origin, target })) {
+const isDistanceGreaterThanOne = ({ template , origin , target ,  })=>{
+    if (hasOriginEclipsedTaraget({
+        origin,
+        target
+    })) {
         return false;
     }
-    const originCopy = copy$1(origin);
+    const originCopy = copy1(origin);
     if (increment(template, originCopy) === undefined) {
         return false;
     }
-    if (target.arrayIndex === originCopy.arrayIndex &&
-        target.stringIndex === originCopy.stringIndex) {
+    if (target.arrayIndex === originCopy.arrayIndex && target.stringIndex === originCopy.stringIndex) {
         return false;
     }
     return true;
 };
-const buildMissingStringNode = ({ template, previousCrawl, currentCrawl, }) => {
-    // get text vector
-    const originPos = previousCrawl !== undefined
-        ? previousCrawl.vector.target
-        : DEFAULT_CRAWL_RESULTS.vector.target;
+const buildMissingStringNode = ({ template , previousCrawl , currentCrawl ,  })=>{
+    const originPos = previousCrawl !== undefined ? previousCrawl.vector.target : DEFAULT_CRAWL_RESULTS.vector.target;
     const targetPos = currentCrawl.vector.origin;
     if (!isDistanceGreaterThanOne({
         template,
         origin: originPos,
-        target: targetPos,
+        target: targetPos
     })) {
         return;
     }
-    // copy and correlate position values
-    const origin = previousCrawl === undefined
-        ? copy$1(DEFAULT_CRAWL_RESULTS.vector.target)
-        : copy$1(previousCrawl.vector.target);
-    const target = copy$1(currentCrawl.vector.origin);
+    const origin = previousCrawl === undefined ? copy1(DEFAULT_CRAWL_RESULTS.vector.target) : copy1(previousCrawl.vector.target);
+    const target = copy1(currentCrawl.vector.origin);
     decrement(template, target);
     if (previousCrawl !== undefined) {
         increment(template, origin);
@@ -834,21 +827,20 @@ const buildMissingStringNode = ({ template, previousCrawl, currentCrawl, }) => {
         nodeType: "CONTENT_NODE",
         vector: {
             origin,
-            target,
-        },
+            target
+        }
     };
 };
-const buildSkeleton = (template) => {
+const buildSkeleton = (template)=>{
     const skeleton = [];
     let previousCrawl;
     let currentCrawl = crawl(template, previousCrawl);
     let depth = 0;
-    while (currentCrawl && depth < MAX_DEPTH) {
-        // get string in between crawls
+    while(currentCrawl && depth < 128){
         const stringBone = buildMissingStringNode({
             template,
             previousCrawl,
-            currentCrawl,
+            currentCrawl
         });
         if (stringBone) {
             skeleton.push(stringBone);
@@ -862,20 +854,17 @@ const buildSkeleton = (template) => {
     }
     return skeleton;
 };
-
-// brian taylor vann
-const BREAK_RUNES = {
+const BREAK_RUNES1 = {
     " ": true,
-    "\n": true,
+    "\n": true
 };
-const crawlForTagName = (template, innerXmlBounds) => {
-    const tagVector = copy(innerXmlBounds);
+const crawlForTagName = (template, innerXmlBounds)=>{
+    const tagVector = copy2(innerXmlBounds);
     let positionChar = getCharAtPosition(template, tagVector.origin);
-    if (positionChar === undefined || BREAK_RUNES[positionChar]) {
+    if (positionChar === undefined || BREAK_RUNES1[positionChar]) {
         return;
     }
-    while (BREAK_RUNES[positionChar] === undefined &&
-        !hasOriginEclipsedTaraget(tagVector)) {
+    while(BREAK_RUNES1[positionChar] === undefined && !hasOriginEclipsedTaraget(tagVector)){
         if (incrementOrigin(template, tagVector) === undefined) {
             return;
         }
@@ -885,25 +874,24 @@ const crawlForTagName = (template, innerXmlBounds) => {
         }
     }
     const adjustedVector = {
-        origin: Object.assign({}, innerXmlBounds.origin),
-        target: Object.assign({}, tagVector.origin),
+        origin: {
+            ...innerXmlBounds.origin
+        },
+        target: {
+            ...tagVector.origin
+        }
     };
-    // walk back a step if successive space found
-    if (BREAK_RUNES[positionChar]) {
+    if (BREAK_RUNES1[positionChar]) {
         decrementTarget(template, adjustedVector);
     }
     return adjustedVector;
 };
-
-// brian taylor vann
-const RECURSION_SAFETY$1 = 256;
-// creates a side effect in innerXmlBounds
-const incrementOriginToNextSpaceRune = (template, innerXmlBounds) => {
+const incrementOriginToNextSpaceRune = (template, innerXmlBounds)=>{
     let positionChar = getCharAtPosition(template, innerXmlBounds.origin);
     if (positionChar === undefined) {
         return;
     }
-    while (positionChar !== " ") {
+    while(positionChar !== " "){
         if (hasOriginEclipsedTaraget(innerXmlBounds)) {
             return;
         }
@@ -917,13 +905,12 @@ const incrementOriginToNextSpaceRune = (template, innerXmlBounds) => {
     }
     return innerXmlBounds;
 };
-// creates a side effect in innerXmlBounds
-const incrementOriginToNextCharRune = (template, innerXmlBounds) => {
+const incrementOriginToNextCharRune = (template, innerXmlBounds)=>{
     let positionChar = getCharAtPosition(template, innerXmlBounds.origin);
     if (positionChar === undefined) {
         return;
     }
-    while (positionChar === " ") {
+    while(positionChar === " "){
         if (hasOriginEclipsedTaraget(innerXmlBounds)) {
             return;
         }
@@ -937,9 +924,9 @@ const incrementOriginToNextCharRune = (template, innerXmlBounds) => {
     }
     return innerXmlBounds;
 };
-const appendNodeAttributeIntegrals = ({ integrals, template, chunk, }) => {
+const appendNodeAttributeIntegrals = ({ integrals , template , chunk ,  })=>{
     let safety = 0;
-    while (!hasOriginEclipsedTaraget(chunk) && safety < RECURSION_SAFETY$1) {
+    while(!hasOriginEclipsedTaraget(chunk) && safety < 256){
         safety += 1;
         if (incrementOriginToNextSpaceRune(template, chunk) === undefined) {
             return;
@@ -948,89 +935,95 @@ const appendNodeAttributeIntegrals = ({ integrals, template, chunk, }) => {
             return;
         }
         const attributeCrawlResults = crawlForAttribute(template, chunk);
-        // something has gone wrong and we should stop
         if (attributeCrawlResults === undefined) {
             return;
         }
-        // set origin to following position
         if (attributeCrawlResults.kind === "IMPLICIT_ATTRIBUTE") {
-            chunk.origin = Object.assign({}, attributeCrawlResults.attributeVector.target);
+            chunk.origin = {
+                ...attributeCrawlResults.attributeVector.target
+            };
         }
         if (attributeCrawlResults.kind === "EXPLICIT_ATTRIBUTE") {
-            chunk.origin = Object.assign({}, attributeCrawlResults.valueVector.target);
+            chunk.origin = {
+                ...attributeCrawlResults.valueVector.target
+            };
         }
         if (attributeCrawlResults.kind === "INJECTED_ATTRIBUTE") {
-            chunk.origin = Object.assign({}, attributeCrawlResults.valueVector.target);
+            chunk.origin = {
+                ...attributeCrawlResults.valueVector.target
+            };
         }
         integrals.push(attributeCrawlResults);
     }
     return integrals;
 };
-const appendNodeIntegrals = ({ integrals, template, chunk, }) => {
-    const innerXmlBounds = copy(chunk.vector);
-    // adjust vector
+const appendNodeIntegrals = ({ integrals , template , chunk ,  })=>{
+    const innerXmlBounds = copy2(chunk.vector);
     incrementOrigin(template, innerXmlBounds);
     decrementTarget(template, innerXmlBounds);
-    // get tag name
     const tagNameVector = crawlForTagName(template, innerXmlBounds);
     if (tagNameVector === undefined) {
         return;
     }
     integrals.push({
         kind: "NODE",
-        tagNameVector,
+        tagNameVector
     });
     const followingVector = createFollowingVector(template, tagNameVector);
     if (followingVector === undefined) {
         return;
     }
-    followingVector.target = Object.assign({}, innerXmlBounds.target);
-    // more debugs here lol
-    appendNodeAttributeIntegrals({ integrals, template, chunk: followingVector });
+    followingVector.target = {
+        ...innerXmlBounds.target
+    };
+    appendNodeAttributeIntegrals({
+        integrals,
+        template,
+        chunk: followingVector
+    });
     return integrals;
 };
-const appendSelfClosingNodeIntegrals = ({ integrals, template, chunk, }) => {
-    const innerXmlBounds = copy(chunk.vector);
-    // adjust vector
+const appendSelfClosingNodeIntegrals = ({ integrals , template , chunk ,  })=>{
+    const innerXmlBounds = copy2(chunk.vector);
     incrementOrigin(template, innerXmlBounds);
     decrementTarget(template, innerXmlBounds);
     decrementTarget(template, innerXmlBounds);
-    // get tag name
     const tagNameVector = crawlForTagName(template, innerXmlBounds);
     if (tagNameVector === undefined) {
         return;
     }
     integrals.push({
         kind: "SELF_CLOSING_NODE",
-        tagNameVector,
+        tagNameVector
     });
     return integrals;
 };
-const appendCloseNodeIntegrals = ({ integrals, template, chunk, }) => {
-    const innerXmlBounds = copy(chunk.vector);
-    // adjust vector
+const appendCloseNodeIntegrals = ({ integrals , template , chunk ,  })=>{
+    const innerXmlBounds = copy2(chunk.vector);
     incrementOrigin(template, innerXmlBounds);
     incrementOrigin(template, innerXmlBounds);
     decrementTarget(template, innerXmlBounds);
-    // get tag name
-    let tagNameVector = copy(innerXmlBounds);
+    let tagNameVector = copy2(innerXmlBounds);
     tagNameVector = crawlForTagName(template, tagNameVector);
     if (tagNameVector === undefined) {
         return;
     }
-    // add tag name to
-    tagNameVector.origin = Object.assign({}, innerXmlBounds.origin);
-    // append integralAction to integrals
+    tagNameVector.origin = {
+        ...innerXmlBounds.origin
+    };
     integrals.push({
         kind: "CLOSE_NODE",
-        tagNameVector,
+        tagNameVector
     });
     return integrals;
 };
-const appendContentIntegrals = ({ integrals, template, chunk, }) => {
-    const { origin, target } = chunk.vector;
+const appendContentIntegrals = ({ integrals , template , chunk ,  })=>{
+    const { origin , target  } = chunk.vector;
     if (origin.arrayIndex === target.arrayIndex) {
-        integrals.push({ kind: "TEXT", textVector: chunk.vector });
+        integrals.push({
+            kind: "TEXT",
+            textVector: chunk.vector
+        });
         return;
     }
     let stringIndex = template.templateArray[origin.arrayIndex].length - 1;
@@ -1038,84 +1031,107 @@ const appendContentIntegrals = ({ integrals, template, chunk, }) => {
         origin,
         target: {
             arrayIndex: origin.arrayIndex,
-            stringIndex,
-        },
+            stringIndex
+        }
     };
-    integrals.push({ kind: "TEXT", textVector });
     integrals.push({
-        kind: "CONTEXT_INJECTION",
-        injectionID: origin.arrayIndex,
+        kind: "TEXT",
+        textVector
     });
-    // get that middle text stuff
+    integrals.push({
+        kind: "CHUNK_ARRAY_INJECTION",
+        injectionID: origin.arrayIndex
+    });
     let arrayIndex = origin.arrayIndex + 1;
-    while (arrayIndex < target.arrayIndex) {
+    while(arrayIndex < target.arrayIndex){
         stringIndex = template.templateArray[arrayIndex].length - 1;
         textVector = {
             origin: {
                 arrayIndex,
-                stringIndex: 0,
+                stringIndex: 0
             },
             target: {
                 arrayIndex,
-                stringIndex,
-            },
+                stringIndex
+            }
         };
-        integrals.push({ kind: "TEXT", textVector });
         integrals.push({
-            kind: "CONTEXT_INJECTION",
-            injectionID: arrayIndex,
+            kind: "TEXT",
+            textVector
+        });
+        integrals.push({
+            kind: "CHUNK_ARRAY_INJECTION",
+            injectionID: arrayIndex
         });
         arrayIndex += 1;
     }
-    // get that end text stuff
     textVector = {
         origin: {
             arrayIndex: target.arrayIndex,
-            stringIndex: 0,
+            stringIndex: 0
         },
-        target,
+        target
     };
-    integrals.push({ kind: "TEXT", textVector });
+    integrals.push({
+        kind: "TEXT",
+        textVector
+    });
     return integrals;
 };
-const buildIntegrals = ({ template, skeleton }) => {
+const buildIntegrals = ({ template , skeleton  })=>{
     const integrals = [];
-    for (const chunk of skeleton) {
+    for (const chunk of skeleton){
         const nodeType = chunk.nodeType;
         const origin = chunk.vector.origin;
         if (origin.stringIndex === 0 && origin.arrayIndex !== 0) {
             integrals.push({
-                kind: "CONTEXT_INJECTION",
-                injectionID: origin.arrayIndex - 1,
+                kind: "CHUNK_ARRAY_INJECTION",
+                injectionID: origin.arrayIndex - 1
             });
         }
         if (nodeType === "OPEN_NODE_CONFIRMED") {
-            appendNodeIntegrals({ integrals, template, chunk });
+            appendNodeIntegrals({
+                integrals,
+                template,
+                chunk
+            });
         }
         if (nodeType === "CLOSE_NODE_CONFIRMED") {
-            appendCloseNodeIntegrals({ integrals, template, chunk });
+            appendCloseNodeIntegrals({
+                integrals,
+                template,
+                chunk
+            });
         }
         if (nodeType === "CONTENT_NODE") {
-            appendContentIntegrals({ integrals, template, chunk });
+            appendContentIntegrals({
+                integrals,
+                template,
+                chunk
+            });
         }
         if (nodeType === "SELF_CLOSING_NODE_CONFIRMED") {
-            appendSelfClosingNodeIntegrals({ integrals, template, chunk });
+            appendSelfClosingNodeIntegrals({
+                integrals,
+                template,
+                chunk
+            });
         }
     }
     return integrals;
 };
-
-// brian taylor vann
-const title$9 = "build_integrals";
-const runTestsAsynchronously$9 = true;
-const testTextInterpolator$6 = (templateArray, ...injections) => {
-    const template = { templateArray, injections };
+const title1 = "build_integrals";
+const testTextInterpolator1 = (templateArray, ...injections)=>{
+    const template = {
+        templateArray,
+        injections
+    };
     return {
         template: template,
-        skeleton: buildSkeleton(template),
+        skeleton: buildSkeleton(template)
     };
 };
-const findParagraph = () => {
+const findParagraph = ()=>{
     const assertions = [];
     const expectedResults = [
         {
@@ -1123,23 +1139,23 @@ const findParagraph = () => {
             tagNameVector: {
                 origin: {
                     arrayIndex: 0,
-                    stringIndex: 1,
+                    stringIndex: 1
                 },
                 target: {
                     arrayIndex: 0,
-                    stringIndex: 1,
-                },
-            },
-        },
+                    stringIndex: 1
+                }
+            }
+        }, 
     ];
-    const params = testTextInterpolator$6 `<p>`;
+    const params = testTextInterpolator1`<p>`;
     const results = buildIntegrals(params);
-    if (!samestuff$1(expectedResults, results)) {
+    if (!samestuff(expectedResults, results)) {
         assertions.push("unexpected results found.");
     }
     return assertions;
 };
-const findParagraphWithAttributes = () => {
+const findParagraphWithAttributes = ()=>{
     const assertions = [];
     const expectedResults = [
         {
@@ -1147,46 +1163,46 @@ const findParagraphWithAttributes = () => {
             tagNameVector: {
                 origin: {
                     arrayIndex: 0,
-                    stringIndex: 1,
+                    stringIndex: 1
                 },
                 target: {
                     arrayIndex: 0,
-                    stringIndex: 1,
-                },
-            },
+                    stringIndex: 1
+                }
+            }
         },
         {
             kind: "EXPLICIT_ATTRIBUTE",
             attributeVector: {
                 origin: {
                     arrayIndex: 0,
-                    stringIndex: 3,
+                    stringIndex: 3
                 },
                 target: {
                     arrayIndex: 0,
-                    stringIndex: 9,
-                },
+                    stringIndex: 9
+                }
             },
             valueVector: {
                 origin: {
                     arrayIndex: 0,
-                    stringIndex: 11,
+                    stringIndex: 11
                 },
                 target: {
                     arrayIndex: 0,
-                    stringIndex: 25,
-                },
-            },
-        },
+                    stringIndex: 25
+                }
+            }
+        }, 
     ];
-    const params = testTextInterpolator$6 `<p message="hello, world!">`;
+    const params = testTextInterpolator1`<p message="hello, world!">`;
     const results = buildIntegrals(params);
-    if (!samestuff$1(expectedResults, results)) {
+    if (!samestuff(expectedResults, results)) {
         assertions.push("unexpected results found.");
     }
     return assertions;
 };
-const findParagraphWithImplicitAttribute = () => {
+const findParagraphWithImplicitAttribute = ()=>{
     const assertions = [];
     const expectedResults = [
         {
@@ -1194,59 +1210,59 @@ const findParagraphWithImplicitAttribute = () => {
             tagNameVector: {
                 origin: {
                     arrayIndex: 0,
-                    stringIndex: 1,
+                    stringIndex: 1
                 },
                 target: {
                     arrayIndex: 0,
-                    stringIndex: 1,
-                },
-            },
+                    stringIndex: 1
+                }
+            }
         },
         {
             kind: "EXPLICIT_ATTRIBUTE",
             attributeVector: {
                 origin: {
                     arrayIndex: 0,
-                    stringIndex: 3,
+                    stringIndex: 3
                 },
                 target: {
                     arrayIndex: 0,
-                    stringIndex: 9,
-                },
+                    stringIndex: 9
+                }
             },
             valueVector: {
                 origin: {
                     arrayIndex: 0,
-                    stringIndex: 11,
+                    stringIndex: 11
                 },
                 target: {
                     arrayIndex: 0,
-                    stringIndex: 25,
-                },
-            },
+                    stringIndex: 25
+                }
+            }
         },
         {
             kind: "IMPLICIT_ATTRIBUTE",
             attributeVector: {
                 origin: {
                     arrayIndex: 0,
-                    stringIndex: 27,
+                    stringIndex: 27
                 },
                 target: {
                     arrayIndex: 0,
-                    stringIndex: 33,
-                },
-            },
-        },
+                    stringIndex: 33
+                }
+            }
+        }, 
     ];
-    const params = testTextInterpolator$6 `<p message="hello, world!" checked>`;
+    const params = testTextInterpolator1`<p message="hello, world!" checked>`;
     const results = buildIntegrals(params);
-    if (!samestuff$1(expectedResults, results)) {
+    if (!samestuff(expectedResults, results)) {
         assertions.push("unexpected results found.");
     }
     return assertions;
 };
-const findParagraphWithInjectedAttribute = () => {
+const findParagraphWithInjectedAttribute = ()=>{
     const assertions = [];
     const expectedResults = [
         {
@@ -1254,47 +1270,47 @@ const findParagraphWithInjectedAttribute = () => {
             tagNameVector: {
                 origin: {
                     arrayIndex: 0,
-                    stringIndex: 1,
+                    stringIndex: 1
                 },
                 target: {
                     arrayIndex: 0,
-                    stringIndex: 1,
-                },
-            },
+                    stringIndex: 1
+                }
+            }
         },
         {
             kind: "INJECTED_ATTRIBUTE",
             attributeVector: {
                 origin: {
                     arrayIndex: 0,
-                    stringIndex: 3,
+                    stringIndex: 3
                 },
                 target: {
                     arrayIndex: 0,
-                    stringIndex: 9,
-                },
+                    stringIndex: 9
+                }
             },
             valueVector: {
                 origin: {
                     arrayIndex: 0,
-                    stringIndex: 11,
+                    stringIndex: 11
                 },
                 target: {
                     arrayIndex: 1,
-                    stringIndex: 0,
-                },
+                    stringIndex: 0
+                }
             },
-            injectionID: 0,
-        },
+            injectionID: 0
+        }, 
     ];
-    const params = testTextInterpolator$6 `<p message="${"hello, world!"}">`;
+    const params = testTextInterpolator1`<p message="${"hello, world!"}">`;
     const results = buildIntegrals(params);
-    if (!samestuff$1(expectedResults, results)) {
+    if (!samestuff(expectedResults, results)) {
         assertions.push("unexpected results found.");
     }
     return assertions;
 };
-const findParagraphWithInjectedAndImplicitAttributes = () => {
+const findParagraphWithInjectedAndImplicitAttributes = ()=>{
     const assertions = [];
     const expectedResults = [
         {
@@ -1302,60 +1318,60 @@ const findParagraphWithInjectedAndImplicitAttributes = () => {
             tagNameVector: {
                 origin: {
                     arrayIndex: 0,
-                    stringIndex: 1,
+                    stringIndex: 1
                 },
                 target: {
                     arrayIndex: 0,
-                    stringIndex: 1,
-                },
-            },
+                    stringIndex: 1
+                }
+            }
         },
         {
             kind: "INJECTED_ATTRIBUTE",
             attributeVector: {
                 origin: {
                     arrayIndex: 0,
-                    stringIndex: 3,
+                    stringIndex: 3
                 },
                 target: {
                     arrayIndex: 0,
-                    stringIndex: 9,
-                },
+                    stringIndex: 9
+                }
             },
             valueVector: {
                 origin: {
                     arrayIndex: 0,
-                    stringIndex: 11,
+                    stringIndex: 11
                 },
                 target: {
                     arrayIndex: 1,
-                    stringIndex: 0,
-                },
+                    stringIndex: 0
+                }
             },
-            injectionID: 0,
+            injectionID: 0
         },
         {
             kind: "IMPLICIT_ATTRIBUTE",
             attributeVector: {
                 origin: {
                     arrayIndex: 1,
-                    stringIndex: 2,
+                    stringIndex: 2
                 },
                 target: {
                     arrayIndex: 1,
-                    stringIndex: 8,
-                },
-            },
-        },
+                    stringIndex: 8
+                }
+            }
+        }, 
     ];
-    const params = testTextInterpolator$6 `<p message="${"hello, world!"}" checked>`;
+    const params = testTextInterpolator1`<p message="${"hello, world!"}" checked>`;
     const results = buildIntegrals(params);
-    if (!samestuff$1(expectedResults, results)) {
+    if (!samestuff(expectedResults, results)) {
         assertions.push("unexpected results found.");
     }
     return assertions;
 };
-const testFindCloseParagraph = () => {
+const testFindCloseParagraph = ()=>{
     const assertions = [];
     const expectedResults = [
         {
@@ -1363,23 +1379,23 @@ const testFindCloseParagraph = () => {
             tagNameVector: {
                 origin: {
                     arrayIndex: 0,
-                    stringIndex: 2,
+                    stringIndex: 2
                 },
                 target: {
                     arrayIndex: 0,
-                    stringIndex: 2,
-                },
-            },
-        },
+                    stringIndex: 2
+                }
+            }
+        }, 
     ];
-    const params = testTextInterpolator$6 `</p>`;
+    const params = testTextInterpolator1`</p>`;
     const results = buildIntegrals(params);
-    if (!samestuff$1(expectedResults, results)) {
+    if (!samestuff(expectedResults, results)) {
         assertions.push("unexpected results found.");
     }
     return assertions;
 };
-const testFindCloseH1 = () => {
+const testFindCloseH1 = ()=>{
     const assertions = [];
     const expectedResults = [
         {
@@ -1387,23 +1403,23 @@ const testFindCloseH1 = () => {
             tagNameVector: {
                 origin: {
                     arrayIndex: 0,
-                    stringIndex: 2,
+                    stringIndex: 2
                 },
                 target: {
                     arrayIndex: 0,
-                    stringIndex: 3,
-                },
-            },
-        },
+                    stringIndex: 3
+                }
+            }
+        }, 
     ];
-    const params = testTextInterpolator$6 `</h1>`;
+    const params = testTextInterpolator1`</h1>`;
     const results = buildIntegrals(params);
-    if (!samestuff$1(expectedResults, results)) {
+    if (!samestuff(expectedResults, results)) {
         assertions.push("unexpected results found.");
     }
     return assertions;
 };
-const testFindCloseParagraphWithTrailingSpaces = () => {
+const testFindCloseParagraphWithTrailingSpaces = ()=>{
     const assertions = [];
     const expectedResults = [
         {
@@ -1411,23 +1427,23 @@ const testFindCloseParagraphWithTrailingSpaces = () => {
             tagNameVector: {
                 origin: {
                     arrayIndex: 0,
-                    stringIndex: 2,
+                    stringIndex: 2
                 },
                 target: {
                     arrayIndex: 0,
-                    stringIndex: 3,
-                },
-            },
-        },
+                    stringIndex: 3
+                }
+            }
+        }, 
     ];
-    const params = testTextInterpolator$6 `</h1        >`;
+    const params = testTextInterpolator1`</h1        >`;
     const results = buildIntegrals(params);
-    if (!samestuff$1(expectedResults, results)) {
+    if (!samestuff(expectedResults, results)) {
         assertions.push("unexpected results found.");
     }
     return assertions;
 };
-const testFindContent = () => {
+const testFindContent = ()=>{
     const assertions = [];
     const expectedResults = [
         {
@@ -1435,23 +1451,23 @@ const testFindContent = () => {
             textVector: {
                 origin: {
                     arrayIndex: 0,
-                    stringIndex: 0,
+                    stringIndex: 0
                 },
                 target: {
                     arrayIndex: 0,
-                    stringIndex: 11,
-                },
-            },
-        },
+                    stringIndex: 11
+                }
+            }
+        }, 
     ];
-    const params = testTextInterpolator$6 `hello world!`;
+    const params = testTextInterpolator1`hello world!`;
     const results = buildIntegrals(params);
-    if (!samestuff$1(expectedResults, results)) {
+    if (!samestuff(expectedResults, results)) {
         assertions.push("unexpected results found.");
     }
     return assertions;
 };
-const testFindContentWithInjection = () => {
+const testFindContentWithInjection = ()=>{
     const assertions = [];
     const expectedResults = [
         {
@@ -1459,40 +1475,40 @@ const testFindContentWithInjection = () => {
             textVector: {
                 origin: {
                     arrayIndex: 0,
-                    stringIndex: 0,
+                    stringIndex: 0
                 },
                 target: {
                     arrayIndex: 0,
-                    stringIndex: -1,
-                },
-            },
+                    stringIndex: -1
+                }
+            }
         },
         {
-            kind: "CONTEXT_INJECTION",
-            injectionID: 0,
+            kind: "CHUNK_ARRAY_INJECTION",
+            injectionID: 0
         },
         {
             kind: "TEXT",
             textVector: {
                 origin: {
                     arrayIndex: 1,
-                    stringIndex: 0,
+                    stringIndex: 0
                 },
                 target: {
                     arrayIndex: 1,
-                    stringIndex: 11,
-                },
-            },
-        },
+                    stringIndex: 11
+                }
+            }
+        }, 
     ];
-    const params = testTextInterpolator$6 `${"hello"}hello world!`;
+    const params = testTextInterpolator1`${"hello"}hello world!`;
     const results = buildIntegrals(params);
-    if (!samestuff$1(expectedResults, results)) {
+    if (!samestuff(expectedResults, results)) {
         assertions.push("unexpected results found.");
     }
     return assertions;
 };
-const testFindContentWithInitialMultipleInjections = () => {
+const testFindContentWithInitialMultipleInjections = ()=>{
     const assertions = [];
     const expectedResults = [
         {
@@ -1500,152 +1516,152 @@ const testFindContentWithInitialMultipleInjections = () => {
             textVector: {
                 origin: {
                     arrayIndex: 0,
-                    stringIndex: 0,
+                    stringIndex: 0
                 },
                 target: {
                     arrayIndex: 0,
-                    stringIndex: -1,
-                },
-            },
+                    stringIndex: -1
+                }
+            }
         },
         {
-            kind: "CONTEXT_INJECTION",
-            injectionID: 0,
+            kind: "CHUNK_ARRAY_INJECTION",
+            injectionID: 0
         },
         {
             kind: "TEXT",
             textVector: {
                 origin: {
                     arrayIndex: 1,
-                    stringIndex: 0,
+                    stringIndex: 0
                 },
                 target: {
                     arrayIndex: 1,
-                    stringIndex: 11,
-                },
-            },
+                    stringIndex: 11
+                }
+            }
         },
         {
-            kind: "CONTEXT_INJECTION",
-            injectionID: 1,
+            kind: "CHUNK_ARRAY_INJECTION",
+            injectionID: 1
         },
         {
             kind: "TEXT",
             textVector: {
                 origin: {
                     arrayIndex: 2,
-                    stringIndex: 0,
+                    stringIndex: 0
                 },
                 target: {
                     arrayIndex: 2,
-                    stringIndex: 0,
-                },
-            },
-        },
+                    stringIndex: 0
+                }
+            }
+        }, 
     ];
-    const params = testTextInterpolator$6 `${"heyyo"}hello world,${"you're awesome"}!`;
+    const params = testTextInterpolator1`${"heyyo"}hello world,${"you're awesome"}!`;
     const results = buildIntegrals(params);
-    if (!samestuff$1(expectedResults, results)) {
+    if (!samestuff(expectedResults, results)) {
         assertions.push("unexpected results found.");
     }
     return assertions;
 };
-const testFindContentWithEdgeCaseInjections = () => {
+const testFindContentWithEdgeCaseInjections = ()=>{
     const assertions = [];
     const expectedResults = [
         {
-            kind: "CONTEXT_INJECTION",
-            injectionID: 0,
+            kind: "CHUNK_ARRAY_INJECTION",
+            injectionID: 0
         },
         {
             kind: "NODE",
             tagNameVector: {
                 origin: {
                     arrayIndex: 1,
-                    stringIndex: 1,
+                    stringIndex: 1
                 },
                 target: {
                     arrayIndex: 1,
-                    stringIndex: 1,
-                },
-            },
+                    stringIndex: 1
+                }
+            }
         },
         {
             kind: "TEXT",
             textVector: {
                 origin: {
                     arrayIndex: 1,
-                    stringIndex: 3,
+                    stringIndex: 3
                 },
                 target: {
                     arrayIndex: 1,
-                    stringIndex: 14,
-                },
-            },
+                    stringIndex: 14
+                }
+            }
         },
         {
-            kind: "CONTEXT_INJECTION",
-            injectionID: 1,
+            kind: "CHUNK_ARRAY_INJECTION",
+            injectionID: 1
         },
         {
             kind: "CLOSE_NODE",
             tagNameVector: {
                 origin: {
                     arrayIndex: 2,
-                    stringIndex: 2,
+                    stringIndex: 2
                 },
                 target: {
                     arrayIndex: 2,
-                    stringIndex: 2,
-                },
-            },
+                    stringIndex: 2
+                }
+            }
         },
         {
             kind: "NODE",
             tagNameVector: {
                 origin: {
                     arrayIndex: 2,
-                    stringIndex: 5,
+                    stringIndex: 5
                 },
                 target: {
                     arrayIndex: 2,
-                    stringIndex: 9,
-                },
-            },
+                    stringIndex: 9
+                }
+            }
         },
         {
             kind: "INJECTED_ATTRIBUTE",
             attributeVector: {
                 origin: {
                     arrayIndex: 2,
-                    stringIndex: 11,
+                    stringIndex: 11
                 },
                 target: {
                     arrayIndex: 2,
-                    stringIndex: 13,
-                },
+                    stringIndex: 13
+                }
             },
             valueVector: {
                 origin: {
                     arrayIndex: 2,
-                    stringIndex: 15,
+                    stringIndex: 15
                 },
                 target: {
                     arrayIndex: 3,
-                    stringIndex: 0,
-                },
+                    stringIndex: 0
+                }
             },
-            injectionID: 2,
-        },
+            injectionID: 2
+        }, 
     ];
-    const params = testTextInterpolator$6 `${"heyyo"}<p>hello world,${"you're awesome"}</p><image src="${"hello_world"}">`;
+    const params = testTextInterpolator1`${"heyyo"}<p>hello world,${"you're awesome"}</p><image src="${"hello_world"}">`;
     const results = buildIntegrals(params);
-    if (!samestuff$1(expectedResults, results)) {
+    if (!samestuff(expectedResults, results)) {
         assertions.push("unexpected results found.");
     }
     return assertions;
 };
-const testSimpleNodes = () => {
+const testSimpleNodes = ()=>{
     const assertions = [];
     const expectedResults = [
         {
@@ -1653,49 +1669,49 @@ const testSimpleNodes = () => {
             tagNameVector: {
                 origin: {
                     arrayIndex: 0,
-                    stringIndex: 1,
+                    stringIndex: 1
                 },
                 target: {
                     arrayIndex: 0,
-                    stringIndex: 1,
-                },
-            },
+                    stringIndex: 1
+                }
+            }
         },
         {
             kind: "TEXT",
             textVector: {
                 origin: {
                     arrayIndex: 0,
-                    stringIndex: 3,
+                    stringIndex: 3
                 },
                 target: {
                     arrayIndex: 0,
-                    stringIndex: 14,
-                },
-            },
+                    stringIndex: 14
+                }
+            }
         },
         {
             kind: "CLOSE_NODE",
             tagNameVector: {
                 origin: {
                     arrayIndex: 0,
-                    stringIndex: 17,
+                    stringIndex: 17
                 },
                 target: {
                     arrayIndex: 0,
-                    stringIndex: 17,
-                },
-            },
-        },
+                    stringIndex: 17
+                }
+            }
+        }, 
     ];
-    const params = testTextInterpolator$6 `<p>hello world!</p>`;
+    const params = testTextInterpolator1`<p>hello world!</p>`;
     const results = buildIntegrals(params);
-    if (!samestuff$1(expectedResults, results)) {
+    if (!samestuff(expectedResults, results)) {
         assertions.push("unexpected results found.");
     }
     return assertions;
 };
-const testSimpleInjectionNodes = () => {
+const testSimpleInjectionNodes = ()=>{
     const assertions = [];
     const expectedResults = [
         {
@@ -1703,40 +1719,40 @@ const testSimpleInjectionNodes = () => {
             tagNameVector: {
                 origin: {
                     arrayIndex: 0,
-                    stringIndex: 1,
+                    stringIndex: 1
                 },
                 target: {
                     arrayIndex: 0,
-                    stringIndex: 3,
-                },
-            },
+                    stringIndex: 3
+                }
+            }
         },
         {
-            kind: "CONTEXT_INJECTION",
-            injectionID: 0,
+            kind: "CHUNK_ARRAY_INJECTION",
+            injectionID: 0
         },
         {
             kind: "CLOSE_NODE",
             tagNameVector: {
                 origin: {
                     arrayIndex: 1,
-                    stringIndex: 2,
+                    stringIndex: 2
                 },
                 target: {
                     arrayIndex: 1,
-                    stringIndex: 4,
-                },
-            },
-        },
+                    stringIndex: 4
+                }
+            }
+        }, 
     ];
-    const params = testTextInterpolator$6 `<dog>${"hello world!"}</dog>`;
+    const params = testTextInterpolator1`<dog>${"hello world!"}</dog>`;
     const results = buildIntegrals(params);
-    if (!samestuff$1(expectedResults, results)) {
+    if (!samestuff(expectedResults, results)) {
         assertions.push("unexpected results found.");
     }
     return assertions;
 };
-const tests$a = [
+const tests1 = [
     findParagraph,
     testFindContentWithInjection,
     findParagraphWithAttributes,
@@ -1750,90 +1766,70 @@ const tests$a = [
     testFindCloseParagraphWithTrailingSpaces,
     testFindContent,
     testSimpleNodes,
-    testSimpleInjectionNodes,
+    testSimpleInjectionNodes, 
 ];
 const unitTestBuildIntegrals = {
-    title: title$9,
-    tests: tests$a,
-    runTestsAsynchronously: runTestsAsynchronously$9,
+    title: title1,
+    tests: tests1,
+    runTestsAsynchronously: true
 };
-
-// brian taylor vann
-// context
-class ContextBase {
-    // parent node reference
-    // left node reference
+class ChunkBase {
     mount(parentNode, leftNode) {
-        // attach siblings to parent
-        // return leftmost node
         return;
     }
     unmount() {
-        // remove siblings but don't disconnect descendants
     }
     bang() {
-        // update using previous parameters
     }
     getReferences() {
-        // get rendered reference pointers (*)
         return;
     }
     update(p) {
-        // if template fundamentally changes?
-        //   unmount, disconnect, render
-        //
-        // if siblings are different
-        //   create new siblings
     }
     disconnect() {
-        // remove siblings
-        // call chunker.disconnect()
     }
     getSiblings() {
-        // return siblings so parent chunk can mount
         return [];
     }
     getEffect() {
         return {
             quality: "UNMOUNTED",
-            timestamp: performance.now(),
+            timestamp: performance.now()
         };
     }
 }
-
-// brian taylor vann
-// add integral on to stack
-const popSelfClosingNode = (rs) => {
+const popSelfClosingNode = (rs)=>{
     const parent = rs.stack[rs.stack.length - 1];
-    if (parent !== undefined &&
-        parent.kind === "NODE" &&
-        parent.selfClosing === true) {
+    if (parent !== undefined && parent.kind === "NODE" && parent.selfClosing === true) {
         rs.stack.pop();
         rs.lastNodes.pop();
     }
 };
-const createTextNode = ({ hooks, rs, integral }) => {
-    var _a;
-    // bounce through stack for self closing nodes
+const createTextNode = ({ hooks , rs , integral  })=>{
     popSelfClosingNode(rs);
     const text = getText(rs.template, integral.textVector);
     if (text === undefined) {
         return;
     }
     const descendant = hooks.createTextNode(text);
-    const parentNode = (_a = rs.stack[rs.stack.length - 1]) === null || _a === void 0 ? void 0 : _a.node;
+    const parentNode = rs.stack[rs.stack.length - 1]?.node;
     const lastNodeIndex = rs.lastNodes.length - 1;
     const leftNode = rs.lastNodes[lastNodeIndex];
-    rs.stack.length === 0;
+    const isSiblingLevel = rs.stack.length === 0;
     if (rs.stack.length === 0) {
-        rs.siblings.push([descendant]);
-    }
-    else {
-        hooks.insertDescendant({ parentNode, descendant, leftNode });
+        rs.siblings.push([
+            descendant
+        ]);
+    } else {
+        hooks.insertDescendant({
+            parentNode,
+            descendant,
+            leftNode
+        });
     }
     rs.lastNodes[lastNodeIndex] = descendant;
 };
-const createNode = ({ hooks, rs, integral }) => {
+const createNode = ({ hooks , rs , integral  })=>{
     popSelfClosingNode(rs);
     const tagName = getText(rs.template, integral.tagNameVector);
     if (tagName === undefined) {
@@ -1841,32 +1837,32 @@ const createNode = ({ hooks, rs, integral }) => {
     }
     const parent = rs.stack[rs.stack.length - 1];
     const descendant = hooks.createNode(tagName);
-    // get parent node
-    const parentNode = parent === null || parent === void 0 ? void 0 : parent.node;
-    // add it to rs last nodes
+    const parentNode = parent?.node;
     const lastNodeIndex = rs.lastNodes.length - 1;
     const leftNode = rs.lastNodes[lastNodeIndex];
-    // add to silblings when stack is flat
     const isSiblingLevel = rs.stack.length === 0;
     if (isSiblingLevel) {
-        rs.siblings.push([descendant]);
+        rs.siblings.push([
+            descendant
+        ]);
+    } else {
+        hooks.insertDescendant({
+            parentNode,
+            leftNode,
+            descendant
+        });
     }
-    else {
-        hooks.insertDescendant({ parentNode, leftNode, descendant });
-    }
-    // push to last nodes
     rs.lastNodes[lastNodeIndex] = descendant;
     rs.lastNodes.push(undefined);
-    // push to stack
     const selfClosing = integral.kind === "SELF_CLOSING_NODE";
     rs.stack.push({
         kind: "NODE",
         node: descendant,
         selfClosing,
-        tagName,
+        tagName
     });
 };
-const closeNode = ({ hooks, rs, integral }) => {
+const closeNode = ({ hooks , rs , integral  })=>{
     if (rs.stack.length === 0) {
         return;
     }
@@ -1881,57 +1877,54 @@ const closeNode = ({ hooks, rs, integral }) => {
         rs.lastNodes.pop();
     }
 };
-const createContextInjection = ({ hooks, rs, integral, }) => {
-    var _a;
+const createChunkArrayInjection = ({ hooks , rs , integral ,  })=>{
     popSelfClosingNode(rs);
-    // attach injection as Context
-    const parentNode = (_a = rs.stack[rs.stack.length - 1]) === null || _a === void 0 ? void 0 : _a.node;
+    const parentNode = rs.stack[rs.stack.length - 1]?.node;
     const lastNodeIndex = rs.lastNodes.length - 1;
     const leftNode = rs.lastNodes[lastNodeIndex];
     const injection = rs.template.injections[integral.injectionID];
     const isSiblingLevel = rs.stack.length === 0;
     let siblingIndex;
-    // String Injection
     if (!Array.isArray(injection)) {
-        // attach injection as content
         const text = String(injection);
         const textNode = hooks.createTextNode(text);
-        // push to siblings or stack
         if (rs.stack.length === 0) {
-            rs.siblings.push([textNode]);
+            rs.siblings.push([
+                textNode
+            ]);
             siblingIndex = rs.siblings.length - 1;
-        }
-        else {
+        } else {
             hooks.insertDescendant({
                 descendant: textNode,
                 parentNode,
-                leftNode,
+                leftNode
             });
         }
         rs.descendants[integral.injectionID] = {
             kind: "TEXT",
-            params: { textNode, leftNode, parentNode, text, siblingIndex },
+            params: {
+                textNode,
+                leftNode,
+                parentNode,
+                text,
+                siblingIndex
+            }
         };
         rs.lastNodes[lastNodeIndex] = textNode;
         return;
     }
-    // Add Context Siblings
     const siblingsFromContextArray = [];
     let prevSibling = leftNode;
-    for (const contextID in injection) {
+    for(const contextID in injection){
         const context = injection[contextID];
         const siblings = context.getSiblings();
-        // add context siblings
         if (isSiblingLevel) {
-            for (const siblingID in siblings) {
+            for(const siblingID in siblings){
                 const sibling = siblings[siblingID];
                 siblingsFromContextArray.push(sibling);
-                // set prev sibling
                 prevSibling = sibling;
             }
-        }
-        else {
-            // set prev sibling
+        } else {
             prevSibling = context.mount(parentNode, prevSibling);
         }
     }
@@ -1940,13 +1933,18 @@ const createContextInjection = ({ hooks, rs, integral, }) => {
         siblingIndex = rs.siblings.length - 1;
     }
     rs.descendants[integral.injectionID] = {
-        kind: "CONTEXT_ARRAY",
-        params: { contextArray: injection, leftNode, parentNode, siblingIndex },
+        kind: "CHUNK_ARRAY",
+        params: {
+            chunkArray: injection,
+            leftNode,
+            parentNode,
+            siblingIndex
+        }
     };
     rs.lastNodes[lastNodeIndex] = prevSibling;
 };
-const appendExplicitAttribute = ({ hooks, rs, integral, }) => {
-    rs.references;
+const appendExplicitAttribute = ({ hooks , rs , integral ,  })=>{
+    const references = rs.references;
     const node = rs.stack[rs.stack.length - 1].node;
     const attribute = getText(rs.template, integral.attributeVector);
     if (attribute === undefined) {
@@ -1958,13 +1956,18 @@ const appendExplicitAttribute = ({ hooks, rs, integral, }) => {
     if (value === undefined) {
         return;
     }
-    hooks.setAttribute({ references: rs.references, node, attribute, value });
+    hooks.setAttribute({
+        references: rs.references,
+        node,
+        attribute,
+        value
+    });
 };
-const appendImplicitAttribute = ({ hooks, rs, integral, }) => {
+const appendImplicitAttribute = ({ hooks , rs , integral ,  })=>{
     if (rs.stack.length === 0) {
         return;
     }
-    const { node } = rs.stack[rs.stack.length - 1];
+    const { node  } = rs.stack[rs.stack.length - 1];
     const attribute = getText(rs.template, integral.attributeVector);
     if (attribute === undefined) {
         return;
@@ -1973,165 +1976,201 @@ const appendImplicitAttribute = ({ hooks, rs, integral, }) => {
         value: true,
         references: rs.references,
         node,
-        attribute,
+        attribute
     });
 };
-const appendInjectedAttribute = ({ hooks, rs, integral, }) => {
+const appendInjectedAttribute = ({ hooks , rs , integral ,  })=>{
     if (rs.stack.length === 0) {
         return;
     }
-    const { node } = rs.stack[rs.stack.length - 1];
+    const { node  } = rs.stack[rs.stack.length - 1];
     const attribute = getText(rs.template, integral.attributeVector);
     if (attribute === undefined) {
         return;
     }
-    const { injectionID } = integral;
+    const { injectionID  } = integral;
     const value = rs.template.injections[injectionID];
-    if (value instanceof ContextBase) {
+    if (value instanceof ChunkBase) {
         return;
     }
-    // add to injection map
     rs.attributes[injectionID] = {
         kind: "ATTRIBUTE",
-        params: { references: rs.references, node, attribute, value },
+        params: {
+            references: rs.references,
+            node,
+            attribute,
+            value
+        }
     };
-    hooks.setAttribute({ references: rs.references, node, attribute, value });
+    hooks.setAttribute({
+        references: rs.references,
+        node,
+        attribute,
+        value
+    });
 };
-const buildRender = ({ hooks, template, integrals }) => {
+const buildRender = ({ hooks , template , integrals  })=>{
     const rs = {
         template,
-        attributes: {},
-        references: {},
-        descendants: {},
+        attributes: {
+        },
+        references: {
+        },
+        descendants: {
+        },
         siblings: [],
-        lastNodes: [undefined],
-        stack: [],
+        lastNodes: [
+            undefined
+        ],
+        stack: []
     };
-    for (const integral of integrals) {
+    for (const integral of integrals){
         if (integral.kind === "NODE") {
-            createNode({ hooks, rs, integral });
+            createNode({
+                hooks,
+                rs,
+                integral
+            });
         }
         if (integral.kind === "SELF_CLOSING_NODE") {
-            createNode({ hooks, rs, integral });
+            createNode({
+                hooks,
+                rs,
+                integral
+            });
         }
         if (integral.kind === "CLOSE_NODE") {
-            closeNode({ hooks, rs, integral });
+            closeNode({
+                hooks,
+                rs,
+                integral
+            });
         }
         if (integral.kind === "TEXT") {
-            createTextNode({ hooks, rs, integral });
+            createTextNode({
+                hooks,
+                rs,
+                integral
+            });
         }
-        if (integral.kind === "CONTEXT_INJECTION") {
-            createContextInjection({ hooks, rs, integral });
+        if (integral.kind === "CHUNK_ARRAY_INJECTION") {
+            createChunkArrayInjection({
+                hooks,
+                rs,
+                integral
+            });
         }
         if (integral.kind === "EXPLICIT_ATTRIBUTE") {
-            appendExplicitAttribute({ hooks, rs, integral });
+            appendExplicitAttribute({
+                hooks,
+                rs,
+                integral
+            });
         }
         if (integral.kind === "IMPLICIT_ATTRIBUTE") {
-            appendImplicitAttribute({ hooks, rs, integral });
+            appendImplicitAttribute({
+                hooks,
+                rs,
+                integral
+            });
         }
         if (integral.kind === "INJECTED_ATTRIBUTE") {
-            appendInjectedAttribute({ hooks, rs, integral });
+            appendInjectedAttribute({
+                hooks,
+                rs,
+                integral
+            });
         }
     }
     return rs;
 };
-
-const buildRenderStructure = (hooks, template) => {
+const buildRenderStructure = (hooks, template)=>{
     const skeleton = buildSkeleton(template);
-    const integrals = buildIntegrals({ template, skeleton });
+    const integrals = buildIntegrals({
+        template,
+        skeleton
+    });
     const render = buildRender({
         hooks: hooks,
         template,
-        integrals,
+        integrals
     });
     return render;
 };
-
 class Banger {
-    constructor(context) {
-        this.context = context;
+    constructor(chunk){
+        this.chunk = chunk;
     }
     bang() {
-        this.context.bang();
+        this.chunk.bang();
     }
     getReferences() {
-        return this.context.getReferences();
+        return this.chunk.getReferences();
     }
 }
-class Context extends ContextBase {
-    // INIT
-    constructor(baseParams) {
+class Chunk extends ChunkBase {
+    constructor(baseParams){
         super();
-        // REQUIRED EFFECTS
         this.banger = new Banger(this);
         this.hooks = baseParams.hooks;
         this.chunker = baseParams.chunker;
-        // GENERATED EFFECTS
         this.params = baseParams.params;
         this.state = this.chunker.connect({
             banger: this.banger,
-            params: baseParams.params,
+            params: baseParams.params
         });
-        const template = this.getTemplate();
-        this.rs = buildRenderStructure(this.hooks, template);
+        const template1 = this.getTemplate();
+        this.rs = buildRenderStructure(this.hooks, template1);
         this.siblings = getUpdatedSiblings(this.rs);
         this.effect = this.updateEffect("UNMOUNTED");
     }
     bang() {
         this.update(this.params);
     }
-    // LIFECYCLE API
     update(params) {
         this.setParams(params);
-        const template = this.getTemplate();
+        const template1 = this.getTemplate();
         if (this.effect.quality === "DISCONNECTED") {
             this.disconnect();
-            this.remount(template);
+            this.remount(template1);
             return;
         }
-        // compare template array and render new
-        if (hasTemplateChanged(this.rs, template)) {
-            this.remount(template);
+        if (hasTemplateChanged(this.rs, template1)) {
+            this.remount(template1);
             return;
         }
-        // we like to update attributes
-        updateAttributes(this.hooks, this.rs, template);
+        updateAttributes(this.hooks, this.rs, template1);
         const descendantsHaveUpdated = updateDescendants({
             contextParentNode: this.parentNode,
             hooks: this.hooks,
             rs: this.rs,
-            template,
+            template: template1
         });
         if (descendantsHaveUpdated) {
             this.siblings = getUpdatedSiblings(this.rs);
         }
     }
     mount(parentNode, leftNode) {
-        // set parent and left nodes for context
         this.parentNode = parentNode;
         this.leftNode = leftNode;
-        // attach siblings to parent
         let prevSibling;
         let descendant = leftNode;
-        for (const siblingID in this.siblings) {
+        for(const siblingID in this.siblings){
             prevSibling = descendant;
             descendant = this.siblings[siblingID];
             this.hooks.insertDescendant({
                 leftNode: prevSibling,
                 parentNode,
-                descendant,
+                descendant
             });
         }
         this.updateEffect("MOUNTED");
-        // return future 'left node'
         return descendant;
     }
     unmount() {
-        // remove parent and left nodes
         this.parentNode = undefined;
         this.leftNode = undefined;
-        // remove each sibling
-        for (const siblingID in this.siblings) {
+        for(const siblingID in this.siblings){
             const sibling = this.siblings[siblingID];
             this.hooks.removeDescendant(sibling);
         }
@@ -2139,15 +2178,15 @@ class Context extends ContextBase {
     }
     disconnect() {
         disconnectDescendants(this.hooks, this.rs);
-        this.chunker.disconnect(this.state);
+        if (this.state !== undefined && this.chunker.disconnect !== undefined) {
+            this.chunker.disconnect(this.state);
+        }
         this.updateEffect("DISCONNECTED");
     }
-    // CONTEXT API
     getSiblings() {
         return this.siblings;
     }
     getReferences() {
-        // interesting base case outside of contrucutor, might (not) exist
         if (this.rs !== undefined) {
             return this.rs.references;
         }
@@ -2156,7 +2195,6 @@ class Context extends ContextBase {
         return this.effect;
     }
     remount(template) {
-        this.unmount();
         this.rs = buildRenderStructure(this.hooks, template);
         this.siblings = getUpdatedSiblings(this.rs);
         this.mount(this.parentNode, this.leftNode);
@@ -2165,7 +2203,7 @@ class Context extends ContextBase {
     updateEffect(quality) {
         this.effect = {
             timestamp: performance.now(),
-            quality,
+            quality
         };
         return this.effect;
     }
@@ -2176,31 +2214,31 @@ class Context extends ContextBase {
         return this.chunker.update({
             banger: this.banger,
             state: this.state,
-            params: this.params,
+            params: this.params
         });
     }
 }
-const getUpdatedSiblings = (rs) => {
+const getUpdatedSiblings = (rs)=>{
     const siblings = [];
     const originalSiblings = rs.siblings;
-    for (const siblingArrayID in originalSiblings) {
+    for(const siblingArrayID in originalSiblings){
         const siblingArray = originalSiblings[siblingArrayID];
-        for (const siblingID in siblingArray) {
+        for(const siblingID in siblingArray){
             const sibling = siblingArray[siblingID];
             siblings.push(sibling);
         }
     }
     return siblings;
 };
-const hasTemplateChanged = (rs, template) => {
-    const templateLength = template.templateArray.length;
+const hasTemplateChanged = (rs, template2)=>{
+    const templateLength = template2.templateArray.length;
     if (rs.template.templateArray.length !== templateLength) {
         return true;
     }
     let index = 0;
-    while (index < templateLength) {
+    while(index < templateLength){
         const sourceStr = rs.template.templateArray[index];
-        const targetStr = template.templateArray[index];
+        const targetStr = template2.templateArray[index];
         if (sourceStr !== targetStr) {
             return true;
         }
@@ -2208,50 +2246,42 @@ const hasTemplateChanged = (rs, template) => {
     }
     return false;
 };
-// compare future template to current template (past injection)
-const updateAttributes = (hooks, rs, template) => {
-    for (const attributesID in rs.attributes) {
+const updateAttributes = (hooks, rs, template2)=>{
+    for(const attributesID in rs.attributes){
         const pastInjection = rs.attributes[attributesID];
-        const attributeValue = template.injections[attributesID];
-        // check if attribute value has changed
+        const attributeValue = template2.injections[attributesID];
         if (attributeValue === pastInjection.params.value) {
             continue;
         }
-        // give yourself a chance to remove attribute
         hooks.removeAttribute(pastInjection.params);
         pastInjection.params.value = attributeValue;
         hooks.setAttribute(pastInjection.params);
     }
 };
-const updateDescendants = ({ hooks, rs, template, contextParentNode, }) => {
+const updateDescendants = ({ hooks , rs , template: template2 , contextParentNode ,  })=>{
     let siblingLevelUpdated = false;
-    // iterate through descendants
-    for (const descenantID in rs.descendants) {
+    for(const descenantID in rs.descendants){
         const pastDescendant = rs.descendants[descenantID];
-        const descendant = template.injections[descenantID];
+        const descendant = template2.injections[descenantID];
         if (pastDescendant.kind === "TEXT" && !Array.isArray(descendant)) {
             const text = String(descendant);
             if (pastDescendant.params.text === text) {
                 continue;
             }
         }
-        // unmount previous contexts, they could be stale
-        if (pastDescendant.kind === "CONTEXT_ARRAY") {
-            const contextArray = pastDescendant.params.contextArray;
-            for (const contextID in contextArray) {
-                contextArray[contextID].unmount();
+        if (pastDescendant.kind === "CHUNK_ARRAY") {
+            const chunkArray = pastDescendant.params.chunkArray;
+            for(const contextID in chunkArray){
+                chunkArray[contextID].unmount();
             }
         }
-        // we assume siblings have changed from this point
-        const { leftNode, parentNode, siblingIndex } = pastDescendant.params;
+        const { leftNode , parentNode , siblingIndex  } = pastDescendant.params;
         if (!siblingLevelUpdated) {
             siblingLevelUpdated = siblingIndex !== undefined;
         }
-        // remove previous descendants
         if (pastDescendant.kind === "TEXT") {
             hooks.removeDescendant(pastDescendant.params.textNode);
         }
-        // text descednant
         if (!Array.isArray(descendant)) {
             const text = String(descendant);
             const textNode = hooks.createTextNode(text);
@@ -2262,53 +2292,40 @@ const updateDescendants = ({ hooks, rs, template, contextParentNode, }) => {
                     text,
                     leftNode,
                     parentNode,
-                    siblingIndex,
-                },
+                    siblingIndex
+                }
             };
             hooks.insertDescendant({
                 descendant: textNode,
                 leftNode,
-                parentNode: parentNode !== null && parentNode !== void 0 ? parentNode : contextParentNode, // append actual parent
+                parentNode: parentNode ?? contextParentNode
             });
-            // add sibling to render structure to get mounted later
             if (siblingIndex !== undefined) {
-                rs.siblings[siblingIndex] = [textNode];
+                rs.siblings[siblingIndex] = [
+                    textNode
+                ];
             }
             continue;
         }
-        const contextArray = descendant;
+        const chunkArray = descendant;
         rs.descendants[descenantID] = {
-            kind: "CONTEXT_ARRAY",
+            kind: "CHUNK_ARRAY",
             params: {
-                contextArray,
+                chunkArray,
                 leftNode,
                 parentNode,
-                siblingIndex,
-            },
+                siblingIndex
+            }
         };
-        // add sibling to render structure to get mounted later
         let currLeftNode = leftNode;
-        for (const contextID in descendant) {
-            const chunk = contextArray[contextID];
-            currLeftNode = chunk.mount(parentNode !== null && parentNode !== void 0 ? parentNode : contextParentNode, currLeftNode);
+        for(const contextID in descendant){
+            const chunk1 = chunkArray[contextID];
+            currLeftNode = chunk1.mount(parentNode ?? contextParentNode, currLeftNode);
         }
-        // new ness
-        //
-        // if (siblingIndex !== undefined) {
-        //   let updatedSiblings = [];    
-        //   for (const contextID in descendant) {
-        //     const chunk = contextArray[contextID];
-        //     const siblings = chunk.getSiblings();
-        //     for (const siblingID in siblings) {
-        //       updatedSiblings.push(siblings[siblingID]);
-        //     }
-        //   }
-        //   rs.siblings[siblingIndex] = updatedSiblings;
-        // }
-        if (pastDescendant.kind === "CONTEXT_ARRAY") {
-            const contextArray = pastDescendant.params.contextArray;
-            for (const contextID in contextArray) {
-                const context = contextArray[contextID];
+        if (pastDescendant.kind === "CHUNK_ARRAY") {
+            const chunkArray1 = pastDescendant.params.chunkArray;
+            for(const contextID1 in chunkArray1){
+                const context = chunkArray1[contextID1];
                 const effect = context.getEffect();
                 if (effect.quality === "UNMOUNTED") {
                     context.disconnect();
@@ -2316,65 +2333,69 @@ const updateDescendants = ({ hooks, rs, template, contextParentNode, }) => {
             }
         }
     }
-    // return if sibling level nodes were updated
     return siblingLevelUpdated;
 };
-const disconnectDescendants = (hooks, rs) => {
+const disconnectDescendants = (hooks, rs)=>{
     const attributes = rs.attributes;
-    for (const attributeID in attributes) {
+    for(const attributeID in attributes){
         const attribute = attributes[attributeID];
         hooks.removeAttribute(attribute.params);
     }
-    for (const descendantID in rs.descendants) {
+    for(const descendantID in rs.descendants){
         const descendant = rs.descendants[descendantID];
         if (descendant.kind === "TEXT") {
             hooks.removeDescendant(descendant.params.textNode);
         }
-        if (descendant.kind === "CONTEXT_ARRAY") {
-            const contextArray = descendant.params.contextArray;
-            for (const contextID in contextArray) {
-                const context = contextArray[contextID];
+        if (descendant.kind === "CHUNK_ARRAY") {
+            const chunkArray = descendant.params.chunkArray;
+            for(const contextID in chunkArray){
+                const context = chunkArray[contextID];
                 context.unmount();
                 context.disconnect();
             }
         }
     }
 };
-
-// brian taylor vann
 const hooks = {
-    createNode: (tagname) => {
-        return { kind: "ELEMENT", attributes: {}, tagname };
+    createNode: (tagname)=>{
+        return {
+            kind: "ELEMENT",
+            attributes: {
+            },
+            tagname
+        };
     },
-    createTextNode: (text) => {
-        return { kind: "TEXT", text };
+    createTextNode: (text)=>{
+        return {
+            kind: "TEXT",
+            text
+        };
     },
-    setAttribute: (params) => {
-        const { node, attribute, value } = params;
-        if (value instanceof Context) {
+    setAttribute: (params)=>{
+        const { node , attribute , value  } = params;
+        if (value instanceof Chunk) {
             return;
         }
         if (node.kind === "ELEMENT") {
             node.attributes[attribute] = value;
         }
     },
-    removeAttribute: (params) => {
-        const { node, attribute, value } = params;
-        if (value instanceof Context) {
+    removeAttribute: (params)=>{
+        const { node , attribute , value  } = params;
+        if (value instanceof Chunk) {
             return;
         }
         if (node.kind === "ELEMENT") {
             node.attributes[attribute] = undefined;
         }
     },
-    getSibling: (sibling) => {
+    getSibling: (sibling)=>{
         return sibling.right;
     },
-    insertDescendant: ({ leftNode, parentNode, descendant }) => {
+    insertDescendant: ({ leftNode , parentNode , descendant  })=>{
         if (parentNode === undefined) {
             return;
         }
-        // set descendant
         if (leftNode !== undefined) {
             const leftRightDescendant = leftNode.right;
             descendant.right = leftRightDescendant;
@@ -2384,8 +2405,7 @@ const hooks = {
             descendant.left = leftNode;
             leftNode.right = descendant;
         }
-        // appending
-        if ((parentNode === null || parentNode === void 0 ? void 0 : parentNode.kind) === "ELEMENT") {
+        if (parentNode?.kind === "ELEMENT") {
             descendant.parent = parentNode;
             if (parentNode.leftChild === undefined) {
                 parentNode.leftChild = descendant;
@@ -2395,26 +2415,22 @@ const hooks = {
             }
         }
     },
-    removeDescendant: (descendant) => {
+    removeDescendant: (descendant)=>{
         const parent = descendant.parent;
         const leftNode = descendant.left;
         const rightNode = descendant.right;
-        // remove descendant references
         descendant.parent = undefined;
         descendant.right = undefined;
         descendant.left = undefined;
-        // if descendant is leftChild
         if (leftNode !== undefined) {
             leftNode.right = rightNode;
         }
-        // if descendant is rightChild
         if (rightNode !== undefined) {
             rightNode.left = leftNode;
         }
         if (parent === undefined) {
             return;
         }
-        // if descendant is rightChild
         if (descendant === parent.leftChild) {
             parent.leftChild = rightNode;
         }
@@ -2422,37 +2438,36 @@ const hooks = {
             parent.rightChild = leftNode;
         }
         return parent;
-    },
+    }
 };
-const render = (templateArray, ...injections) => {
+const draw = (templateArray, ...injections)=>{
     return {
         injections,
-        templateArray,
+        templateArray
     };
 };
-
-// brian taylor vann
-const title$8 = "build_render";
-const runTestsAsynchronously$8 = true;
-const testTextInterpolator$5 = (templateArray, ...injections) => {
-    const template = { templateArray, injections };
+const title2 = "build_render";
+const testTextInterpolator2 = (templateArray, ...injections)=>{
+    const template2 = {
+        templateArray,
+        injections
+    };
     const params = {
-        skeleton: buildSkeleton(template),
-        template,
+        skeleton: buildSkeleton(template2),
+        template: template2
     };
     return {
-        template,
-        integrals: buildIntegrals(params),
+        template: template2,
+        integrals: buildIntegrals(params)
     };
 };
-// createNode,
-const testCreateNode$1 = () => {
+const testCreateNode = ()=>{
     const assertions = [];
-    const { template, integrals } = testTextInterpolator$5 `<p>`;
+    const { template: template2 , integrals  } = testTextInterpolator2`<p>`;
     const results = buildRender({
         hooks,
         integrals,
-        template,
+        template: template2
     });
     if (results.siblings.length !== 1) {
         assertions.push("siblings should have length 1");
@@ -2468,13 +2483,13 @@ const testCreateNode$1 = () => {
     }
     return assertions;
 };
-const testCloseNode = () => {
+const testCloseNode = ()=>{
     const assertions = [];
-    const { template, integrals } = testTextInterpolator$5 `<p></p>`;
+    const { template: template2 , integrals  } = testTextInterpolator2`<p></p>`;
     const results = buildRender({
         hooks,
         integrals,
-        template,
+        template: template2
     });
     if (results.siblings.length !== 1) {
         assertions.push("siblings should have length 1");
@@ -2490,13 +2505,13 @@ const testCloseNode = () => {
     }
     return assertions;
 };
-const testTextNode = () => {
+const testTextNode = ()=>{
     const assertions = [];
-    const { template, integrals, } = testTextInterpolator$5 `hello world!<p>It's me!</p>`;
+    const { template: template2 , integrals ,  } = testTextInterpolator2`hello world!<p>It's me!</p>`;
     const results = buildRender({
         hooks,
         integrals,
-        template,
+        template: template2
     });
     if (results.siblings.length !== 2) {
         assertions.push("siblings should have length 1");
@@ -2526,20 +2541,13 @@ const testTextNode = () => {
     }
     return assertions;
 };
-const testAddAttributesToNodes = () => {
+const testAddAttributesToNodes = ()=>{
     const assertions = [];
-    const { template, integrals } = testTextInterpolator$5 `
-    <p
-      checked
-      label=""
-      disabled="false"
-      skies="${"blue"}">
-        Hello world, it's me!
-    </p>`;
+    const { template: template2 , integrals  } = testTextInterpolator2`\n    <p\n      checked\n      label=""\n      disabled="false"\n      skies="${"blue"}">\n        Hello world, it's me!\n    </p>`;
     const results = buildRender({
         hooks,
         integrals,
-        template,
+        template: template2
     });
     if (results.siblings.length !== 2) {
         assertions.push("siblings should have length 2");
@@ -2567,20 +2575,13 @@ const testAddAttributesToNodes = () => {
     }
     return assertions;
 };
-const testAddAttributesToMultipleNodes = () => {
+const testAddAttributesToMultipleNodes = ()=>{
     const assertions = [];
-    const { template, integrals } = testTextInterpolator$5 `
-    <p>No properties in this paragraph!</p>
-    <p
-      checked
-      disabled="false"
-      skies="${"blue"}">
-        Hello world, it's me!
-    </p>`;
+    const { template: template2 , integrals  } = testTextInterpolator2`\n    <p>No properties in this paragraph!</p>\n    <p\n      checked\n      disabled="false"\n      skies="${"blue"}">\n        Hello world, it's me!\n    </p>`;
     const results = buildRender({
         hooks,
         integrals,
-        template,
+        template: template2
     });
     if (results.siblings.length !== 4) {
         assertions.push("siblings should have length 4");
@@ -2613,28 +2614,30 @@ const testAddAttributesToMultipleNodes = () => {
     }
     return assertions;
 };
-const testAddContext = () => {
-    var _a;
+const testAddContext = ()=>{
     const assertions = [];
-    // create a small renderer
     const chunker = {
-        update: ({ params, state }) => {
-            return render `
-        <p>HelloWorld!</p>
-      `;
+        update: ({ params , state  })=>{
+            return draw`\n        <p>HelloWorld!</p>\n      `;
         },
-        connect: () => { },
-        disconnect: () => { },
+        connect: ()=>{
+        },
+        disconnect: ()=>{
+        }
     };
-    // create and update context
-    const context = new Context({ params: {}, hooks, chunker });
-    const { integrals: contextIntegrals, template: contextTemplate, } = testTextInterpolator$5 `
-    <p>${[context]}</p>
-  `;
+    const context = new Chunk({
+        params: {
+        },
+        hooks,
+        chunker
+    });
+    const { integrals: contextIntegrals , template: contextTemplate ,  } = testTextInterpolator2`\n    <p>${[
+        context
+    ]}</p>\n  `;
     const results = buildRender({
         hooks,
         integrals: contextIntegrals,
-        template: contextTemplate,
+        template: contextTemplate
     });
     if (results.siblings.length !== 3) {
         assertions.push("siblings should have length 3");
@@ -2649,7 +2652,7 @@ const testAddContext = () => {
         assertions.push("sibling 0 should have a text");
         return assertions;
     }
-    if (((_a = results.descendants[0]) === null || _a === void 0 ? void 0 : _a.kind) !== "CONTEXT_ARRAY") {
+    if (results.descendants[0]?.kind !== "CHUNK_ARRAY") {
         assertions.push("descendant 0 should be a context array");
         return assertions;
     }
@@ -2664,359 +2667,529 @@ const testAddContext = () => {
     }
     return assertions;
 };
-const tests$9 = [
-    testCreateNode$1,
+const tests2 = [
+    testCreateNode,
     testCloseNode,
     testTextNode,
     testAddAttributesToNodes,
     testAddAttributesToMultipleNodes,
-    testAddContext,
+    testAddContext, 
 ];
 const unitTestBuildRender = {
-    title: title$8,
-    tests: tests$9,
-    runTestsAsynchronously: runTestsAsynchronously$8,
+    title: title2,
+    tests: tests2,
+    runTestsAsynchronously: true
 };
-
-// brian taylor vann
-const title$7 = "build_skeleton";
-const runTestsAsynchronously$7 = true;
-const testTextInterpolator$4 = (templateArray, ...injections) => {
-    return { templateArray, injections };
+const title3 = "build_skeleton";
+const testTextInterpolator3 = (templateArray, ...injections)=>{
+    return {
+        templateArray,
+        injections
+    };
 };
-const findNothingWhenThereIsPlainText$1 = () => {
+const findNothingWhenThereIsPlainText = ()=>{
     const assertions = [];
     const sourceSkeleton = [
         {
             nodeType: "CONTENT_NODE",
             vector: {
-                origin: { arrayIndex: 0, stringIndex: 0 },
-                target: { arrayIndex: 0, stringIndex: 20 },
-            },
-        },
+                origin: {
+                    arrayIndex: 0,
+                    stringIndex: 0
+                },
+                target: {
+                    arrayIndex: 0,
+                    stringIndex: 20
+                }
+            }
+        }, 
     ];
-    const testBlank = testTextInterpolator$4 `no nodes to be found!`;
+    const testBlank = testTextInterpolator3`no nodes to be found!`;
     const testSkeleton = buildSkeleton(testBlank);
-    if (!samestuff$1(sourceSkeleton, testSkeleton)) {
+    if (!samestuff(sourceSkeleton, testSkeleton)) {
         assertions.push("skeletons are not equal");
     }
     return assertions;
 };
-const findStatementInPlainText = () => {
+const findStatementInPlainText = ()=>{
     const assertions = [];
     const sourceSkeleton = [
         {
             nodeType: "OPEN_NODE_CONFIRMED",
             vector: {
-                origin: { arrayIndex: 0, stringIndex: 0 },
-                target: { arrayIndex: 0, stringIndex: 6 },
-            },
-        },
+                origin: {
+                    arrayIndex: 0,
+                    stringIndex: 0
+                },
+                target: {
+                    arrayIndex: 0,
+                    stringIndex: 6
+                }
+            }
+        }, 
     ];
-    const testOpenNode = testTextInterpolator$4 `<hello>`;
+    const testOpenNode = testTextInterpolator3`<hello>`;
     const testSkeleton = buildSkeleton(testOpenNode);
-    if (!samestuff$1(sourceSkeleton, testSkeleton)) {
+    if (!samestuff(sourceSkeleton, testSkeleton)) {
         assertions.push("skeletons are not equal");
     }
     return assertions;
 };
-const findComplexFromPlainText = () => {
+const findComplexFromPlainText = ()=>{
     const assertions = [];
     const sourceSkeleton = [
         {
             nodeType: "CONTENT_NODE",
             vector: {
-                origin: { arrayIndex: 0, stringIndex: 0 },
-                target: { arrayIndex: 0, stringIndex: 4 },
-            },
+                origin: {
+                    arrayIndex: 0,
+                    stringIndex: 0
+                },
+                target: {
+                    arrayIndex: 0,
+                    stringIndex: 4
+                }
+            }
         },
         {
             nodeType: "OPEN_NODE_CONFIRMED",
             vector: {
-                origin: { arrayIndex: 0, stringIndex: 5 },
-                target: { arrayIndex: 0, stringIndex: 7 },
-            },
-        },
-        {
-            nodeType: "CONTENT_NODE",
-            vector: {
-                origin: { arrayIndex: 0, stringIndex: 8 },
-                target: { arrayIndex: 0, stringIndex: 12 },
-            },
-        },
-        {
-            nodeType: "CLOSE_NODE_CONFIRMED",
-            vector: {
-                origin: { arrayIndex: 0, stringIndex: 13 },
-                target: { arrayIndex: 0, stringIndex: 16 },
-            },
-        },
-    ];
-    const testComplexNode = testTextInterpolator$4 `hello<p>world</p>`;
-    const testSkeleton = buildSkeleton(testComplexNode);
-    if (!samestuff$1(sourceSkeleton, testSkeleton)) {
-        assertions.push("skeletons are not equal");
-    }
-    return assertions;
-};
-const findCompoundFromPlainText = () => {
-    const assertions = [];
-    const sourceSkeleton = [
-        {
-            nodeType: "OPEN_NODE_CONFIRMED",
-            vector: {
-                origin: { arrayIndex: 0, stringIndex: 0 },
-                target: { arrayIndex: 0, stringIndex: 3 },
-            },
-        },
-        {
-            nodeType: "CONTENT_NODE",
-            vector: {
-                origin: { arrayIndex: 0, stringIndex: 4 },
-                target: { arrayIndex: 0, stringIndex: 8 },
-            },
-        },
-        {
-            nodeType: "CLOSE_NODE_CONFIRMED",
-            vector: {
-                origin: { arrayIndex: 0, stringIndex: 9 },
-                target: { arrayIndex: 0, stringIndex: 13 },
-            },
-        },
-    ];
-    const testComplexNode = testTextInterpolator$4 `<h1>hello</h1>`;
-    const testSkeleton = buildSkeleton(testComplexNode);
-    if (!samestuff$1(sourceSkeleton, testSkeleton)) {
-        assertions.push("skeletons are not equal");
-    }
-    return assertions;
-};
-const findInjectionFromPlainText = () => {
-    const assertions = [];
-    const sourceSkeleton = [
-        {
-            nodeType: "OPEN_NODE_CONFIRMED",
-            vector: {
-                origin: { arrayIndex: 0, stringIndex: 0 },
-                target: { arrayIndex: 0, stringIndex: 3 },
-            },
-        },
-        {
-            nodeType: "CLOSE_NODE_CONFIRMED",
-            vector: {
-                origin: { arrayIndex: 1, stringIndex: 0 },
-                target: { arrayIndex: 1, stringIndex: 4 },
-            },
-        },
-    ];
-    const testComplexNode = testTextInterpolator$4 `<h1>${"hello"}</h1>`;
-    const testSkeleton = buildSkeleton(testComplexNode);
-    if (!samestuff$1(sourceSkeleton, testSkeleton)) {
-        assertions.push("skeletons are not equal");
-    }
-    return assertions;
-};
-const findPreceedingInjectionFromPlainText = () => {
-    const assertions = [];
-    const sourceSkeleton = [
-        {
-            nodeType: "OPEN_NODE_CONFIRMED",
-            vector: {
-                origin: { arrayIndex: 1, stringIndex: 0 },
-                target: { arrayIndex: 1, stringIndex: 3 },
-            },
-        },
-        {
-            nodeType: "CLOSE_NODE_CONFIRMED",
-            vector: {
-                origin: { arrayIndex: 2, stringIndex: 0 },
-                target: { arrayIndex: 2, stringIndex: 4 },
-            },
-        },
-    ];
-    const testComplexNode = testTextInterpolator$4 `${"hello"}<h1>${"hello"}</h1>`;
-    const testSkeleton = buildSkeleton(testComplexNode);
-    if (!samestuff$1(sourceSkeleton, testSkeleton)) {
-        assertions.push("skeletons are not equal");
-    }
-    return assertions;
-};
-const findTrailingInjectionFromPlainText = () => {
-    const assertions = [];
-    const sourceSkeleton = [
-        {
-            nodeType: "OPEN_NODE_CONFIRMED",
-            vector: {
-                origin: { arrayIndex: 0, stringIndex: 0 },
-                target: { arrayIndex: 0, stringIndex: 3 },
-            },
-        },
-        {
-            nodeType: "CLOSE_NODE_CONFIRMED",
-            vector: {
-                origin: { arrayIndex: 1, stringIndex: 0 },
-                target: { arrayIndex: 1, stringIndex: 4 },
-            },
-        },
-        {
-            nodeType: "CONTENT_NODE",
-            vector: {
-                origin: { arrayIndex: 2, stringIndex: 0 },
-                target: { arrayIndex: 2, stringIndex: 0 },
-            },
-        },
-    ];
-    const testComplexNode = testTextInterpolator$4 `<h1>${"hello"}</h1>${"hello"}`;
-    const testSkeleton = buildSkeleton(testComplexNode);
-    if (!samestuff$1(sourceSkeleton, testSkeleton)) {
-        assertions.push("skeletons are not equal");
-    }
-    return assertions;
-};
-const findMultipleInjectionFromPlainText = () => {
-    const assertions = [];
-    const sourceSkeleton = [
-        {
-            nodeType: "OPEN_NODE_CONFIRMED",
-            vector: {
-                origin: { arrayIndex: 1, stringIndex: 0 },
-                target: { arrayIndex: 1, stringIndex: 3 },
-            },
-        },
-        {
-            nodeType: "CLOSE_NODE_CONFIRMED",
-            vector: {
-                origin: { arrayIndex: 2, stringIndex: 0 },
-                target: { arrayIndex: 2, stringIndex: 4 },
-            },
-        },
-        {
-            nodeType: "CONTENT_NODE",
-            vector: {
-                origin: { arrayIndex: 3, stringIndex: 0 },
-                target: { arrayIndex: 3, stringIndex: 0 },
-            },
-        },
-    ];
-    const testComplexNode = testTextInterpolator$4 `${"hello"}<h1>${"hello"}</h1>${"hello"}`;
-    const testSkeleton = buildSkeleton(testComplexNode);
-    if (!samestuff$1(sourceSkeleton, testSkeleton)) {
-        assertions.push("skeletons are not equal");
-    }
-    return assertions;
-};
-const findBrokenFromPlainText = () => {
-    const assertions = [];
-    const sourceSkeleton = [
-        {
-            nodeType: "CONTENT_NODE",
-            vector: {
-                origin: { arrayIndex: 0, stringIndex: 0 },
-                target: { arrayIndex: 1, stringIndex: 5 },
-            },
-        },
-        {
-            nodeType: "CLOSE_NODE_CONFIRMED",
-            vector: {
-                origin: { arrayIndex: 1, stringIndex: 6 },
-                target: { arrayIndex: 1, stringIndex: 10 },
-            },
-        },
-        {
-            nodeType: "OPEN_NODE_CONFIRMED",
-            vector: {
-                origin: { arrayIndex: 1, stringIndex: 11 },
-                target: { arrayIndex: 1, stringIndex: 13 },
-            },
-        },
-        {
-            nodeType: "CONTENT_NODE",
-            vector: {
-                origin: { arrayIndex: 1, stringIndex: 14 },
-                target: { arrayIndex: 1, stringIndex: 18 },
-            },
-        },
-        {
-            nodeType: "CLOSE_NODE_CONFIRMED",
-            vector: {
-                origin: { arrayIndex: 1, stringIndex: 19 },
-                target: { arrayIndex: 1, stringIndex: 22 },
-            },
-        },
-    ];
-    const testComplexNode = testTextInterpolator$4 `<${"hello"}h2>hey</h2><p>howdy</p>`;
-    const testSkeleton = buildSkeleton(testComplexNode);
-    if (!samestuff$1(sourceSkeleton, testSkeleton)) {
-        assertions.push("skeletons are not equal");
-    }
-    return assertions;
-};
-const findSelfClosingNodesInOddPlainText = () => {
-    const assertions = [];
-    const sourceSkeleton = [
-        {
-            nodeType: "CONTENT_NODE",
-            vector: {
-                origin: { arrayIndex: 0, stringIndex: 0 },
-                target: { arrayIndex: 0, stringIndex: 4 },
-            },
-        },
-        {
-            nodeType: "SELF_CLOSING_NODE_CONFIRMED",
-            vector: {
-                origin: { arrayIndex: 0, stringIndex: 5 },
-                target: { arrayIndex: 0, stringIndex: 10 },
-            },
-        },
-        {
-            nodeType: "SELF_CLOSING_NODE_CONFIRMED",
-            vector: {
-                origin: { arrayIndex: 0, stringIndex: 11 },
-                target: { arrayIndex: 0, stringIndex: 18 },
-            },
+                origin: {
+                    arrayIndex: 0,
+                    stringIndex: 5
+                },
+                target: {
+                    arrayIndex: 0,
+                    stringIndex: 7
+                }
+            }
         },
         {
             nodeType: "CONTENT_NODE",
             vector: {
                 origin: {
                     arrayIndex: 0,
-                    stringIndex: 19,
+                    stringIndex: 8
                 },
                 target: {
                     arrayIndex: 0,
-                    stringIndex: 23,
+                    stringIndex: 12
+                }
+            }
+        },
+        {
+            nodeType: "CLOSE_NODE_CONFIRMED",
+            vector: {
+                origin: {
+                    arrayIndex: 0,
+                    stringIndex: 13
                 },
-            },
-        },
-        {
-            nodeType: "SELF_CLOSING_NODE_CONFIRMED",
-            vector: {
-                origin: { arrayIndex: 0, stringIndex: 24 },
-                target: { arrayIndex: 0, stringIndex: 33 },
-            },
-        },
-        {
-            nodeType: "CONTENT_NODE",
-            vector: {
-                origin: { arrayIndex: 1, stringIndex: 0 },
-                target: { arrayIndex: 1, stringIndex: 11 },
-            },
-        },
+                target: {
+                    arrayIndex: 0,
+                    stringIndex: 16
+                }
+            }
+        }, 
     ];
-    const testComplexNode = testTextInterpolator$4 `
-    <dog/><doggo/>
-    <puppers/>${"woof"}
-    woof
-  `;
+    const testComplexNode = testTextInterpolator3`hello<p>world</p>`;
     const testSkeleton = buildSkeleton(testComplexNode);
-    if (!samestuff$1(sourceSkeleton, testSkeleton)) {
+    if (!samestuff(sourceSkeleton, testSkeleton)) {
         assertions.push("skeletons are not equal");
     }
     return assertions;
 };
-const tests$8 = [
+const findCompoundFromPlainText = ()=>{
+    const assertions = [];
+    const sourceSkeleton = [
+        {
+            nodeType: "OPEN_NODE_CONFIRMED",
+            vector: {
+                origin: {
+                    arrayIndex: 0,
+                    stringIndex: 0
+                },
+                target: {
+                    arrayIndex: 0,
+                    stringIndex: 3
+                }
+            }
+        },
+        {
+            nodeType: "CONTENT_NODE",
+            vector: {
+                origin: {
+                    arrayIndex: 0,
+                    stringIndex: 4
+                },
+                target: {
+                    arrayIndex: 0,
+                    stringIndex: 8
+                }
+            }
+        },
+        {
+            nodeType: "CLOSE_NODE_CONFIRMED",
+            vector: {
+                origin: {
+                    arrayIndex: 0,
+                    stringIndex: 9
+                },
+                target: {
+                    arrayIndex: 0,
+                    stringIndex: 13
+                }
+            }
+        }, 
+    ];
+    const testComplexNode = testTextInterpolator3`<h1>hello</h1>`;
+    const testSkeleton = buildSkeleton(testComplexNode);
+    if (!samestuff(sourceSkeleton, testSkeleton)) {
+        assertions.push("skeletons are not equal");
+    }
+    return assertions;
+};
+const findInjectionFromPlainText = ()=>{
+    const assertions = [];
+    const sourceSkeleton = [
+        {
+            nodeType: "OPEN_NODE_CONFIRMED",
+            vector: {
+                origin: {
+                    arrayIndex: 0,
+                    stringIndex: 0
+                },
+                target: {
+                    arrayIndex: 0,
+                    stringIndex: 3
+                }
+            }
+        },
+        {
+            nodeType: "CLOSE_NODE_CONFIRMED",
+            vector: {
+                origin: {
+                    arrayIndex: 1,
+                    stringIndex: 0
+                },
+                target: {
+                    arrayIndex: 1,
+                    stringIndex: 4
+                }
+            }
+        }, 
+    ];
+    const testComplexNode = testTextInterpolator3`<h1>${"hello"}</h1>`;
+    const testSkeleton = buildSkeleton(testComplexNode);
+    if (!samestuff(sourceSkeleton, testSkeleton)) {
+        assertions.push("skeletons are not equal");
+    }
+    return assertions;
+};
+const findPreceedingInjectionFromPlainText = ()=>{
+    const assertions = [];
+    const sourceSkeleton = [
+        {
+            nodeType: "OPEN_NODE_CONFIRMED",
+            vector: {
+                origin: {
+                    arrayIndex: 1,
+                    stringIndex: 0
+                },
+                target: {
+                    arrayIndex: 1,
+                    stringIndex: 3
+                }
+            }
+        },
+        {
+            nodeType: "CLOSE_NODE_CONFIRMED",
+            vector: {
+                origin: {
+                    arrayIndex: 2,
+                    stringIndex: 0
+                },
+                target: {
+                    arrayIndex: 2,
+                    stringIndex: 4
+                }
+            }
+        }, 
+    ];
+    const testComplexNode = testTextInterpolator3`${"hello"}<h1>${"hello"}</h1>`;
+    const testSkeleton = buildSkeleton(testComplexNode);
+    if (!samestuff(sourceSkeleton, testSkeleton)) {
+        assertions.push("skeletons are not equal");
+    }
+    return assertions;
+};
+const findTrailingInjectionFromPlainText = ()=>{
+    const assertions = [];
+    const sourceSkeleton = [
+        {
+            nodeType: "OPEN_NODE_CONFIRMED",
+            vector: {
+                origin: {
+                    arrayIndex: 0,
+                    stringIndex: 0
+                },
+                target: {
+                    arrayIndex: 0,
+                    stringIndex: 3
+                }
+            }
+        },
+        {
+            nodeType: "CLOSE_NODE_CONFIRMED",
+            vector: {
+                origin: {
+                    arrayIndex: 1,
+                    stringIndex: 0
+                },
+                target: {
+                    arrayIndex: 1,
+                    stringIndex: 4
+                }
+            }
+        },
+        {
+            nodeType: "CONTENT_NODE",
+            vector: {
+                origin: {
+                    arrayIndex: 2,
+                    stringIndex: 0
+                },
+                target: {
+                    arrayIndex: 2,
+                    stringIndex: 0
+                }
+            }
+        }, 
+    ];
+    const testComplexNode = testTextInterpolator3`<h1>${"hello"}</h1>${"hello"}`;
+    const testSkeleton = buildSkeleton(testComplexNode);
+    if (!samestuff(sourceSkeleton, testSkeleton)) {
+        assertions.push("skeletons are not equal");
+    }
+    return assertions;
+};
+const findMultipleInjectionFromPlainText = ()=>{
+    const assertions = [];
+    const sourceSkeleton = [
+        {
+            nodeType: "OPEN_NODE_CONFIRMED",
+            vector: {
+                origin: {
+                    arrayIndex: 1,
+                    stringIndex: 0
+                },
+                target: {
+                    arrayIndex: 1,
+                    stringIndex: 3
+                }
+            }
+        },
+        {
+            nodeType: "CLOSE_NODE_CONFIRMED",
+            vector: {
+                origin: {
+                    arrayIndex: 2,
+                    stringIndex: 0
+                },
+                target: {
+                    arrayIndex: 2,
+                    stringIndex: 4
+                }
+            }
+        },
+        {
+            nodeType: "CONTENT_NODE",
+            vector: {
+                origin: {
+                    arrayIndex: 3,
+                    stringIndex: 0
+                },
+                target: {
+                    arrayIndex: 3,
+                    stringIndex: 0
+                }
+            }
+        }, 
+    ];
+    const testComplexNode = testTextInterpolator3`${"hello"}<h1>${"hello"}</h1>${"hello"}`;
+    const testSkeleton = buildSkeleton(testComplexNode);
+    if (!samestuff(sourceSkeleton, testSkeleton)) {
+        assertions.push("skeletons are not equal");
+    }
+    return assertions;
+};
+const findBrokenFromPlainText = ()=>{
+    const assertions = [];
+    const sourceSkeleton = [
+        {
+            nodeType: "CONTENT_NODE",
+            vector: {
+                origin: {
+                    arrayIndex: 0,
+                    stringIndex: 0
+                },
+                target: {
+                    arrayIndex: 1,
+                    stringIndex: 5
+                }
+            }
+        },
+        {
+            nodeType: "CLOSE_NODE_CONFIRMED",
+            vector: {
+                origin: {
+                    arrayIndex: 1,
+                    stringIndex: 6
+                },
+                target: {
+                    arrayIndex: 1,
+                    stringIndex: 10
+                }
+            }
+        },
+        {
+            nodeType: "OPEN_NODE_CONFIRMED",
+            vector: {
+                origin: {
+                    arrayIndex: 1,
+                    stringIndex: 11
+                },
+                target: {
+                    arrayIndex: 1,
+                    stringIndex: 13
+                }
+            }
+        },
+        {
+            nodeType: "CONTENT_NODE",
+            vector: {
+                origin: {
+                    arrayIndex: 1,
+                    stringIndex: 14
+                },
+                target: {
+                    arrayIndex: 1,
+                    stringIndex: 18
+                }
+            }
+        },
+        {
+            nodeType: "CLOSE_NODE_CONFIRMED",
+            vector: {
+                origin: {
+                    arrayIndex: 1,
+                    stringIndex: 19
+                },
+                target: {
+                    arrayIndex: 1,
+                    stringIndex: 22
+                }
+            }
+        }, 
+    ];
+    const testComplexNode = testTextInterpolator3`<${"hello"}h2>hey</h2><p>howdy</p>`;
+    const testSkeleton = buildSkeleton(testComplexNode);
+    if (!samestuff(sourceSkeleton, testSkeleton)) {
+        assertions.push("skeletons are not equal");
+    }
+    return assertions;
+};
+const findSelfClosingNodesInOddPlainText = ()=>{
+    const assertions = [];
+    const sourceSkeleton = [
+        {
+            nodeType: "CONTENT_NODE",
+            vector: {
+                origin: {
+                    arrayIndex: 0,
+                    stringIndex: 0
+                },
+                target: {
+                    arrayIndex: 0,
+                    stringIndex: 4
+                }
+            }
+        },
+        {
+            nodeType: "SELF_CLOSING_NODE_CONFIRMED",
+            vector: {
+                origin: {
+                    arrayIndex: 0,
+                    stringIndex: 5
+                },
+                target: {
+                    arrayIndex: 0,
+                    stringIndex: 10
+                }
+            }
+        },
+        {
+            nodeType: "SELF_CLOSING_NODE_CONFIRMED",
+            vector: {
+                origin: {
+                    arrayIndex: 0,
+                    stringIndex: 11
+                },
+                target: {
+                    arrayIndex: 0,
+                    stringIndex: 18
+                }
+            }
+        },
+        {
+            nodeType: "CONTENT_NODE",
+            vector: {
+                origin: {
+                    arrayIndex: 0,
+                    stringIndex: 19
+                },
+                target: {
+                    arrayIndex: 0,
+                    stringIndex: 23
+                }
+            }
+        },
+        {
+            nodeType: "SELF_CLOSING_NODE_CONFIRMED",
+            vector: {
+                origin: {
+                    arrayIndex: 0,
+                    stringIndex: 24
+                },
+                target: {
+                    arrayIndex: 0,
+                    stringIndex: 33
+                }
+            }
+        },
+        {
+            nodeType: "CONTENT_NODE",
+            vector: {
+                origin: {
+                    arrayIndex: 1,
+                    stringIndex: 0
+                },
+                target: {
+                    arrayIndex: 1,
+                    stringIndex: 11
+                }
+            }
+        }, 
+    ];
+    const testComplexNode = testTextInterpolator3`\n    <dog/><doggo/>\n    <puppers/>${"woof"}\n    woof\n  `;
+    const testSkeleton = buildSkeleton(testComplexNode);
+    if (!samestuff(sourceSkeleton, testSkeleton)) {
+        assertions.push("skeletons are not equal");
+    }
+    return assertions;
+};
+const tests3 = [
     findInjectionFromPlainText,
-    findNothingWhenThereIsPlainText$1,
+    findNothingWhenThereIsPlainText,
     findStatementInPlainText,
     findComplexFromPlainText,
     findCompoundFromPlainText,
@@ -3024,32 +3197,31 @@ const tests$8 = [
     findPreceedingInjectionFromPlainText,
     findTrailingInjectionFromPlainText,
     findMultipleInjectionFromPlainText,
-    findSelfClosingNodesInOddPlainText,
+    findSelfClosingNodesInOddPlainText, 
 ];
 const unitTestBuildSkeleton = {
-    title: title$7,
-    tests: tests$8,
-    runTestsAsynchronously: runTestsAsynchronously$7,
+    title: title3,
+    tests: tests3,
+    runTestsAsynchronously: true
 };
-
-// brian taylor vann
-const title$6 = "context";
-const runTestsAsynchronously$6 = true;
-// N Node
-// A Attribute
-// P Params
-// S state
+const title4 = "context";
 const numberChunker = {
-    update: ({ params }) => {
-        return render `${params}`;
+    update: ({ params  })=>{
+        return draw`${params}`;
     },
-    connect: () => { },
-    disconnect: () => { },
+    connect: ()=>{
+    },
+    disconnect: ()=>{
+    }
 };
-const createSimpleContext = () => {
+const createSimpleContext = ()=>{
     const assertions = [];
     const params = 5;
-    const context = new Context({ hooks, params, chunker: numberChunker });
+    const context = new Chunk({
+        hooks,
+        params: 5,
+        chunker: numberChunker
+    });
     const siblings = context.getSiblings();
     if (siblings.length !== 3) {
         assertions.push("context should have 2 siblings");
@@ -3067,13 +3239,16 @@ const createSimpleContext = () => {
     }
     return assertions;
 };
-const mountAndUnmountSimpleComponent = () => {
+const mountAndUnmountSimpleComponent = ()=>{
     const assertions = [];
     const params = 5;
-    const context = new Context({ hooks, params, chunker: numberChunker });
+    const context = new Chunk({
+        hooks,
+        params: 5,
+        chunker: numberChunker
+    });
     const parentNode = hooks.createNode("div");
     let siblings = context.getSiblings();
-    // mount component
     context.mount(parentNode);
     if (siblings.length !== 3) {
         assertions.push("context should have 2 siblings");
@@ -3092,10 +3267,9 @@ const mountAndUnmountSimpleComponent = () => {
     if (textNode.kind === "TEXT" && textNode.text !== "5") {
         assertions.push("node after left setinel should have text as 5");
     }
-    // unmount component
     context.unmount();
     siblings = context.getSiblings();
-    for (const siblingID in siblings) {
+    for(const siblingID in siblings){
         const descendant = siblings[siblingID];
         if (descendant.parent !== undefined) {
             assertions.push("siblings should not have a parent");
@@ -3109,11 +3283,14 @@ const mountAndUnmountSimpleComponent = () => {
     }
     return assertions;
 };
-const updateContextSimpleContext = () => {
+const updateContextSimpleContext = ()=>{
     const assertions = [];
-    // we want siblings to update
     const params = 5;
-    const context = new Context({ hooks, params, chunker: numberChunker });
+    const context = new Chunk({
+        hooks,
+        params: 5,
+        chunker: numberChunker
+    });
     const parentNode = hooks.createNode("div");
     context.mount(parentNode);
     let siblings = context.getSiblings();
@@ -3140,7 +3317,7 @@ const updateContextSimpleContext = () => {
     if (textNode.kind === "TEXT" && textNode.text !== "6") {
         assertions.push("node after left setinel should have text as 5");
     }
-    for (const siblingID in siblings) {
+    for(const siblingID in siblings){
         const descendant = siblings[siblingID];
         if (descendant.parent !== parentNode) {
             assertions.push("siblings should have parent node instance");
@@ -3148,20 +3325,31 @@ const updateContextSimpleContext = () => {
     }
     return assertions;
 };
-const createAndUpdateDescendantContextArray = () => {
-    var _a, _b;
+const createAndUpdateDescendantContextArray = ()=>{
     const assertions = [];
     const params = 5;
-    const numberContext = new Context({ hooks, params, chunker: numberChunker });
+    const numberContext = new Chunk({
+        hooks,
+        params: 5,
+        chunker: numberChunker
+    });
     const parentChunker = {
-        update: ({ params, state }) => {
-            numberContext.update(params);
-            return render `<p>${[numberContext]}</p>`;
+        update: ({ params: params1 , state  })=>{
+            numberContext.update(params1);
+            return draw`<p>${[
+                numberContext
+            ]}</p>`;
         },
-        connect: () => { },
-        disconnect: () => { },
+        connect: ()=>{
+        },
+        disconnect: ()=>{
+        }
     };
-    const parentContext = new Context({ hooks, params, chunker: parentChunker });
+    const parentContext = new Chunk({
+        hooks,
+        params: 5,
+        chunker: parentChunker
+    });
     let siblings = parentContext.getSiblings();
     if (siblings.length !== 1) {
         assertions.push("context should have 1 siblings");
@@ -3182,7 +3370,7 @@ const createAndUpdateDescendantContextArray = () => {
         assertions.push("updated parent siblings should be an ELEMENT");
         return assertions;
     }
-    const updatedTextNode = (_b = (_a = siblings[0]) === null || _a === void 0 ? void 0 : _a.leftChild) === null || _b === void 0 ? void 0 : _b.right;
+    const updatedTextNode = siblings[0]?.leftChild?.right;
     siblings = parentContext.getSiblings();
     if (updatedTextNode === undefined) {
         assertions.push("updated descendant updatedTextNode should exist");
@@ -3196,19 +3384,31 @@ const createAndUpdateDescendantContextArray = () => {
     }
     return assertions;
 };
-const createAndUpdateDescendantSiblingContextArray = () => {
+const createAndUpdateDescendantSiblingContextArray = ()=>{
     const assertions = [];
     const params = 5;
-    const numberContext = new Context({ hooks, params, chunker: numberChunker });
+    const numberContext = new Chunk({
+        hooks,
+        params: 5,
+        chunker: numberChunker
+    });
     const parentChunker = {
-        update: ({ params, state }) => {
-            numberContext.update(params);
-            return render `${[numberContext]}`;
+        update: ({ params: params1 , state  })=>{
+            numberContext.update(params1);
+            return draw`${[
+                numberContext
+            ]}`;
         },
-        connect: () => { },
-        disconnect: () => { },
+        connect: ()=>{
+        },
+        disconnect: ()=>{
+        }
     };
-    const parentContext = new Context({ hooks, params, chunker: parentChunker });
+    const parentContext = new Chunk({
+        hooks,
+        params: 5,
+        chunker: parentChunker
+    });
     const siblings = parentContext.getSiblings();
     if (siblings.length !== 5) {
         assertions.push("context should have 5 siblings");
@@ -3231,24 +3431,37 @@ const createAndUpdateDescendantSiblingContextArray = () => {
     }
     return assertions;
 };
-const createAndUpdateMultipleDescendants = () => {
+const createAndUpdateMultipleDescendants = ()=>{
     const assertions = [];
     const params = 5;
-    const numberContext = new Context({ hooks, params, chunker: numberChunker });
-    const otherNumberContext = new Context({
+    const numberContext = new Chunk({
         hooks,
-        params,
-        chunker: numberChunker,
+        params: 5,
+        chunker: numberChunker
+    });
+    const otherNumberContext = new Chunk({
+        hooks,
+        params: 5,
+        chunker: numberChunker
     });
     const parentChunker = {
-        update: ({ params }) => {
-            numberContext.update(params);
-            return render `${[numberContext, otherNumberContext]}`;
+        update: ({ params: params1  })=>{
+            numberContext.update(params1);
+            return draw`${[
+                numberContext,
+                otherNumberContext
+            ]}`;
         },
-        connect: () => { },
-        disconnect: () => { },
+        connect: ()=>{
+        },
+        disconnect: ()=>{
+        }
     };
-    const parentContext = new Context({ hooks, params, chunker: parentChunker });
+    const parentContext = new Chunk({
+        hooks,
+        params: 5,
+        chunker: parentChunker
+    });
     const siblings = parentContext.getSiblings();
     if (siblings.length !== 8) {
         assertions.push("context should have 8 siblings");
@@ -3274,365 +3487,364 @@ const createAndUpdateMultipleDescendants = () => {
     if (updatedOtherTextNode.kind !== "TEXT") {
         assertions.push("node after left sentinel should be a TEXT");
     }
-    if (updatedOtherTextNode.kind === "TEXT" &&
-        updatedOtherTextNode.text !== "5") {
+    if (updatedOtherTextNode.kind === "TEXT" && updatedOtherTextNode.text !== "5") {
         assertions.push("node after left setinel should have text as '5'");
     }
     return assertions;
 };
-const tests$7 = [
+const tests4 = [
     createSimpleContext,
     mountAndUnmountSimpleComponent,
     updateContextSimpleContext,
     createAndUpdateDescendantContextArray,
     createAndUpdateDescendantSiblingContextArray,
-    createAndUpdateMultipleDescendants,
+    createAndUpdateMultipleDescendants, 
 ];
 const unitTestContext = {
-    title: title$6,
-    tests: tests$7,
-    runTestsAsynchronously: runTestsAsynchronously$6,
+    title: title4,
+    tests: tests4,
+    runTestsAsynchronously: true
 };
-
-// brian taylor vann
-const testTextInterpolator$3 = (templateArray, ...injections) => {
-    return { templateArray, injections };
+const testTextInterpolator4 = (templateArray, ...injections)=>{
+    return {
+        templateArray,
+        injections
+    };
 };
-const title$5 = "skeleton crawl";
-const runTestsAsynchronously$5 = true;
-const findNothingWhenThereIsPlainText = () => {
+const title5 = "skeleton crawl";
+const findNothingWhenThereIsPlainText1 = ()=>{
     const assertions = [];
     const expectedResults = {
         nodeType: "CONTENT_NODE",
         vector: {
             origin: {
                 arrayIndex: 0,
-                stringIndex: 0,
+                stringIndex: 0
             },
             target: {
                 arrayIndex: 0,
-                stringIndex: 20,
-            },
-        },
+                stringIndex: 20
+            }
+        }
     };
-    const testBlank = testTextInterpolator$3 `no nodes to be found!`;
+    const testBlank = testTextInterpolator4`no nodes to be found!`;
     const results = crawl(testBlank);
-    if (!samestuff$1(expectedResults, results)) {
+    if (!samestuff(expectedResults, results)) {
         assertions.push("unexpected results found.");
     }
     return assertions;
 };
-const findParagraphInPlainText = () => {
+const findParagraphInPlainText = ()=>{
     const assertions = [];
     const expectedResults = {
         nodeType: "OPEN_NODE_CONFIRMED",
         vector: {
             origin: {
                 arrayIndex: 0,
-                stringIndex: 0,
+                stringIndex: 0
             },
             target: {
                 arrayIndex: 0,
-                stringIndex: 2,
-            },
-        },
+                stringIndex: 2
+            }
+        }
     };
-    const testOpenNode = testTextInterpolator$3 `<p>`;
+    const testOpenNode = testTextInterpolator4`<p>`;
     const results = crawl(testOpenNode);
-    if (!samestuff$1(expectedResults, results)) {
+    if (!samestuff(expectedResults, results)) {
         assertions.push("unexpected results found.");
     }
     return assertions;
 };
-const findImageInPlainText = () => {
+const findImageInPlainText = ()=>{
     const assertions = [];
     const expectedResults = {
         nodeType: "OPEN_NODE_CONFIRMED",
         vector: {
             origin: {
                 arrayIndex: 0,
-                stringIndex: 0,
+                stringIndex: 0
             },
             target: {
                 arrayIndex: 0,
-                stringIndex: 6,
-            },
-        },
+                stringIndex: 6
+            }
+        }
     };
-    const testOpenNode = testTextInterpolator$3 `<image>`;
+    const testOpenNode = testTextInterpolator4`<image>`;
     const results = crawl(testOpenNode);
-    if (!samestuff$1(expectedResults, results)) {
+    if (!samestuff(expectedResults, results)) {
         assertions.push("unexpected results found.");
     }
     return assertions;
 };
-const findCloseParagraphInPlainText = () => {
+const findCloseParagraphInPlainText = ()=>{
     const assertions = [];
     const expectedResults = {
         nodeType: "CLOSE_NODE_CONFIRMED",
         vector: {
             origin: {
                 arrayIndex: 0,
-                stringIndex: 0,
+                stringIndex: 0
             },
             target: {
                 arrayIndex: 0,
-                stringIndex: 3,
-            },
-        },
+                stringIndex: 3
+            }
+        }
     };
-    const testTextCloseNode = testTextInterpolator$3 `</p>`;
+    const testTextCloseNode = testTextInterpolator4`</p>`;
     const results = crawl(testTextCloseNode);
-    if (!samestuff$1(expectedResults, results)) {
+    if (!samestuff(expectedResults, results)) {
         assertions.push("unexpected results found.");
     }
     return assertions;
 };
-const findIndependentParagraphInPlainText = () => {
+const findIndependentParagraphInPlainText = ()=>{
     const assertions = [];
     const expectedResults = {
         nodeType: "SELF_CLOSING_NODE_CONFIRMED",
         vector: {
             origin: {
                 arrayIndex: 0,
-                stringIndex: 0,
+                stringIndex: 0
             },
             target: {
                 arrayIndex: 0,
-                stringIndex: 3,
-            },
-        },
+                stringIndex: 3
+            }
+        }
     };
-    const testTextIndependentNode = testTextInterpolator$3 `<p/>`;
+    const testTextIndependentNode = testTextInterpolator4`<p/>`;
     const results = crawl(testTextIndependentNode);
-    if (!samestuff$1(expectedResults, results)) {
+    if (!samestuff(expectedResults, results)) {
         assertions.push("unexpected results found.");
     }
     return assertions;
 };
-const findOpenParagraphInTextWithArgs = () => {
+const findOpenParagraphInTextWithArgs = ()=>{
     const assertions = [];
     const expectedResults = {
         nodeType: "OPEN_NODE_CONFIRMED",
         vector: {
             origin: {
                 arrayIndex: 1,
-                stringIndex: 1,
+                stringIndex: 1
             },
             target: {
                 arrayIndex: 1,
-                stringIndex: 8,
-            },
-        },
+                stringIndex: 8
+            }
+        }
     };
-    const testTextWithArgs = testTextInterpolator$3 `an ${"example"} <buster>${"!"}</buster>`;
+    const testTextWithArgs = testTextInterpolator4`an ${"example"} <buster>${"!"}</buster>`;
     const results = crawl(testTextWithArgs);
-    if (!samestuff$1(expectedResults, results)) {
+    if (!samestuff(expectedResults, results)) {
         assertions.push("unexpected results found.");
     }
     return assertions;
 };
-const notFoundInUgglyMessText = () => {
+const notFoundInUgglyMessText = ()=>{
     const assertions = [];
     const expectedResults = {
         nodeType: "CONTENT_NODE",
         vector: {
             origin: {
                 arrayIndex: 0,
-                stringIndex: 0,
+                stringIndex: 0
             },
             target: {
                 arrayIndex: 2,
-                stringIndex: 0,
-            },
-        },
+                stringIndex: 0
+            }
+        }
     };
-    const testInvalidUgglyMess = testTextInterpolator$3 `an <${"invalid"}p> example${"!"}`;
+    const testInvalidUgglyMess = testTextInterpolator4`an <${"invalid"}p> example${"!"}`;
     const results = crawl(testInvalidUgglyMess);
-    if (!samestuff$1(expectedResults, results)) {
+    if (!samestuff(expectedResults, results)) {
         assertions.push("unexpected results found.");
     }
     return assertions;
 };
-const notFoundInReallyUgglyMessText = () => {
+const notFoundInReallyUgglyMessText = ()=>{
     const assertions = [];
     const expectedResults = {
         nodeType: "CONTENT_NODE",
         vector: {
             origin: {
                 arrayIndex: 0,
-                stringIndex: 0,
+                stringIndex: 0
             },
             target: {
                 arrayIndex: 2,
-                stringIndex: 0,
-            },
-        },
+                stringIndex: 0
+            }
+        }
     };
-    const testInvalidUgglyMess = testTextInterpolator$3 `an example${"!"}${"?"}`;
+    const testInvalidUgglyMess = testTextInterpolator4`an example${"!"}${"?"}`;
     const results = crawl(testInvalidUgglyMess);
-    if (!samestuff$1(expectedResults, results)) {
+    if (!samestuff(expectedResults, results)) {
         assertions.push("unexpected results found.");
     }
     return assertions;
 };
-const invalidCloseNodeWithArgs = () => {
+const invalidCloseNodeWithArgs = ()=>{
     const assertions = [];
     const expectedResults = {
         nodeType: "CONTENT_NODE",
         vector: {
             origin: {
                 arrayIndex: 0,
-                stringIndex: 0,
+                stringIndex: 0
             },
             target: {
                 arrayIndex: 1,
-                stringIndex: 1,
-            },
-        },
+                stringIndex: 1
+            }
+        }
     };
-    const testInvlaidCloseNodeWithArgs = testTextInterpolator$3 `closed </${"example"}p>`;
+    const testInvlaidCloseNodeWithArgs = testTextInterpolator4`closed </${"example"}p>`;
     const results = crawl(testInvlaidCloseNodeWithArgs);
-    if (!samestuff$1(expectedResults, results)) {
+    if (!samestuff(expectedResults, results)) {
         assertions.push("unexpected results found.");
     }
     return assertions;
 };
-const validCloseNodeWithArgs = () => {
+const validCloseNodeWithArgs = ()=>{
     const assertions = [];
     const expectedResults = {
         nodeType: "CLOSE_NODE_CONFIRMED",
         vector: {
             origin: {
                 arrayIndex: 0,
-                stringIndex: 7,
+                stringIndex: 7
             },
             target: {
                 arrayIndex: 1,
-                stringIndex: 0,
-            },
-        },
+                stringIndex: 0
+            }
+        }
     };
-    const testValidCloseNodeWithArgs = testTextInterpolator$3 `closed </p ${"example"}>`;
+    const testValidCloseNodeWithArgs = testTextInterpolator4`closed </p ${"example"}>`;
     const results = crawl(testValidCloseNodeWithArgs);
-    if (!samestuff$1(expectedResults, results)) {
+    if (!samestuff(expectedResults, results)) {
         assertions.push("unexpected results found.");
     }
     return assertions;
 };
-const invalidIndependentNodeWithArgs = () => {
+const invalidIndependentNodeWithArgs = ()=>{
     const assertions = [];
     const expectedResults = {
         nodeType: "CONTENT_NODE",
         vector: {
             origin: {
                 arrayIndex: 0,
-                stringIndex: 0,
+                stringIndex: 0
             },
             target: {
                 arrayIndex: 1,
-                stringIndex: 2,
-            },
-        },
+                stringIndex: 2
+            }
+        }
     };
-    const testInvalidIndependentNode = testTextInterpolator$3 `independent <${"example"}p/>`;
+    const testInvalidIndependentNode = testTextInterpolator4`independent <${"example"}p/>`;
     const results = crawl(testInvalidIndependentNode);
-    if (!samestuff$1(expectedResults, results)) {
+    if (!samestuff(expectedResults, results)) {
         assertions.push("unexpected results found.");
     }
     return assertions;
 };
-const validIndependentNodeWithArgs = () => {
+const validIndependentNodeWithArgs = ()=>{
     const assertions = [];
     const expectedResults = {
         nodeType: "SELF_CLOSING_NODE_CONFIRMED",
         vector: {
             origin: {
                 arrayIndex: 0,
-                stringIndex: 12,
+                stringIndex: 12
             },
             target: {
                 arrayIndex: 1,
-                stringIndex: 3,
-            },
-        },
+                stringIndex: 3
+            }
+        }
     };
-    const testValidIndependentNode = testTextInterpolator$3 `independent <p ${"example"} / >`;
+    const testValidIndependentNode = testTextInterpolator4`independent <p ${"example"} / >`;
     const results = crawl(testValidIndependentNode);
-    if (!samestuff$1(expectedResults, results)) {
+    if (!samestuff(expectedResults, results)) {
         assertions.push("unexpected results found.");
     }
     return assertions;
 };
-const invalidOpenNodeWithArgs = () => {
+const invalidOpenNodeWithArgs = ()=>{
     const assertions = [];
     const expectedResults = {
         nodeType: "CONTENT_NODE",
         vector: {
             origin: {
                 arrayIndex: 0,
-                stringIndex: 0,
+                stringIndex: 0
             },
             target: {
                 arrayIndex: 1,
-                stringIndex: 1,
-            },
-        },
+                stringIndex: 1
+            }
+        }
     };
-    const testInvalidOpenNode = testTextInterpolator$3 `open <${"example"}p>`;
+    const testInvalidOpenNode = testTextInterpolator4`open <${"example"}p>`;
     const results = crawl(testInvalidOpenNode);
-    if (!samestuff$1(expectedResults, results)) {
+    if (!samestuff(expectedResults, results)) {
         assertions.push("unexpected results found.");
     }
     return assertions;
 };
-const validOpenNodeWithArgs = () => {
+const validOpenNodeWithArgs = ()=>{
     const assertions = [];
     const expectedResults = {
         nodeType: "OPEN_NODE_CONFIRMED",
         vector: {
             origin: {
                 arrayIndex: 0,
-                stringIndex: 5,
+                stringIndex: 5
             },
             target: {
                 arrayIndex: 1,
-                stringIndex: 0,
-            },
-        },
+                stringIndex: 0
+            }
+        }
     };
-    const testValidOpenNode = testTextInterpolator$3 `open <p ${"example"}>`;
+    const testValidOpenNode = testTextInterpolator4`open <p ${"example"}>`;
     const results = crawl(testValidOpenNode);
-    if (!samestuff$1(expectedResults, results)) {
+    if (!samestuff(expectedResults, results)) {
         assertions.push("unexpected results found.");
     }
     return assertions;
 };
-const findNextCrawlWithPreviousCrawl = () => {
+const findNextCrawlWithPreviousCrawl = ()=>{
     const assertions = [];
     const expectedResults = {
         nodeType: "SELF_CLOSING_NODE_CONFIRMED",
         vector: {
             origin: {
                 arrayIndex: 2,
-                stringIndex: 0,
+                stringIndex: 0
             },
             target: {
                 arrayIndex: 2,
-                stringIndex: 3,
-            },
-        },
+                stringIndex: 3
+            }
+        }
     };
-    const testValidOpenNode = testTextInterpolator$3 `<p ${"small"}/>${"example"}<p/>`;
+    const testValidOpenNode = testTextInterpolator4`<p ${"small"}/>${"example"}<p/>`;
     const previousCrawl = crawl(testValidOpenNode);
     const results = crawl(testValidOpenNode, previousCrawl);
-    if (!samestuff$1(expectedResults, results)) {
+    if (!samestuff(expectedResults, results)) {
         assertions.push("unexpected results found.");
     }
     return assertions;
 };
-const tests$6 = [
-    findNothingWhenThereIsPlainText,
+const tests5 = [
+    findNothingWhenThereIsPlainText1,
     findParagraphInPlainText,
     findImageInPlainText,
     findCloseParagraphInPlainText,
@@ -3646,253 +3858,239 @@ const tests$6 = [
     validIndependentNodeWithArgs,
     invalidOpenNodeWithArgs,
     validOpenNodeWithArgs,
-    findNextCrawlWithPreviousCrawl,
+    findNextCrawlWithPreviousCrawl, 
 ];
 const unitTestSkeletonCrawl = {
-    title: title$5,
-    tests: tests$6,
-    runTestsAsynchronously: runTestsAsynchronously$5,
+    title: title5,
+    tests: tests5,
+    runTestsAsynchronously: true
 };
-
-// brian taylor vann
-const title$4 = "skeleton routers";
-const runTestsAsynchronously$4 = true;
-const notFoundReducesCorrectState = () => {
-    var _a, _b;
+const title6 = "skeleton routers";
+const notFoundReducesCorrectState = ()=>{
     const assertions = [];
-    if (((_a = routers["CONTENT_NODE"]) === null || _a === void 0 ? void 0 : _a["<"]) !== "OPEN_NODE") {
+    if (routers["CONTENT_NODE"]?.["<"] !== "OPEN_NODE") {
         assertions.push("< should return OPEN_NODE");
     }
-    if (((_b = routers["CONTENT_NODE"]) === null || _b === void 0 ? void 0 : _b["DEFAULT"]) !== "CONTENT_NODE") {
+    if (routers["CONTENT_NODE"]?.["DEFAULT"] !== "CONTENT_NODE") {
         assertions.push("space should return CONTENT_NODE");
     }
     return assertions;
 };
-const openNodeReducesCorrectState = () => {
-    var _a, _b, _c, _d;
+const openNodeReducesCorrectState = ()=>{
     const assertions = [];
-    if (((_a = routers["OPEN_NODE"]) === null || _a === void 0 ? void 0 : _a["<"]) !== "OPEN_NODE") {
+    if (routers["OPEN_NODE"]?.["<"] !== "OPEN_NODE") {
         assertions.push("< should return OPEN_NODE");
     }
-    if (((_b = routers["OPEN_NODE"]) === null || _b === void 0 ? void 0 : _b["/"]) !== "CLOSE_NODE") {
+    if (routers["OPEN_NODE"]?.["/"] !== "CLOSE_NODE") {
         assertions.push("/ should return CLOSE_NODE");
     }
-    if (((_c = routers["OPEN_NODE"]) === null || _c === void 0 ? void 0 : _c[" "]) !== "CONTENT_NODE") {
+    if (routers["OPEN_NODE"]?.[" "] !== "CONTENT_NODE") {
         assertions.push("space should return CONTENT_NODE");
     }
-    if (((_d = routers["OPEN_NODE"]) === null || _d === void 0 ? void 0 : _d["DEFAULT"]) !== "OPEN_NODE_VALID") {
+    if (routers["OPEN_NODE"]?.["DEFAULT"] !== "OPEN_NODE_VALID") {
         assertions.push("space should return OPEN_NODE_VALID");
     }
     return assertions;
 };
-const openNodeValidReducesCorrectState = () => {
-    var _a, _b, _c, _d;
+const openNodeValidReducesCorrectState = ()=>{
     const assertions = [];
-    if (((_a = routers["OPEN_NODE_VALID"]) === null || _a === void 0 ? void 0 : _a["<"]) !== "OPEN_NODE") {
+    if (routers["OPEN_NODE_VALID"]?.["<"] !== "OPEN_NODE") {
         assertions.push("< should return OPEN_NODE");
     }
-    if (((_b = routers["OPEN_NODE_VALID"]) === null || _b === void 0 ? void 0 : _b["/"]) !== "SELF_CLOSING_NODE_VALID") {
+    if (routers["OPEN_NODE_VALID"]?.["/"] !== "SELF_CLOSING_NODE_VALID") {
         assertions.push("/ should return SELF_CLOSING_NODE_VALID");
     }
-    if (((_c = routers["OPEN_NODE_VALID"]) === null || _c === void 0 ? void 0 : _c[">"]) !== "OPEN_NODE_CONFIRMED") {
+    if (routers["OPEN_NODE_VALID"]?.[">"] !== "OPEN_NODE_CONFIRMED") {
         assertions.push("> should return OPEN_NODE_CONFIRMED");
     }
-    if (((_d = routers["OPEN_NODE_VALID"]) === null || _d === void 0 ? void 0 : _d["DEFAULT"]) !== "OPEN_NODE_VALID") {
+    if (routers["OPEN_NODE_VALID"]?.["DEFAULT"] !== "OPEN_NODE_VALID") {
         assertions.push("space should return OPEN_NODE_VALID");
     }
     return assertions;
 };
-const independentNodeValidReducesCorrectState = () => {
-    var _a, _b;
+const independentNodeValidReducesCorrectState = ()=>{
     const assertions = [];
-    if (((_a = routers["SELF_CLOSING_NODE_VALID"]) === null || _a === void 0 ? void 0 : _a["<"]) !== "OPEN_NODE") {
+    if (routers["SELF_CLOSING_NODE_VALID"]?.["<"] !== "OPEN_NODE") {
         assertions.push("< should return OPEN_NODE");
     }
-    if (((_b = routers["SELF_CLOSING_NODE_VALID"]) === null || _b === void 0 ? void 0 : _b["DEFAULT"]) !==
-        "SELF_CLOSING_NODE_VALID") {
+    if (routers["SELF_CLOSING_NODE_VALID"]?.["DEFAULT"] !== "SELF_CLOSING_NODE_VALID") {
         assertions.push("space should return SELF_CLOSING_NODE_VALID");
     }
     return assertions;
 };
-const closeNodeReducesCorrectState = () => {
-    var _a, _b, _c;
+const closeNodeReducesCorrectState = ()=>{
     const assertions = [];
-    if (((_a = routers["CLOSE_NODE"]) === null || _a === void 0 ? void 0 : _a["<"]) !== "OPEN_NODE") {
+    if (routers["CLOSE_NODE"]?.["<"] !== "OPEN_NODE") {
         assertions.push("< should return OPEN_NODE");
     }
-    if (((_b = routers["CLOSE_NODE"]) === null || _b === void 0 ? void 0 : _b["DEFAULT"]) !== "CLOSE_NODE_VALID") {
+    if (routers["CLOSE_NODE"]?.["DEFAULT"] !== "CLOSE_NODE_VALID") {
         assertions.push("space should return CLOSE_NODE_VALID");
     }
-    if (((_c = routers["CLOSE_NODE"]) === null || _c === void 0 ? void 0 : _c[" "]) !== "CONTENT_NODE") {
+    if (routers["CLOSE_NODE"]?.[" "] !== "CONTENT_NODE") {
         assertions.push("space should return CONTENT_NODE");
     }
     return assertions;
 };
-const closeNodeValidReducesCorrectState = () => {
-    var _a, _b, _c;
+const closeNodeValidReducesCorrectState = ()=>{
     const assertions = [];
-    if (((_a = routers["CLOSE_NODE_VALID"]) === null || _a === void 0 ? void 0 : _a["<"]) !== "OPEN_NODE") {
+    if (routers["CLOSE_NODE_VALID"]?.["<"] !== "OPEN_NODE") {
         assertions.push("< should return OPEN_NODE");
     }
-    if (((_b = routers["CLOSE_NODE_VALID"]) === null || _b === void 0 ? void 0 : _b[">"]) !== "CLOSE_NODE_CONFIRMED") {
+    if (routers["CLOSE_NODE_VALID"]?.[">"] !== "CLOSE_NODE_CONFIRMED") {
         assertions.push("> should return CLOSE_NODE_CONFIRMED");
     }
-    if (((_c = routers["CLOSE_NODE_VALID"]) === null || _c === void 0 ? void 0 : _c["DEFAULT"]) !== "CLOSE_NODE_VALID") {
+    if (routers["CLOSE_NODE_VALID"]?.["DEFAULT"] !== "CLOSE_NODE_VALID") {
         assertions.push("space should return CLOSE_NODE_VALID");
     }
     return assertions;
 };
-const tests$5 = [
+const tests6 = [
     notFoundReducesCorrectState,
     openNodeReducesCorrectState,
     openNodeValidReducesCorrectState,
     independentNodeValidReducesCorrectState,
     closeNodeReducesCorrectState,
-    closeNodeValidReducesCorrectState,
+    closeNodeValidReducesCorrectState, 
 ];
 const unitTestSkeletonRouters = {
-    title: title$4,
-    tests: tests$5,
-    runTestsAsynchronously: runTestsAsynchronously$4,
+    title: title6,
+    tests: tests6,
+    runTestsAsynchronously: true
 };
-
-// brian taylor vann
-const RECURSION_SAFETY = 256;
-const testTextInterpolator$2 = (templateArray, ...injections) => {
-    return { templateArray, injections };
+const testTextInterpolator5 = (templateArray, ...injections)=>{
+    return {
+        templateArray,
+        injections
+    };
 };
-const title$3 = "tag_name_crawl";
-const runTestsAsynchronously$3 = true;
-const testEmptyString = () => {
+const title7 = "tag_name_crawl";
+const testEmptyString = ()=>{
     const assertions = [];
-    const template = testTextInterpolator$2 ``;
-    const vector = create();
-    const results = crawlForTagName(template, vector);
+    const template2 = testTextInterpolator5``;
+    const vector = create1();
+    const results = crawlForTagName(template2, vector);
     if (results !== undefined) {
         assertions.push("this should have failed");
     }
     return assertions;
 };
-const testEmptySpaceString = () => {
+const testEmptySpaceString = ()=>{
     const assertions = [];
-    const template = testTextInterpolator$2 ` `;
-    const vector = create();
-    const results = crawlForTagName(template, vector);
+    const template2 = testTextInterpolator5` `;
+    const vector = create1();
+    const results = crawlForTagName(template2, vector);
     if (results !== undefined) {
         assertions.push("this should have failed");
     }
     return assertions;
 };
-const testSingleCharacterString = () => {
+const testSingleCharacterString = ()=>{
     const assertions = [];
     const expectedResults = {
         origin: {
             arrayIndex: 0,
-            stringIndex: 0,
+            stringIndex: 0
         },
         target: {
             arrayIndex: 0,
-            stringIndex: 0,
-        },
+            stringIndex: 0
+        }
     };
-    const template = testTextInterpolator$2 `a`;
-    const vector = create();
-    const results = crawlForTagName(template, vector);
-    if (!samestuff$1(expectedResults, results)) {
+    const template2 = testTextInterpolator5`a`;
+    const vector = create1();
+    const results = crawlForTagName(template2, vector);
+    if (!samestuff(expectedResults, results)) {
         assertions.push("unexpected tag name results happen.");
     }
     return assertions;
 };
-const testCharaceterString = () => {
+const testCharaceterString = ()=>{
     const assertions = [];
     const expectedResults = {
         origin: {
             arrayIndex: 0,
-            stringIndex: 0,
+            stringIndex: 0
         },
         target: {
             arrayIndex: 0,
-            stringIndex: 0,
-        },
+            stringIndex: 0
+        }
     };
-    const template = testTextInterpolator$2 `a `;
-    const vector = create();
+    const template2 = testTextInterpolator5`a `;
+    const vector = create1();
     let safety = 0;
-    while (incrementTarget(template, vector) && safety < RECURSION_SAFETY) {
+    while(incrementTarget(template2, vector) && safety < 256){
         safety += 1;
     }
-    const results = crawlForTagName(template, vector);
-    if (!samestuff$1(expectedResults, results)) {
+    const results = crawlForTagName(template2, vector);
+    if (!samestuff(expectedResults, results)) {
         assertions.push("unexpected tag name results happen.");
     }
     return assertions;
 };
-const testMultiCharaceterString = () => {
+const testMultiCharaceterString = ()=>{
     const assertions = [];
     const expectedResults = {
         origin: {
             arrayIndex: 0,
-            stringIndex: 0,
+            stringIndex: 0
         },
         target: {
             arrayIndex: 0,
-            stringIndex: 2,
-        },
+            stringIndex: 2
+        }
     };
-    const template = testTextInterpolator$2 `aaa `;
-    const vector = create();
+    const template2 = testTextInterpolator5`aaa `;
+    const vector = create1();
     let safety = 0;
-    while (incrementTarget(template, vector) && safety < RECURSION_SAFETY) {
+    while(incrementTarget(template2, vector) && safety < 256){
         safety += 1;
     }
-    const results = crawlForTagName(template, vector);
-    if (!samestuff$1(expectedResults, results)) {
+    const results = crawlForTagName(template2, vector);
+    if (!samestuff(expectedResults, results)) {
         assertions.push("unexpected tag name results happen.");
     }
     return assertions;
 };
-const testMultiCharaceterStringWithTrailingSpaces = () => {
+const testMultiCharaceterStringWithTrailingSpaces = ()=>{
     const assertions = [];
     const expectedResults = {
         origin: {
             arrayIndex: 0,
-            stringIndex: 0,
+            stringIndex: 0
         },
         target: {
             arrayIndex: 0,
-            stringIndex: 2,
-        },
+            stringIndex: 2
+        }
     };
-    const template = testTextInterpolator$2 `aaa     `;
-    const vector = create();
+    const template2 = testTextInterpolator5`aaa     `;
+    const vector = create1();
     let safety = 0;
-    while (incrementTarget(template, vector) && safety < RECURSION_SAFETY) {
+    while(incrementTarget(template2, vector) && safety < 256){
         safety += 1;
     }
-    const results = crawlForTagName(template, vector);
-    if (!samestuff$1(expectedResults, results)) {
+    const results = crawlForTagName(template2, vector);
+    if (!samestuff(expectedResults, results)) {
         assertions.push("unexpected tag name results happen.");
     }
     return assertions;
 };
-const tests$4 = [
+const tests7 = [
     testEmptyString,
     testEmptySpaceString,
     testSingleCharacterString,
     testCharaceterString,
     testMultiCharaceterString,
-    testMultiCharaceterStringWithTrailingSpaces,
+    testMultiCharaceterStringWithTrailingSpaces, 
 ];
 const unitTestTagNameCrawl = {
-    title: title$3,
-    tests: tests$4,
-    runTestsAsynchronously: runTestsAsynchronously$3,
+    title: title7,
+    tests: tests7,
+    runTestsAsynchronously: true
 };
-
-// brian taylor vann
-const title$2 = "test_hooks";
-const runTestsAsynchronously$2 = true;
-const testCreateNode = () => {
+const title8 = "test_hooks";
+const testCreateNode1 = ()=>{
     const assertions = [];
     const node = hooks.createNode("hello");
     if (node === undefined) {
@@ -3906,7 +4104,7 @@ const testCreateNode = () => {
     }
     return assertions;
 };
-const testCreateTextNode = () => {
+const testCreateTextNode = ()=>{
     const assertions = [];
     const node = hooks.createTextNode("hello!");
     if (node === undefined) {
@@ -3917,10 +4115,16 @@ const testCreateTextNode = () => {
     }
     return assertions;
 };
-const testSetAttribute = () => {
+const testSetAttribute = ()=>{
     const assertions = [];
     const node = hooks.createNode("basic");
-    hooks.setAttribute({ references: {}, node, attribute: "checked", value: true });
+    hooks.setAttribute({
+        references: {
+        },
+        node,
+        attribute: "checked",
+        value: true
+    });
     if (node.kind !== "ELEMENT") {
         assertions.push("node should be an ELEMENT");
     }
@@ -3929,17 +4133,19 @@ const testSetAttribute = () => {
     }
     return assertions;
 };
-// append descendarnt
-const testInsertDescendant = () => {
+const testInsertDescendant = ()=>{
     const assertions = [];
     const sunshine = hooks.createNode("sunshine");
     const moonbeam = hooks.createNode("moonbeam");
     const starlight = hooks.createNode("starlight");
-    hooks.insertDescendant({ parentNode: sunshine, descendant: starlight });
+    hooks.insertDescendant({
+        parentNode: sunshine,
+        descendant: starlight
+    });
     hooks.insertDescendant({
         leftNode: starlight,
         parentNode: sunshine,
-        descendant: moonbeam,
+        descendant: moonbeam
     });
     if (starlight.kind === "ELEMENT" && starlight.left !== undefined) {
         assertions.push("starlight should have no left sibling");
@@ -3961,20 +4167,21 @@ const testInsertDescendant = () => {
     }
     return assertions;
 };
-// remove descendarnt
-const testRemoveDescendant = () => {
+const testRemoveDescendant = ()=>{
     const assertions = [];
     const sunshine = hooks.createNode("sunshine");
     const moonbeam = hooks.createNode("moonbeam");
     const starlight = hooks.createNode("starlight");
-    hooks.insertDescendant({ parentNode: sunshine, descendant: starlight });
+    hooks.insertDescendant({
+        parentNode: sunshine,
+        descendant: starlight
+    });
     hooks.insertDescendant({
         leftNode: starlight,
         parentNode: sunshine,
-        descendant: moonbeam,
+        descendant: moonbeam
     });
     hooks.removeDescendant(starlight);
-    // starlight should not have left or right
     if (starlight.left !== undefined) {
         assertions.push("starlight should not have a left sibling.");
     }
@@ -4001,20 +4208,22 @@ const testRemoveDescendant = () => {
     }
     return assertions;
 };
-const testRemoveAllDescendants = () => {
+const testRemoveAllDescendants = ()=>{
     const assertions = [];
     const sunshine = hooks.createNode("sunshine");
     const moonbeam = hooks.createNode("moonbeam");
     const starlight = hooks.createNode("starlight");
-    hooks.insertDescendant({ parentNode: sunshine, descendant: starlight });
+    hooks.insertDescendant({
+        parentNode: sunshine,
+        descendant: starlight
+    });
     hooks.insertDescendant({
         leftNode: starlight,
         parentNode: sunshine,
-        descendant: moonbeam,
+        descendant: moonbeam
     });
     hooks.removeDescendant(starlight);
     hooks.removeDescendant(moonbeam);
-    // starlight should be de-referenced
     if (starlight.left !== undefined) {
         assertions.push("starlight should not have a left sibling.");
     }
@@ -4024,7 +4233,6 @@ const testRemoveAllDescendants = () => {
     if (starlight.parent !== undefined) {
         assertions.push("starlight should not have a parent.");
     }
-    // moonbean should be de-referenced
     if (moonbeam.left !== undefined) {
         assertions.push("moonbeam should not have a left sibling.");
     }
@@ -4034,7 +4242,6 @@ const testRemoveAllDescendants = () => {
     if (moonbeam.parent !== undefined) {
         assertions.push("moonbeam should not have a parent.");
     }
-    // parent and sunshine
     if (sunshine.kind === "ELEMENT" && sunshine.leftChild !== undefined) {
         assertions.push("sunshine should not have a left child.");
     }
@@ -4043,130 +4250,84 @@ const testRemoveAllDescendants = () => {
     }
     return assertions;
 };
-const tests$3 = [
-    testCreateNode,
+const tests8 = [
+    testCreateNode1,
     testCreateTextNode,
     testSetAttribute,
     testInsertDescendant,
     testRemoveDescendant,
-    testRemoveAllDescendants,
+    testRemoveAllDescendants, 
 ];
 const unitTestTestHooks = {
-    title: title$2,
-    tests: tests$3,
-    runTestsAsynchronously: runTestsAsynchronously$2,
+    title: title8,
+    tests: tests8,
+    runTestsAsynchronously: true
 };
-
-// brian taylor vann
-// samestuff
-const samestuff = (source, comparator) => {
-    if (source === null || comparator === null) {
-        return source === comparator;
-    }
-    const isSourceObject = source instanceof Object;
-    const isComparatorObject = comparator instanceof Object;
-    if (!isSourceObject || !isComparatorObject) {
-        return source === comparator;
-    }
-    const isSourceFunc = source instanceof Function;
-    const isComparatorFunc = comparator instanceof Function;
-    if (isSourceFunc || isComparatorFunc) {
-        return source === comparator;
-    }
-    const isSourceArray = source instanceof Array;
-    const isComparatorArray = comparator instanceof Array;
-    if (isSourceArray !== isComparatorArray) {
-        return source === comparator;
-    }
-    // compare source to comparator
-    if (source instanceof Object && comparator instanceof Object) {
-        for (const sourceKey in source) {
-            // this is not ideal
-            const typedSourceKey = sourceKey;
-            const nextSource = source[typedSourceKey];
-            const nextComparator = comparator[typedSourceKey];
-            if (!samestuff(nextSource, nextComparator)) {
-                return false;
-            }
-        }
-        // compare comparator to source
-        for (const comparatorKey in comparator) {
-            // this is not ideal
-            const typedComparatorKey = comparatorKey;
-            const nextComparator = comparator[typedComparatorKey];
-            const nextSource = source[typedComparatorKey];
-            if (!samestuff(nextComparator, nextSource)) {
-                return false;
-            }
-        }
-    }
-    return true;
+const testTextInterpolator6 = (templateArray, ...injections)=>{
+    return {
+        templateArray,
+        injections
+    };
 };
-
-// brian taylor vann
-const testTextInterpolator$1 = (templateArray, ...injections) => {
-    return { templateArray, injections };
-};
-const title$1 = "text_position";
-const runTestsAsynchronously$1 = true;
-const createTextPosition = () => {
+const title9 = "text_position";
+const createTextPosition = ()=>{
     const assertions = [];
     const expectedResults = {
         arrayIndex: 0,
-        stringIndex: 0,
+        stringIndex: 0
     };
-    const position = create$1();
+    const position = create();
     if (!samestuff(expectedResults, position)) {
         assertions.push("unexpected results found.");
     }
     return assertions;
 };
-const createTextPositionFromPosition = () => {
+const createTextPositionFromPosition = ()=>{
     const assertions = [];
     const expectedResults = {
         arrayIndex: 3,
-        stringIndex: 4,
+        stringIndex: 4
     };
-    const position = create$1(expectedResults);
+    const position = create(expectedResults);
     if (!samestuff(expectedResults, position)) {
         assertions.push("unexpected results found.");
     }
     return assertions;
 };
-const copyTextPosition = () => {
+const copyTextPosition = ()=>{
     const assertions = [];
     const expectedResults = {
         arrayIndex: 2,
-        stringIndex: 3,
+        stringIndex: 3
     };
-    const position = copy$1(expectedResults);
+    const position = copy1(expectedResults);
     if (!samestuff(expectedResults, position)) {
         assertions.push("unexpected results found.");
     }
     return assertions;
 };
-const incrementTextPosition = () => {
+const incrementTextPosition = ()=>{
     const assertions = [];
     const expectedResults = {
         arrayIndex: 0,
-        stringIndex: 1,
+        stringIndex: 1
     };
-    const structureRender = testTextInterpolator$1 `hello`;
-    const position = create$1();
+    const structureRender = testTextInterpolator6`hello`;
+    const position = create();
     increment(structureRender, position);
     if (!samestuff(expectedResults, position)) {
         assertions.push("unexpected results found.");
     }
     return assertions;
 };
-const incrementMultiTextPosition = () => {
+const incrementMultiTextPosition = ()=>{
     const assertions = [];
     const expectedResults = {
         arrayIndex: 1,
-        stringIndex: 2,
+        stringIndex: 2
     };
-    const structureRender = testTextInterpolator$1 `hey${"world"}, how are you?`;
-    const position = create$1();
+    const structureRender = testTextInterpolator6`hey${"world"}, how are you?`;
+    const position = create();
     increment(structureRender, position);
     increment(structureRender, position);
     increment(structureRender, position);
@@ -4177,14 +4338,14 @@ const incrementMultiTextPosition = () => {
     }
     return assertions;
 };
-const incrementEmptyTextPosition = () => {
+const incrementEmptyTextPosition = ()=>{
     const assertions = [];
     const expectedResults = {
         arrayIndex: 3,
-        stringIndex: 0,
+        stringIndex: 0
     };
-    const structureRender = testTextInterpolator$1 `${"hey"}${"world"}${"!!"}`;
-    const position = create$1();
+    const structureRender = testTextInterpolator6`${"hey"}${"world"}${"!!"}`;
+    const position = create();
     increment(structureRender, position);
     increment(structureRender, position);
     increment(structureRender, position);
@@ -4196,23 +4357,22 @@ const incrementEmptyTextPosition = () => {
     }
     return assertions;
 };
-const incrementTextPositionTooFar = () => {
+const incrementTextPositionTooFar = ()=>{
     const assertions = [];
     const expectedResults = {
         arrayIndex: 1,
-        stringIndex: 13,
+        stringIndex: 13
     };
-    const structureRender = testTextInterpolator$1 `hey${"world"}, how are you?`;
+    const structureRender = testTextInterpolator6`hey${"world"}, how are you?`;
     const arrayLength = structureRender.templateArray.length - 1;
     const stringLength = structureRender.templateArray[arrayLength].length - 1;
-    const position = copy$1({
+    const position = copy1({
         arrayIndex: arrayLength,
-        stringIndex: stringLength,
+        stringIndex: stringLength
     });
     const MAX_DEPTH = 20;
     let safety = 0;
-    while (increment(structureRender, position) && safety < MAX_DEPTH) {
-        // iterate across structure
+    while(increment(structureRender, position) && safety < 20){
         safety += 1;
     }
     if (!samestuff(expectedResults, position)) {
@@ -4220,18 +4380,18 @@ const incrementTextPositionTooFar = () => {
     }
     return assertions;
 };
-const decrementTextPosition = () => {
+const decrementTextPosition = ()=>{
     const assertions = [];
     const expectedResults = {
         arrayIndex: 0,
-        stringIndex: 3,
+        stringIndex: 3
     };
-    const structureRender = testTextInterpolator$1 `hello`;
+    const structureRender = testTextInterpolator6`hello`;
     const arrayLength = structureRender.templateArray.length - 1;
     const stringLength = structureRender.templateArray[arrayLength].length - 1;
-    const position = copy$1({
+    const position = copy1({
         arrayIndex: arrayLength,
-        stringIndex: stringLength,
+        stringIndex: stringLength
     });
     decrement(structureRender, position);
     if (!samestuff(expectedResults, position)) {
@@ -4239,18 +4399,18 @@ const decrementTextPosition = () => {
     }
     return assertions;
 };
-const decrementMultiTextPosition = () => {
+const decrementMultiTextPosition = ()=>{
     const assertions = [];
     const expectedResults = {
         arrayIndex: 0,
-        stringIndex: 1,
+        stringIndex: 1
     };
-    const structureRender = testTextInterpolator$1 `hey${"hello"}bro!`;
+    const structureRender = testTextInterpolator6`hey${"hello"}bro!`;
     const arrayLength = structureRender.templateArray.length - 1;
     const stringLength = structureRender.templateArray[arrayLength].length - 1;
-    const position = copy$1({
+    const position = copy1({
         arrayIndex: arrayLength,
-        stringIndex: stringLength,
+        stringIndex: stringLength
     });
     decrement(structureRender, position);
     decrement(structureRender, position);
@@ -4262,18 +4422,18 @@ const decrementMultiTextPosition = () => {
     }
     return assertions;
 };
-const decrementEmptyTextPosition = () => {
+const decrementEmptyTextPosition = ()=>{
     const assertions = [];
     const expectedResults = {
         arrayIndex: 0,
-        stringIndex: 0,
+        stringIndex: 0
     };
-    const structureRender = testTextInterpolator$1 `${"hey"}${"world"}${"!!"}`;
+    const structureRender = testTextInterpolator6`${"hey"}${"world"}${"!!"}`;
     const arrayLength = structureRender.templateArray.length - 1;
     const stringLength = structureRender.templateArray[arrayLength].length - 1;
-    const position = copy$1({
+    const position = copy1({
         arrayIndex: arrayLength,
-        stringIndex: stringLength,
+        stringIndex: stringLength
     });
     decrement(structureRender, position);
     decrement(structureRender, position);
@@ -4286,18 +4446,17 @@ const decrementEmptyTextPosition = () => {
     }
     return assertions;
 };
-const decrementTextPositionTooFar = () => {
+const decrementTextPositionTooFar = ()=>{
     const assertions = [];
     const expectedResults = {
         arrayIndex: 0,
-        stringIndex: 0,
+        stringIndex: 0
     };
-    const structureRender = testTextInterpolator$1 `hey${"world"}, how are you?`;
-    const position = create$1();
+    const structureRender = testTextInterpolator6`hey${"world"}, how are you?`;
+    const position = create();
     const MAX_DEPTH = 20;
     let safety = 0;
-    while (decrement(structureRender, position) && safety < MAX_DEPTH) {
-        // iterate across structure
+    while(decrement(structureRender, position) && safety < 20){
         safety += 1;
     }
     if (!samestuff(expectedResults, position)) {
@@ -4305,17 +4464,20 @@ const decrementTextPositionTooFar = () => {
     }
     return assertions;
 };
-const getCharFromTemplate = () => {
+const getCharFromTemplate = ()=>{
     const assertions = [];
-    const structureRender = testTextInterpolator$1 `hello`;
-    const position = { arrayIndex: 0, stringIndex: 2 };
-    const char = getCharAtPosition(structureRender, position);
-    if (char !== "l") {
+    const structureRender = testTextInterpolator6`hello`;
+    const position = {
+        arrayIndex: 0,
+        stringIndex: 2
+    };
+    const __char = getCharAtPosition(structureRender, position);
+    if (__char !== "l") {
         assertions.push("textPosition target is not 'l'");
     }
     return assertions;
 };
-const tests$2 = [
+const tests9 = [
     createTextPosition,
     createTextPositionFromPosition,
     copyTextPosition,
@@ -4327,81 +4489,111 @@ const tests$2 = [
     decrementMultiTextPosition,
     decrementEmptyTextPosition,
     decrementTextPositionTooFar,
-    getCharFromTemplate,
+    getCharFromTemplate, 
 ];
 const unitTestTextPosition = {
-    title: title$1,
-    tests: tests$2,
-    runTestsAsynchronously: runTestsAsynchronously$1,
+    title: title9,
+    tests: tests9,
+    runTestsAsynchronously: true
 };
-
-// brian taylor vann
-const testTextInterpolator = (templateArray, ...injections) => {
-    return { templateArray, injections };
+const testTextInterpolator7 = (templateArray, ...injections)=>{
+    return {
+        templateArray,
+        injections
+    };
 };
-const title = "text_vector";
-const runTestsAsynchronously = true;
-const createTextVector = () => {
+const title10 = "text_vector";
+const createTextVector = ()=>{
     const assertions = [];
     const expectedResults = {
-        origin: { arrayIndex: 0, stringIndex: 0 },
-        target: { arrayIndex: 0, stringIndex: 0 },
+        origin: {
+            arrayIndex: 0,
+            stringIndex: 0
+        },
+        target: {
+            arrayIndex: 0,
+            stringIndex: 0
+        }
     };
-    const vector = create();
+    const vector = create1();
     if (!samestuff(expectedResults, vector)) {
         assertions.push("unexpected results found.");
     }
     return assertions;
 };
-const createTextVectorFromPosition = () => {
+const createTextVectorFromPosition = ()=>{
     const assertions = [];
     const expectedResults = {
-        origin: { arrayIndex: 4, stringIndex: 3 },
-        target: { arrayIndex: 4, stringIndex: 3 },
+        origin: {
+            arrayIndex: 4,
+            stringIndex: 3
+        },
+        target: {
+            arrayIndex: 4,
+            stringIndex: 3
+        }
     };
-    const vector = create({
+    const vector = create1({
         stringIndex: 3,
-        arrayIndex: 4,
+        arrayIndex: 4
     });
     if (!samestuff(expectedResults, vector)) {
         assertions.push("unexpected results found.");
     }
     return assertions;
 };
-const copyTextVector = () => {
+const copyTextVector = ()=>{
     const assertions = [];
     const expectedResults = {
-        origin: { arrayIndex: 0, stringIndex: 1 },
-        target: { arrayIndex: 2, stringIndex: 3 },
+        origin: {
+            arrayIndex: 0,
+            stringIndex: 1
+        },
+        target: {
+            arrayIndex: 2,
+            stringIndex: 3
+        }
     };
-    const copiedVector = copy(expectedResults);
+    const copiedVector = copy2(expectedResults);
     if (!samestuff(expectedResults, copiedVector)) {
         assertions.push("unexpected results found.");
     }
     return assertions;
 };
-const incrementTextVector = () => {
+const incrementTextVector = ()=>{
     const assertions = [];
     const expectedResults = {
-        origin: { arrayIndex: 0, stringIndex: 0 },
-        target: { arrayIndex: 0, stringIndex: 1 },
+        origin: {
+            arrayIndex: 0,
+            stringIndex: 0
+        },
+        target: {
+            arrayIndex: 0,
+            stringIndex: 1
+        }
     };
-    const structureRender = testTextInterpolator `hello`;
-    const vector = create();
+    const structureRender = testTextInterpolator7`hello`;
+    const vector = create1();
     incrementTarget(structureRender, vector);
     if (!samestuff(expectedResults, vector)) {
         assertions.push("unexpected results found.");
     }
     return assertions;
 };
-const incrementMultiTextVector = () => {
+const incrementMultiTextVector = ()=>{
     const assertions = [];
     const expectedResults = {
-        origin: { arrayIndex: 0, stringIndex: 0 },
-        target: { arrayIndex: 1, stringIndex: 2 },
+        origin: {
+            arrayIndex: 0,
+            stringIndex: 0
+        },
+        target: {
+            arrayIndex: 1,
+            stringIndex: 2
+        }
     };
-    const structureRender = testTextInterpolator `hey${"world"}, how are you?`;
-    const vector = create();
+    const structureRender = testTextInterpolator7`hey${"world"}, how are you?`;
+    const vector = create1();
     incrementTarget(structureRender, vector);
     incrementTarget(structureRender, vector);
     incrementTarget(structureRender, vector);
@@ -4418,14 +4610,20 @@ const incrementMultiTextVector = () => {
     }
     return assertions;
 };
-const incrementEmptyTextVector = () => {
+const incrementEmptyTextVector = ()=>{
     const assertions = [];
     const expectedResults = {
-        origin: { arrayIndex: 0, stringIndex: 0 },
-        target: { arrayIndex: 3, stringIndex: 0 },
+        origin: {
+            arrayIndex: 0,
+            stringIndex: 0
+        },
+        target: {
+            arrayIndex: 3,
+            stringIndex: 0
+        }
     };
-    const structureRender = testTextInterpolator `${"hey"}${"world"}${"!!"}`;
-    const vector = create();
+    const structureRender = testTextInterpolator7`${"hey"}${"world"}${"!!"}`;
+    const vector = create1();
     incrementTarget(structureRender, vector);
     incrementTarget(structureRender, vector);
     incrementTarget(structureRender, vector);
@@ -4437,14 +4635,20 @@ const incrementEmptyTextVector = () => {
     }
     return assertions;
 };
-const createFollowingTextVector = () => {
+const createFollowingTextVector = ()=>{
     const assertions = [];
     const expectedResults = {
-        origin: { arrayIndex: 0, stringIndex: 5 },
-        target: { arrayIndex: 0, stringIndex: 5 },
+        origin: {
+            arrayIndex: 0,
+            stringIndex: 5
+        },
+        target: {
+            arrayIndex: 0,
+            stringIndex: 5
+        }
     };
-    const structureRender = testTextInterpolator `supercool`;
-    const vector = create();
+    const structureRender = testTextInterpolator7`supercool`;
+    const vector = create1();
     incrementTarget(structureRender, vector);
     incrementTarget(structureRender, vector);
     incrementTarget(structureRender, vector);
@@ -4455,18 +4659,23 @@ const createFollowingTextVector = () => {
     }
     return assertions;
 };
-const incrementTextVectorTooFar = () => {
+const incrementTextVectorTooFar = ()=>{
     const assertions = [];
     const expectedResults = {
-        origin: { arrayIndex: 0, stringIndex: 0 },
-        target: { arrayIndex: 1, stringIndex: 13 },
+        origin: {
+            arrayIndex: 0,
+            stringIndex: 0
+        },
+        target: {
+            arrayIndex: 1,
+            stringIndex: 13
+        }
     };
-    const structureRender = testTextInterpolator `hey${"world"}, how are you?`;
-    const results = create();
+    const structureRender = testTextInterpolator7`hey${"world"}, how are you?`;
+    const results = create1();
     const MAX_DEPTH = 20;
     let safety = 0;
-    while (incrementTarget(structureRender, results) && safety < MAX_DEPTH) {
-        // iterate across structure
+    while(incrementTarget(structureRender, results) && safety < 20){
         safety += 1;
     }
     if (!samestuff(expectedResults, results)) {
@@ -4474,19 +4683,19 @@ const incrementTextVectorTooFar = () => {
     }
     return assertions;
 };
-const testHasOriginEclipsedTaraget = () => {
+const testHasOriginEclipsedTaraget = ()=>{
     const assertions = [];
-    const vector = create();
+    const vector = create1();
     const results = hasOriginEclipsedTaraget(vector);
     if (results !== true) {
         assertions.push("orign eclipsed target");
     }
     return assertions;
 };
-const testHasOriginNotEclipsedTaraget = () => {
+const testHasOriginNotEclipsedTaraget = ()=>{
     const assertions = [];
-    const structureRender = testTextInterpolator `hey${"world"}, how are you?`;
-    const vector = create();
+    const structureRender = testTextInterpolator7`hey${"world"}, how are you?`;
+    const vector = create1();
     incrementTarget(structureRender, vector);
     incrementTarget(structureRender, vector);
     incrementTarget(structureRender, vector);
@@ -4497,19 +4706,19 @@ const testHasOriginNotEclipsedTaraget = () => {
     }
     return assertions;
 };
-const testGetTextReturnsActualText = () => {
+const testGetTextReturnsActualText = ()=>{
     const expectedResult = "world";
     const assertions = [];
-    const structureRender = testTextInterpolator `hey world, how are you?`;
+    const structureRender = testTextInterpolator7`hey world, how are you?`;
     const vector = {
         origin: {
             arrayIndex: 0,
-            stringIndex: 4,
+            stringIndex: 4
         },
         target: {
             arrayIndex: 0,
-            stringIndex: 8,
-        },
+            stringIndex: 8
+        }
     };
     const results = getText(structureRender, vector);
     if (expectedResult !== results) {
@@ -4517,19 +4726,19 @@ const testGetTextReturnsActualText = () => {
     }
     return assertions;
 };
-const testGetTextOverTemplate = () => {
+const testGetTextOverTemplate = ()=>{
     const expectedResult = "how  you";
     const assertions = [];
-    const structureRender = testTextInterpolator `hey ${"world"}, how ${"are"} you?`;
+    const structureRender = testTextInterpolator7`hey ${"world"}, how ${"are"} you?`;
     const vector = {
         origin: {
             arrayIndex: 1,
-            stringIndex: 2,
+            stringIndex: 2
         },
         target: {
             arrayIndex: 2,
-            stringIndex: 3,
-        },
+            stringIndex: 3
+        }
     };
     const results = getText(structureRender, vector);
     if (expectedResult !== results) {
@@ -4537,19 +4746,19 @@ const testGetTextOverTemplate = () => {
     }
     return assertions;
 };
-const testGetTextOverChonkyTemplate = () => {
+const testGetTextOverChonkyTemplate = ()=>{
     const expectedResult = "how  you  buster";
     const assertions = [];
-    const structureRender = testTextInterpolator `hey ${"world"}, how ${"are"} you ${"doing"} buster?`;
+    const structureRender = testTextInterpolator7`hey ${"world"}, how ${"are"} you ${"doing"} buster?`;
     const vector = {
         origin: {
             arrayIndex: 1,
-            stringIndex: 2,
+            stringIndex: 2
         },
         target: {
             arrayIndex: 3,
-            stringIndex: 6,
-        },
+            stringIndex: 6
+        }
     };
     const results = getText(structureRender, vector);
     if (expectedResult !== results) {
@@ -4557,7 +4766,7 @@ const testGetTextOverChonkyTemplate = () => {
     }
     return assertions;
 };
-const tests$1 = [
+const tests10 = [
     createTextVector,
     createTextVectorFromPosition,
     createFollowingTextVector,
@@ -4570,16 +4779,14 @@ const tests$1 = [
     testHasOriginNotEclipsedTaraget,
     testGetTextReturnsActualText,
     testGetTextOverTemplate,
-    testGetTextOverChonkyTemplate,
+    testGetTextOverChonkyTemplate, 
 ];
 const unitTestTextVector = {
-    title,
-    tests: tests$1,
-    runTestsAsynchronously,
+    title: title10,
+    tests: tests10,
+    runTestsAsynchronously: true
 };
-
-// brian taylor vann
-const tests = [
+const tests11 = [
     unitTestAttributeCrawl,
     unitTestBuildIntegrals,
     unitTestBuildRender,
@@ -4590,7 +4797,6 @@ const tests = [
     unitTestTagNameCrawl,
     unitTestTestHooks,
     unitTestTextPosition,
-    unitTestTextVector,
+    unitTestTextVector, 
 ];
-
-export { tests };
+export { tests11 as tests };

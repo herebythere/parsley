@@ -1,17 +1,19 @@
 // brian taylor vann
 // skeleton crawl
 
-import { routers } from "../skeleton_routers/skeleton_routers.ts";
-import { Template } from "../../type_flyweight/template.ts";
-import { CrawlResults, CrawlStatus } from "../../type_flyweight/skeleton_crawl.ts";
-import { Position } from "../../type_flyweight/text_vector.ts";
+import type { Template } from "../../type_flyweight/template.ts";
+import type {
+  CrawlResults,
+  CrawlStatus,
+} from "../../type_flyweight/skeleton_crawl.ts";
+import type { Position } from "../../type_flyweight/text_vector.ts";
 
+import { routers } from "../skeleton_routers/skeleton_routers.ts";
 import {
   create,
   createFollowingVector,
   incrementTarget,
 } from "../../text_vector/text_vector.ts";
-
 import {
   copy as copyPosition,
   getCharAtPosition,
@@ -62,7 +64,6 @@ const setStartStateProperties: SetStartStateProperties = (
   }
 
   const followingVector = createFollowingVector(template, previousCrawl.vector);
-
   if (followingVector === undefined) {
     return;
   }

@@ -2,7 +2,7 @@
 // hooks
 
 import { AttributeValue } from "./template.ts";
-import {ReferenceMap} from "./render.ts";
+import { ReferenceMap } from "./render.ts";
 
 interface SetAttributeParams<N, A> {
   references: ReferenceMap<N>;

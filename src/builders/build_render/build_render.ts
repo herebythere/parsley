@@ -1,12 +1,10 @@
 // brian taylor vann
 // build render
 
-import { Hooks } from "../../type_flyweight/hooks.ts";
-import { Template } from "../../type_flyweight/template.ts";
-import { RenderStructure } from "../../type_flyweight/render.ts";
-import { ContextBase } from "../../type_flyweight/chunk.ts";
-
-import {
+import type { Hooks } from "../../type_flyweight/hooks.ts";
+import type { Template } from "../../type_flyweight/template.ts";
+import type { RenderStructure } from "../../type_flyweight/render.ts";
+import type {
   CloseNodeAction,
   NodeAction,
   SelfClosingNodeAction,
@@ -14,10 +12,11 @@ import {
   InjectedAttributeAction,
   ImplicitAttributeAction,
   Integrals,
-  ContextInjectionAction,
+  ChunkArrayInjectionAction,
   TextAction,
 } from "../../type_flyweight/integrals.ts";
 
+import { ChunkBase } from "../../type_flyweight/chunk.ts";
 import {
   decrementTarget,
   getText,
@@ -44,7 +43,7 @@ type BuildHelper<I> = <N, A>(params: BuilderHelperParams<N, A, I>) => void;
 type RenderNode = BuildHelper<NodeAction | SelfClosingNodeAction>;
 type RenderTextNode = BuildHelper<TextAction>;
 type RenderCloseNode = BuildHelper<CloseNodeAction>;
-type RenderContentInjection = BuildHelper<ContextInjectionAction>;
+type CreateChunkArrayInjection = BuildHelper<ChunkArrayInjectionAction>;
 type RenderAppendExplicitAttribute = BuildHelper<ExplicitAttributeAction>;
 type RenderInjectedAttribute = BuildHelper<InjectedAttributeAction>;
 type RenderImplicitAttribute = BuildHelper<ImplicitAttributeAction>;
@@ -147,7 +146,7 @@ const closeNode: RenderCloseNode = ({ hooks, rs, integral }) => {
   }
 };
 
-const createContextInjection: RenderContentInjection = ({
+const createChunkArrayInjection: CreateChunkArrayInjection = ({
   hooks,
   rs,
   integral,
@@ -219,8 +218,8 @@ const createContextInjection: RenderContentInjection = ({
   }
 
   rs.descendants[integral.injectionID] = {
-    kind: "CONTEXT_ARRAY",
-    params: { contextArray: injection, leftNode, parentNode, siblingIndex },
+    kind: "CHUNK_ARRAY",
+    params: { chunkArray: injection, leftNode, parentNode, siblingIndex },
   };
 
   rs.lastNodes[lastNodeIndex] = prevSibling;
@@ -293,7 +292,7 @@ const appendInjectedAttribute: RenderInjectedAttribute = ({
   const { injectionID } = integral;
   const value = rs.template.injections[injectionID];
 
-  if (value instanceof ContextBase) {
+  if (value instanceof ChunkBase) {
     return;
   }
 
@@ -330,8 +329,8 @@ const buildRender: BuildRender = ({ hooks, template, integrals }) => {
     if (integral.kind === "TEXT") {
       createTextNode({ hooks, rs, integral });
     }
-    if (integral.kind === "CONTEXT_INJECTION") {
-      createContextInjection({ hooks, rs, integral });
+    if (integral.kind === "CHUNK_ARRAY_INJECTION") {
+      createChunkArrayInjection({ hooks, rs, integral });
     }
     if (integral.kind === "EXPLICIT_ATTRIBUTE") {
       appendExplicitAttribute({ hooks, rs, integral });
@@ -353,7 +352,7 @@ export {
   appendInjectedAttribute,
   buildRender,
   closeNode,
-  createContextInjection,
+  createChunkArrayInjection,
   createNode,
   createTextNode,
 };

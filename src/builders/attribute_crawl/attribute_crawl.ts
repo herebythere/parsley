@@ -1,18 +1,16 @@
 // brian taylor vann
 // attribute crawl
 
-import { AttributeAction } from "../../type_flyweight/attribute_crawl.ts";
-import { Template } from "../../type_flyweight/template.ts";
-import { Vector } from "../../type_flyweight/text_vector.ts";
+import type { AttributeAction } from "../../type_flyweight/attribute_crawl.ts";
+import type { Template } from "../../type_flyweight/template.ts";
+import type { Vector } from "../../type_flyweight/text_vector.ts";
 
 import {
   copy,
   decrementTarget,
   hasOriginEclipsedTaraget,
   incrementOrigin,
-  incrementTarget,
 } from "../../text_vector/text_vector.ts";
-
 import { getCharAtPosition } from "../../text_position/text_position.ts";
 
 type AttributeCrawl = <N, A>(
@@ -116,10 +114,7 @@ const getAttributeValue: AttributeValueCrawl = (
     return;
   }
 
-  // this could use some rewritting
-
   const bound = copy(vectorBounds);
-
   incrementOrigin(template, bound);
   if (hasOriginEclipsedTaraget(bound)) {
     return;

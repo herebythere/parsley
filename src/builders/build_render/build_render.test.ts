@@ -4,8 +4,8 @@
 import { buildIntegrals } from "../build_integrals/build_integrals.ts";
 import { buildRender } from "./build_render.ts";
 import { buildSkeleton } from "../build_skeleton/build_skeleton.ts";
-import { Context } from "../../chunk/chunk.ts";
-import { hooks, render, TestAttributes } from "../../test_hooks/test_hooks.ts";
+import { Chunk } from "../../chunk/chunk.ts";
+import { hooks, draw, TestAttributes } from "../../test_hooks/test_hooks.ts";
 import { Integrals } from "../../type_flyweight/integrals.ts";
 import { Template, AttributeValue } from "../../type_flyweight/template.ts";
 import { TestNode } from "../../test_hooks/test_element.ts";
@@ -252,7 +252,7 @@ const testAddContext = () => {
   // create a small renderer
   const chunker: Chunker<TestNode, TestAttributes, {}, unknown> = {
     update: ({ params, state }) => {
-      return render`
+      return draw`
         <p>HelloWorld!</p>
       `;
     },
@@ -261,7 +261,7 @@ const testAddContext = () => {
   };
 
   // create and update context
-  const context = new Context({ params: {}, hooks, chunker });
+  const context = new Chunk({ params: {}, hooks, chunker });
 
   const {
     integrals: contextIntegrals,
@@ -291,7 +291,7 @@ const testAddContext = () => {
     return assertions;
   }
 
-  if (results.descendants[0]?.kind !== "CONTEXT_ARRAY") {
+  if (results.descendants[0]?.kind !== "CHUNK_ARRAY") {
     assertions.push("descendant 0 should be a context array");
     return assertions;
   }

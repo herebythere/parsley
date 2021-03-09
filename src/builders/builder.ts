@@ -1,6 +1,9 @@
-import { Hooks } from "../type_flyweight/hooks.ts";
-import { Template } from "../type_flyweight/template.ts";
-import { RenderStructure } from "../type_flyweight/render.ts";
+// brian taylor vann
+// builder
+
+import type { Hooks } from "../type_flyweight/hooks.ts";
+import type { Template } from "../type_flyweight/template.ts";
+import type { RenderStructure } from "../type_flyweight/render.ts";
 
 import { buildIntegrals } from "./build_integrals/build_integrals.ts";
 import { buildSkeleton } from "./build_skeleton/build_skeleton.ts";

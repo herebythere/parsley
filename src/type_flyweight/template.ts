@@ -4,11 +4,11 @@
 // N Node
 // A Attributables
 
-import { ContextBaseArray } from "./chunk.ts";
+import { ChunkBaseArray } from "./chunk.ts";
 
 type AttributeValue<N, A> =
-  | ContextBaseArray<N>
   | A
+  | ChunkBaseArray<N>
   | string
   | boolean
   | number
@@ -19,9 +19,9 @@ interface Template<N, A> {
   injections: AttributeValue<N, A>[];
 }
 
-type Render<N, A> = (
+type Draw<N, A> = (
   templateArray: TemplateStringsArray,
   ...injections: AttributeValue<N, A>[]
 ) => Template<N, A>;
 
-export type { AttributeValue, Render, Template };
+export type { AttributeValue, Draw, Template };

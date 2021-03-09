@@ -86,7 +86,7 @@ const decrement: Increment = (template, position) => {
 const getCharAtPosition: GetCharAtPosition = (template, position) => {
   const templateArray = template.templateArray;
 
-  return templateArray?.[position.arrayIndex]?.[position.stringIndex];
+  return templateArray[position.arrayIndex]?.[position.stringIndex];
 };
 
 export { copy, create, decrement, increment, getCharAtPosition };
