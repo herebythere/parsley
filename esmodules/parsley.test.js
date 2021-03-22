@@ -2179,7 +2179,9 @@ class Chunk extends ChunkBase {
     disconnect() {
         disconnectDescendants(this.hooks, this.rs);
         if (this.state !== undefined && this.chunker.disconnect !== undefined) {
-            this.chunker.disconnect(this.state);
+            this.chunker.disconnect({
+                state: this.state
+            });
         }
         this.updateEffect("DISCONNECTED");
     }

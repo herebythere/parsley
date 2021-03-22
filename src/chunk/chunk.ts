@@ -60,6 +60,7 @@ interface ContextParams<N, A, P, S> {
 
 type GetUpdatedSiblings = <N, A>(rs: RenderStructure<N, A>) => N[];
 
+// remove generics
 class Banger<N, A, P, S> implements BangerBase<N> {
   chunk: ChunkBase<N>;
 
@@ -70,6 +71,7 @@ class Banger<N, A, P, S> implements BangerBase<N> {
   bang() {
     this.chunk.bang();
   }
+
   getReferences() {
     return this.chunk.getReferences();
   }
@@ -142,8 +144,6 @@ class Chunk<N, A, P, S> extends ChunkBase<N> {
       return;
     }
 
-    // we like to update attributes
-
     updateAttributes(this.hooks, this.rs, template);
     const descendantsHaveUpdated = updateDescendants({
       contextParentNode: this.parentNode,
@@ -199,7 +199,7 @@ class Chunk<N, A, P, S> extends ChunkBase<N> {
   disconnect(): void {
     disconnectDescendants(this.hooks, this.rs);
     if (this.state !== undefined && this.chunker.disconnect !== undefined) {
-      this.chunker.disconnect(this.state);
+      this.chunker.disconnect({state: this.state});
     }
     this.updateEffect("DISCONNECTED");
   }
