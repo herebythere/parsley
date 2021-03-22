@@ -15,12 +15,29 @@ interface ConnectParams<N, P> {
   banger: BangerBase<N>;
 }
 
+interface DisconnectParams<S> {
+  state: S;
+}
+
+type UpdateChunk<N, A, P, S> = (
+  params: UpdateParams<N, P, S>
+) => Template<N, A>;
+
+type ConnectChunk<N, P, S> = (params: ConnectParams<N, P>) => S;
+type DisconnectChunk<S> = (params: DisconnectParams<S>) => void;
+
 interface RequiredChunker<N, A, P, S> {
-  update: (params: UpdateParams<N, P, S>) => Template<N, A>;
-  connect: (params: ConnectParams<N, P>) => S;
-  disconnect: (state: S) => void;
+  update: UpdateChunk<N, A, P, S>;
+  connect: ConnectChunk<N, P, S>;
+  disconnect: DisconnectChunk<S>;
 }
 
 type Chunker<N, A, P, S> = RequiredChunker<N, A, P, S>;
 
-export type { Chunker, ConnectParams, UpdateParams };
+export type {
+  Chunker,
+  ConnectParams,
+  UpdateChunk,
+  ConnectChunk,
+  DisconnectChunk,
+};

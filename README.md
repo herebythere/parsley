@@ -4,15 +4,9 @@ Build chunks of XML without dependencies.
 
 ## Abstract
 
-Render any document structure in XML.
+Parsley is a library that contructs documents and applications from XML.
 
-## Notes for developers
-
-I built Parsley to decouple XML from the DOM.
-
-I render lots of stuff in the browser that isn't DOM: audio, video, WebGL, and SVG.
-
-Consistent multimedia experiences can benefit from document structure and being represented in XML.
+It is an XML parser that can be given an interface to maintain any number of document structures.
 
 ## License
 
