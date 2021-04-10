@@ -300,6 +300,75 @@ const findParagraphWithInjectedAndImplicitAttributes = () => {
   return assertions;
 };
 
+const findSelfClosingNodeWithAttributes = () => {
+  const assertions = [];
+
+  const expectedResults: Integrals = [
+    {
+      kind: "SELF_CLOSING_NODE",
+      tagNameVector: {
+        origin: {
+          arrayIndex: 0,
+          stringIndex: 1,
+        },
+        target: {
+          arrayIndex: 0,
+          stringIndex: 1,
+        },
+      },
+    },
+    {
+      kind: "INJECTED_ATTRIBUTE",
+      attributeVector: {
+        origin: {
+          arrayIndex: 0,
+          stringIndex: 3,
+        },
+        target: {
+          arrayIndex: 0,
+          stringIndex: 9,
+        },
+      },
+      valueVector: {
+        origin: {
+          arrayIndex: 0,
+          stringIndex: 11,
+        },
+        target: {
+          arrayIndex: 1,
+          stringIndex: 0,
+        },
+      },
+      injectionID: 0,
+    },
+
+    {
+      kind: "IMPLICIT_ATTRIBUTE",
+      attributeVector: {
+        origin: {
+          arrayIndex: 1,
+          stringIndex: 2,
+        },
+        target: {
+          arrayIndex: 1,
+          stringIndex: 8,
+        },
+      },
+    },
+  ];
+
+  const params = testTextInterpolator`<p message="${"hello, world!"}" checked/>`;
+  const results = buildIntegrals(params);
+
+  if (!samestuff(expectedResults, results)) {
+    console.log(results);
+    console.log(expectedResults);
+    assertions.push("unexpected results found.");
+  }
+
+  return assertions;
+};
+
 const testFindCloseParagraph = () => {
   const assertions = [];
 
@@ -733,6 +802,7 @@ const tests = [
   findParagraphWithImplicitAttribute,
   findParagraphWithInjectedAttribute,
   findParagraphWithInjectedAndImplicitAttributes,
+  findSelfClosingNodeWithAttributes,
   testFindContentWithInitialMultipleInjections,
   testFindContentWithEdgeCaseInjections,
   testFindCloseParagraph,

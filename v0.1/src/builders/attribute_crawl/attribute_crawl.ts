@@ -37,6 +37,7 @@ const INJECTED_ATTRIBUTE = "INJECTED_ATTRIBUTE";
 const BREAK_RUNES: BreakRunes = {
   " ": true,
   "\n": true,
+  "/": true,
 };
 
 const getAttributeName: AttributeCrawl = (template, vectorBounds) => {

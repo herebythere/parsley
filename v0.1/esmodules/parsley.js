@@ -207,7 +207,8 @@ const EXPLICIT_ATTRIBUTE = "EXPLICIT_ATTRIBUTE";
 const INJECTED_ATTRIBUTE = "INJECTED_ATTRIBUTE";
 const BREAK_RUNES1 = {
     " ": true,
-    "\n": true
+    "\n": true,
+    "/": true
 };
 const getAttributeName = (template, vectorBounds)=>{
     let positionChar = getCharAtPosition(template, vectorBounds.origin);
@@ -413,7 +414,7 @@ const appendNodeAttributeIntegrals = ({ integrals , template , chunk ,  })=>{
     }
     return integrals;
 };
-const appendNodeIntegrals = ({ integrals , template , chunk ,  })=>{
+const appendNodeIntegrals = ({ kind , integrals , template , chunk ,  })=>{
     const innerXmlBounds = copy2(chunk.vector);
     incrementOrigin(template, innerXmlBounds);
     decrementTarget(template, innerXmlBounds);
@@ -422,7 +423,7 @@ const appendNodeIntegrals = ({ integrals , template , chunk ,  })=>{
         return;
     }
     integrals.push({
-        kind: "NODE",
+        kind,
         tagNameVector
     });
     const followingVector = createFollowingVector(template, tagNameVector);
@@ -439,28 +440,12 @@ const appendNodeIntegrals = ({ integrals , template , chunk ,  })=>{
     });
     return integrals;
 };
-const appendSelfClosingNodeIntegrals = ({ integrals , template , chunk ,  })=>{
-    const innerXmlBounds = copy2(chunk.vector);
-    incrementOrigin(template, innerXmlBounds);
-    decrementTarget(template, innerXmlBounds);
-    decrementTarget(template, innerXmlBounds);
-    const tagNameVector = crawlForTagName(template, innerXmlBounds);
-    if (tagNameVector === undefined) {
-        return;
-    }
-    integrals.push({
-        kind: "SELF_CLOSING_NODE",
-        tagNameVector
-    });
-    return integrals;
-};
 const appendCloseNodeIntegrals = ({ integrals , template , chunk ,  })=>{
     const innerXmlBounds = copy2(chunk.vector);
     incrementOrigin(template, innerXmlBounds);
     incrementOrigin(template, innerXmlBounds);
     decrementTarget(template, innerXmlBounds);
-    let tagNameVector = copy2(innerXmlBounds);
-    tagNameVector = crawlForTagName(template, tagNameVector);
+    const tagNameVector = crawlForTagName(template, copy2(innerXmlBounds));
     if (tagNameVector === undefined) {
         return;
     }
@@ -547,6 +532,7 @@ const buildIntegrals = ({ template , skeleton  })=>{
         }
         if (nodeType === "OPEN_NODE_CONFIRMED") {
             appendNodeIntegrals({
+                kind: "NODE",
                 integrals,
                 template,
                 chunk
@@ -567,7 +553,8 @@ const buildIntegrals = ({ template , skeleton  })=>{
             });
         }
         if (nodeType === "SELF_CLOSING_NODE_CONFIRMED") {
-            appendSelfClosingNodeIntegrals({
+            appendNodeIntegrals({
+                kind: "SELF_CLOSING_NODE",
                 integrals,
                 template,
                 chunk
@@ -1042,14 +1029,21 @@ const buildRender = ({ hooks , template , integrals  })=>{
     }
     return rs;
 };
+const builds = {
+};
 const buildRenderStructure = (hooks, template)=>{
-    const skeleton = buildSkeleton(template);
-    const integrals = buildIntegrals({
-        template,
-        skeleton
-    });
+    const cacheable = template.templateArray.join();
+    let integrals = builds[cacheable];
+    if (integrals === undefined) {
+        const skeleton = buildSkeleton(template);
+        integrals = buildIntegrals({
+            template,
+            skeleton
+        });
+        builds[cacheable] = integrals;
+    }
     const render = buildRender({
-        hooks: hooks,
+        hooks,
         template,
         integrals
     });

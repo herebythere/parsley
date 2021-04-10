@@ -2,10 +2,12 @@
 // build integrals
 
 import type { Template } from "../../type_flyweight/template.ts";
+
 import type {
   SkeletonNodes,
   CrawlResults,
 } from "../../type_flyweight/skeleton_crawl.ts";
+
 import type { Integrals } from "../../type_flyweight/integrals.ts";
 import type { Vector } from "../../type_flyweight/text_vector.ts";
 
@@ -16,6 +18,7 @@ import {
   hasOriginEclipsedTaraget,
   incrementOrigin,
 } from "../../text_vector/text_vector.ts";
+
 import { getCharAtPosition } from "../../text_position/text_position.ts";
 import { crawlForTagName } from "../tag_name_crawl/tag_name_crawl.ts";
 import { crawlForAttribute } from "../attribute_crawl/attribute_crawl.ts";
@@ -32,6 +35,16 @@ interface AppendNodeParams<N, A> {
 }
 type AppendNodeIntegrals = <N, A>(
   params: AppendNodeParams<N, A>
+) => Integrals | undefined;
+
+interface AppendNodeKindParams<N, A> {
+  kind: "NODE" | "SELF_CLOSING_NODE";
+  integrals: Integrals;
+  template: Template<N, A>;
+  chunk: CrawlResults;
+}
+type AppendNodeKindIntegrals = <N, A>(
+  params: AppendNodeKindParams<N, A>
 ) => Integrals | undefined;
 
 interface AppendNodeAttributeParams<N, A> {
@@ -142,7 +155,8 @@ const appendNodeAttributeIntegrals: AppendNodeAttributeIntegrals = ({
   return integrals;
 };
 
-const appendNodeIntegrals: AppendNodeIntegrals = ({
+const appendNodeIntegrals: AppendNodeKindIntegrals = ({
+  kind,
   integrals,
   template,
   chunk,
@@ -160,7 +174,7 @@ const appendNodeIntegrals: AppendNodeIntegrals = ({
   }
 
   integrals.push({
-    kind: "NODE",
+    kind,
     tagNameVector,
   });
 
@@ -170,34 +184,7 @@ const appendNodeIntegrals: AppendNodeIntegrals = ({
   }
   followingVector.target = { ...innerXmlBounds.target };
 
-  // more debugs here lol
   appendNodeAttributeIntegrals({ integrals, template, chunk: followingVector });
-
-  return integrals;
-};
-
-const appendSelfClosingNodeIntegrals: AppendNodeIntegrals = ({
-  integrals,
-  template,
-  chunk,
-}) => {
-  const innerXmlBounds = copy(chunk.vector);
-
-  // adjust vector
-  incrementOrigin(template, innerXmlBounds);
-  decrementTarget(template, innerXmlBounds);
-  decrementTarget(template, innerXmlBounds);
-
-  // get tag name
-  const tagNameVector = crawlForTagName(template, innerXmlBounds);
-  if (tagNameVector === undefined) {
-    return;
-  }
-
-  integrals.push({
-    kind: "SELF_CLOSING_NODE",
-    tagNameVector,
-  });
 
   return integrals;
 };
@@ -215,8 +202,7 @@ const appendCloseNodeIntegrals: AppendNodeIntegrals = ({
   decrementTarget(template, innerXmlBounds);
 
   // get tag name
-  let tagNameVector: Vector | undefined = copy(innerXmlBounds);
-  tagNameVector = crawlForTagName(template, tagNameVector);
+  const tagNameVector = crawlForTagName(template, copy(innerXmlBounds));
   if (tagNameVector === undefined) {
     return;
   }
@@ -313,7 +299,7 @@ const buildIntegrals: BuildIntegrals = ({ template, skeleton }) => {
     }
 
     if (nodeType === "OPEN_NODE_CONFIRMED") {
-      appendNodeIntegrals({ integrals, template, chunk });
+      appendNodeIntegrals({ kind: "NODE", integrals, template, chunk });
     }
     if (nodeType === "CLOSE_NODE_CONFIRMED") {
       appendCloseNodeIntegrals({ integrals, template, chunk });
@@ -322,7 +308,12 @@ const buildIntegrals: BuildIntegrals = ({ template, skeleton }) => {
       appendContentIntegrals({ integrals, template, chunk });
     }
     if (nodeType === "SELF_CLOSING_NODE_CONFIRMED") {
-      appendSelfClosingNodeIntegrals({ integrals, template, chunk });
+      appendNodeIntegrals({
+        kind: "SELF_CLOSING_NODE",
+        integrals,
+        template,
+        chunk,
+      });
     }
   }
 

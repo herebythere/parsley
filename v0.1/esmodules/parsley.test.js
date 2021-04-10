@@ -197,7 +197,8 @@ const EXPLICIT_ATTRIBUTE = "EXPLICIT_ATTRIBUTE";
 const INJECTED_ATTRIBUTE = "INJECTED_ATTRIBUTE";
 const BREAK_RUNES = {
     " ": true,
-    "\n": true
+    "\n": true,
+    "/": true
 };
 const getAttributeName = (template, vectorBounds)=>{
     let positionChar = getCharAtPosition(template, vectorBounds.origin);
@@ -957,7 +958,7 @@ const appendNodeAttributeIntegrals = ({ integrals , template , chunk ,  })=>{
     }
     return integrals;
 };
-const appendNodeIntegrals = ({ integrals , template , chunk ,  })=>{
+const appendNodeIntegrals = ({ kind , integrals , template , chunk ,  })=>{
     const innerXmlBounds = copy2(chunk.vector);
     incrementOrigin(template, innerXmlBounds);
     decrementTarget(template, innerXmlBounds);
@@ -966,7 +967,7 @@ const appendNodeIntegrals = ({ integrals , template , chunk ,  })=>{
         return;
     }
     integrals.push({
-        kind: "NODE",
+        kind,
         tagNameVector
     });
     const followingVector = createFollowingVector(template, tagNameVector);
@@ -983,28 +984,12 @@ const appendNodeIntegrals = ({ integrals , template , chunk ,  })=>{
     });
     return integrals;
 };
-const appendSelfClosingNodeIntegrals = ({ integrals , template , chunk ,  })=>{
-    const innerXmlBounds = copy2(chunk.vector);
-    incrementOrigin(template, innerXmlBounds);
-    decrementTarget(template, innerXmlBounds);
-    decrementTarget(template, innerXmlBounds);
-    const tagNameVector = crawlForTagName(template, innerXmlBounds);
-    if (tagNameVector === undefined) {
-        return;
-    }
-    integrals.push({
-        kind: "SELF_CLOSING_NODE",
-        tagNameVector
-    });
-    return integrals;
-};
 const appendCloseNodeIntegrals = ({ integrals , template , chunk ,  })=>{
     const innerXmlBounds = copy2(chunk.vector);
     incrementOrigin(template, innerXmlBounds);
     incrementOrigin(template, innerXmlBounds);
     decrementTarget(template, innerXmlBounds);
-    let tagNameVector = copy2(innerXmlBounds);
-    tagNameVector = crawlForTagName(template, tagNameVector);
+    const tagNameVector = crawlForTagName(template, copy2(innerXmlBounds));
     if (tagNameVector === undefined) {
         return;
     }
@@ -1091,6 +1076,7 @@ const buildIntegrals = ({ template , skeleton  })=>{
         }
         if (nodeType === "OPEN_NODE_CONFIRMED") {
             appendNodeIntegrals({
+                kind: "NODE",
                 integrals,
                 template,
                 chunk
@@ -1111,7 +1097,8 @@ const buildIntegrals = ({ template , skeleton  })=>{
             });
         }
         if (nodeType === "SELF_CLOSING_NODE_CONFIRMED") {
-            appendSelfClosingNodeIntegrals({
+            appendNodeIntegrals({
+                kind: "SELF_CLOSING_NODE",
                 integrals,
                 template,
                 chunk
@@ -1367,6 +1354,69 @@ const findParagraphWithInjectedAndImplicitAttributes = ()=>{
     const params = testTextInterpolator1`<p message="${"hello, world!"}" checked>`;
     const results = buildIntegrals(params);
     if (!samestuff(expectedResults, results)) {
+        assertions.push("unexpected results found.");
+    }
+    return assertions;
+};
+const findSelfClosingNodeWithAttributes = ()=>{
+    const assertions = [];
+    const expectedResults = [
+        {
+            kind: "SELF_CLOSING_NODE",
+            tagNameVector: {
+                origin: {
+                    arrayIndex: 0,
+                    stringIndex: 1
+                },
+                target: {
+                    arrayIndex: 0,
+                    stringIndex: 1
+                }
+            }
+        },
+        {
+            kind: "INJECTED_ATTRIBUTE",
+            attributeVector: {
+                origin: {
+                    arrayIndex: 0,
+                    stringIndex: 3
+                },
+                target: {
+                    arrayIndex: 0,
+                    stringIndex: 9
+                }
+            },
+            valueVector: {
+                origin: {
+                    arrayIndex: 0,
+                    stringIndex: 11
+                },
+                target: {
+                    arrayIndex: 1,
+                    stringIndex: 0
+                }
+            },
+            injectionID: 0
+        },
+        {
+            kind: "IMPLICIT_ATTRIBUTE",
+            attributeVector: {
+                origin: {
+                    arrayIndex: 1,
+                    stringIndex: 2
+                },
+                target: {
+                    arrayIndex: 1,
+                    stringIndex: 8
+                }
+            }
+        }, 
+    ];
+    const params = testTextInterpolator1`<p message="${"hello, world!"}" checked/>`;
+    const results = buildIntegrals(params);
+    if (!samestuff(expectedResults, results)) {
+        console.log(results);
+        console.log(expectedResults);
         assertions.push("unexpected results found.");
     }
     return assertions;
@@ -1759,6 +1809,7 @@ const tests1 = [
     findParagraphWithImplicitAttribute,
     findParagraphWithInjectedAttribute,
     findParagraphWithInjectedAndImplicitAttributes,
+    findSelfClosingNodeWithAttributes,
     testFindContentWithInitialMultipleInjections,
     testFindContentWithEdgeCaseInjections,
     testFindCloseParagraph,
@@ -2084,14 +2135,21 @@ const buildRender = ({ hooks , template , integrals  })=>{
     }
     return rs;
 };
+const builds = {
+};
 const buildRenderStructure = (hooks, template)=>{
-    const skeleton = buildSkeleton(template);
-    const integrals = buildIntegrals({
-        template,
-        skeleton
-    });
+    const cacheable = template.templateArray.join();
+    let integrals = builds[cacheable];
+    if (integrals === undefined) {
+        const skeleton = buildSkeleton(template);
+        integrals = buildIntegrals({
+            template,
+            skeleton
+        });
+        builds[cacheable] = integrals;
+    }
     const render = buildRender({
-        hooks: hooks,
+        hooks,
         template,
         integrals
     });
