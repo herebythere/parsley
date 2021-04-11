@@ -1,9 +1,11 @@
 // brian taylor vann
 // build skeleton
 
+import type { Template } from "../../type_flyweight/template.ts";
+import type { SkeletonNodes } from "./build_skeleton.ts";
+
 import { samestuff } from "../../test_deps.ts";
-import { Template } from "../../type_flyweight/template.ts";
-import { SkeletonNodes, buildSkeleton } from "./build_skeleton.ts";
+import { buildSkeleton } from "./build_skeleton.ts";
 
 type TextInterpolator = <N, A>(
   templateArray: TemplateStringsArray,

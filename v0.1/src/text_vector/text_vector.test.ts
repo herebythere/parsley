@@ -1,6 +1,9 @@
 // brian taylor vann
 // text vector
 
+import type { Vector } from "../type_flyweight/text_vector.ts";
+import type { Template } from "../type_flyweight/template.ts";
+
 import { samestuff } from "../test_deps.ts";
 import {
   copy,
@@ -10,8 +13,6 @@ import {
   hasOriginEclipsedTaraget,
   getText,
 } from "./text_vector.ts";
-import { Vector } from "../type_flyweight/text_vector.ts";
-import { Template } from "../type_flyweight/template.ts";
 
 type TextTextInterpolator = <N, A>(
   templateArray: TemplateStringsArray,

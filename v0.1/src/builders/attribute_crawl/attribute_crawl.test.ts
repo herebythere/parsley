@@ -1,14 +1,14 @@
 // brian taylor vann
 // attribute crawl
-
-import { samestuff } from "../../test_deps.ts";
 import type { Template } from "../../type_flyweight/template.ts";
-import { create, incrementTarget } from "../../text_vector/text_vector.ts";
-import { crawlForAttribute } from "./attribute_crawl.ts";
 import type {
   ExplicitAttributeAction,
   InjectedAttributeAction,
 } from "../../type_flyweight/attribute_crawl.ts";
+
+import { samestuff } from "../../test_deps.ts";
+import { create, incrementTarget } from "../../text_vector/text_vector.ts";
+import { crawlForAttribute } from "./attribute_crawl.ts";
 
 type TextTextInterpolator = <N, A>(
   templateArray: TemplateStringsArray,

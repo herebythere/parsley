@@ -4,7 +4,7 @@
 // N Node
 // A Attributables
 
-import { ChunkBaseArray } from "./chunker.ts";
+import type { ChunkBaseArray } from "./chunker.ts";
 
 type AttributeValue<N, A> =
   | A

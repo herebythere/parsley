@@ -1,9 +1,8 @@
 // brian taylor vann
 // text position
 
-import { samestuff } from "../test_deps.ts";
-import { Position } from "../type_flyweight/text_vector.ts";
-import { Template } from "../type_flyweight/template.ts";
+import type { Position } from "../type_flyweight/text_vector.ts";
+import type { Template } from "../type_flyweight/template.ts";
 
 import {
   copy,
@@ -12,6 +11,7 @@ import {
   increment,
   getCharAtPosition,
 } from "./text_position.ts";
+import { samestuff } from "../test_deps.ts";
 
 type TestTextInterpolator = <N, A>(
   templateArray: TemplateStringsArray,

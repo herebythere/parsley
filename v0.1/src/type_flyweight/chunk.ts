@@ -1,7 +1,7 @@
 // brian taylor vann
 // chunk types
 
-import { ReferenceMap } from "./render.ts";
+import type { ReferenceMap } from "./render.ts";
 
 // UNMOUNTED      // siblings have no parent
 // MOUNTED        // siblings have a parent
@@ -57,7 +57,6 @@ interface BangerBase<N> {
   bang(): void;
   getReferences(): ReferenceMap<N> | undefined;
 }
-
 
 export type {
   BangerBase,

@@ -3,13 +3,17 @@
 
 // we need an injection test or two
 
+import type { BuildIntegralsParams } from "./build_integrals.ts";
+import type { Integrals } from "../../type_flyweight/integrals.ts";
+import type {
+  TestAttributes,
+  TestNode,
+} from "../../test_hooks/test_element.ts";
+import type { AttributeValue } from "../../type_flyweight/template.ts";
+
 import { samestuff } from "../../test_deps.ts";
-import { BuildIntegralsParams } from "./build_integrals.ts";
 import { buildSkeleton } from "../build_skeleton/build_skeleton.ts";
 import { buildIntegrals } from "./build_integrals.ts";
-import { Integrals } from "../../type_flyweight/integrals.ts";
-import { TestAttributes, TestNode } from "../../test_hooks/test_element.ts";
-import { AttributeValue } from "../../type_flyweight/template.ts";
 
 type TextTextInterpolator<N, A> = (
   templateArray: TemplateStringsArray,
