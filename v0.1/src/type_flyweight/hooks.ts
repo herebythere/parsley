@@ -1,5 +1,5 @@
 // brian taylor vann
-// hooks
+// hook types
 
 import { AttributeValue } from "./template.ts";
 import { ReferenceMap } from "./render.ts";

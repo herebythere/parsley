@@ -1,9 +1,7 @@
 // brian taylor vann
 // build skeleton
 
-// @ts-ignore remote file
-import { samestuff } from "https://raw.githubusercontent.com/taylor-vann/jackrabbit/main/src/samestuff/samestuff.ts";
-
+import { samestuff } from "../../test_deps.ts";
 import { Template } from "../../type_flyweight/template.ts";
 import { SkeletonNodes, buildSkeleton } from "./build_skeleton.ts";
 

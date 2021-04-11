@@ -1,5 +1,5 @@
 // brian taylor vann
-// skeleton crawl
+// skeleton crawl types
 
 import { Vector } from "./text_vector.ts";
 

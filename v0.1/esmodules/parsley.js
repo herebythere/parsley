@@ -1,28 +1,3 @@
-class ChunkBase {
-    mount(parentNode, leftNode) {
-        return;
-    }
-    unmount() {
-    }
-    bang() {
-    }
-    getReferences() {
-        return;
-    }
-    update(p) {
-    }
-    disconnect() {
-    }
-    getSiblings() {
-        return [];
-    }
-    getEffect() {
-        return {
-            quality: "UNMOUNTED",
-            timestamp: performance.now()
-        };
-    }
-}
 const copy1 = (position)=>{
     return {
         ...position
@@ -935,9 +910,6 @@ const appendInjectedAttribute = ({ hooks , rs , integral ,  })=>{
     }
     const { injectionID  } = integral;
     const value = rs.template.injections[injectionID];
-    if (value instanceof ChunkBase) {
-        return;
-    }
     rs.attributes[injectionID] = {
         kind: "ATTRIBUTE",
         params: {
@@ -1060,9 +1032,8 @@ class Banger {
         return this.chunk.getReferences();
     }
 }
-class Chunk1 extends ChunkBase {
+class Chunk1 {
     constructor(baseParams){
-        super();
         this.banger = new Banger(this);
         this.hooks = baseParams.hooks;
         this.chunker = baseParams.chunker;

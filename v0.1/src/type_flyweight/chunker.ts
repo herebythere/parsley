@@ -1,5 +1,5 @@
 // brian taylor vann
-// chunker
+// chunker types
 
 import { Template } from "./template.ts";
 import { ChunkBase, BangerBase } from "./chunk.ts";

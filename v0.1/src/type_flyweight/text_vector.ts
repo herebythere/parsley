@@ -1,5 +1,5 @@
 // brian taylor vann
-// text vector
+// text vector types
 
 interface Position {
   arrayIndex: number;

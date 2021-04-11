@@ -1,5 +1,5 @@
 // brian taylor vann
-// integrals
+// integral types
 
 import {
   ImplicitAttributeAction,

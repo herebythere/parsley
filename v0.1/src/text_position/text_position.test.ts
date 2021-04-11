@@ -1,7 +1,7 @@
 // brian taylor vann
 // text position
 
-import { samestuff } from "https://raw.githubusercontent.com/taylor-vann/jackrabbit/main/src/samestuff/samestuff.ts";
+import { samestuff } from "../test_deps.ts";
 import { Position } from "../type_flyweight/text_vector.ts";
 import { Template } from "../type_flyweight/template.ts";
 

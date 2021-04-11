@@ -1415,8 +1415,6 @@ const findSelfClosingNodeWithAttributes = ()=>{
     const params = testTextInterpolator1`<p message="${"hello, world!"}" checked/>`;
     const results = buildIntegrals(params);
     if (!samestuff(expectedResults, results)) {
-        console.log(results);
-        console.log(expectedResults);
         assertions.push("unexpected results found.");
     }
     return assertions;
@@ -1824,31 +1822,6 @@ const unitTestBuildIntegrals = {
     tests: tests1,
     runTestsAsynchronously: true
 };
-class ChunkBase {
-    mount(parentNode, leftNode) {
-        return;
-    }
-    unmount() {
-    }
-    bang() {
-    }
-    getReferences() {
-        return;
-    }
-    update(p) {
-    }
-    disconnect() {
-    }
-    getSiblings() {
-        return [];
-    }
-    getEffect() {
-        return {
-            quality: "UNMOUNTED",
-            timestamp: performance.now()
-        };
-    }
-}
 const popSelfClosingNode = (rs)=>{
     const parent = rs.stack[rs.stack.length - 1];
     if (parent !== undefined && parent.kind === "NODE" && parent.selfClosing === true) {
@@ -2041,9 +2014,6 @@ const appendInjectedAttribute = ({ hooks , rs , integral ,  })=>{
     }
     const { injectionID  } = integral;
     const value = rs.template.injections[injectionID];
-    if (value instanceof ChunkBase) {
-        return;
-    }
     rs.attributes[injectionID] = {
         kind: "ATTRIBUTE",
         params: {
@@ -2166,9 +2136,8 @@ class Banger {
         return this.chunk.getReferences();
     }
 }
-class Chunk extends ChunkBase {
+class Chunk {
     constructor(baseParams){
-        super();
         this.banger = new Banger(this);
         this.hooks = baseParams.hooks;
         this.chunker = baseParams.chunker;

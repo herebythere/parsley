@@ -1,8 +1,8 @@
 # Parsley
 
-Build chunks of XML without dependencies.
+Dynamically maintain XML documents like [DOM](https://github.com/taylor-vann/parsley-dom).
 
-unminimized and uncompressed < 39kb
+unminimized and uncompressed < 38kb
 
 ## Install
 
@@ -18,11 +18,9 @@ import { style } from "https://raw.githubusercontent.com/taylor-vann/parsley/mai
 
 ## How to use
 
-Parsley contructs interactive documents from XML. But its an ancillary library that requires an interface.
+Parsley contructs interactive documents from XML. But its an ancillary library that requires an external interface.
 
-In [Parsley-dom](https://github.com/taylor-vann/parsley-dom), the [hooks interface](https://github.com/taylor-vann/parsley-dom/blob/main/v0.1/src/hooks/hooks.ts#L146) is an example of an interface that uses Parsley to maintain document structure.
-
-It is an XML parser that, provided an interface, will maintain document structures.
+The [hooks interface](https://github.com/taylor-vann/parsley-dom/blob/main/v0.1/src/hooks/hooks.ts) in [Parsley-dom](https://github.com/taylor-vann/parsley-dom) uses Parsley to maintain document structure.
 
 ## License
 

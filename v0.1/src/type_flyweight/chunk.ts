@@ -1,7 +1,8 @@
 // brian taylor vann
-// chunk
+// chunk types
 
 import { ReferenceMap } from "./render.ts";
+import { Chunker } from "./chunker.ts";
 
 // UNMOUNTED      // siblings have no parent
 // MOUNTED        // siblings have a parent
@@ -15,56 +16,66 @@ type ChunkEffect = {
   timestamp: number;
 };
 
+interface ChunkBase<N> {
+  readonly parentNode?: N;
+  readonly leftNode?: N;
+  readonly siblings: N[];
+
+  // attach siblings to parent
+  // return leftmost node
+  mount(parentNode?: N, leftNode?: N): N | undefined;
+
+  // remove siblings but don't disconnect descendants
+  unmount(): void;
+
+  // update using previous parameters
+  bang(): void;
+
+  // get rendered reference pointers (*)
+  getReferences(): ReferenceMap<N> | undefined;
+
+  // if template fundamentally changes?
+  //   unmount, disconnect, render
+  //
+  // if siblings are different
+  //   create new siblings
+  update(p: unknown): void;
+
+  // remove siblings
+  // call chunker.disconnect()
+  disconnect(): void;
+
+  // return siblings so parent chunk can mount
+  getSiblings(): N[];
+
+  // return status of chunk represented by chunk effect
+  getEffect(): ChunkEffect;
+}
+
 interface BangerBase<N> {
-  chunk: ChunkBase<N>;
+  readonly chunk: ChunkBase<N>;
+
   bang(): void;
   getReferences(): ReferenceMap<N> | undefined;
 }
 
-class ChunkBase<N> {
-  // parent node reference
-  // left node reference
-
-  mount(parentNode?: N, leftNode?: N): N | undefined {
-    // attach siblings to parent
-    // return leftmost node
-    return;
-  }
-  unmount(): void {
-    // remove siblings but don't disconnect descendants
-  }
-  bang(): void {
-    // update using previous parameters
-  }
-  getReferences(): ReferenceMap<N> | undefined {
-    // get rendered reference pointers (*)
-    return;
-  }
-  update(p: unknown): void {
-    // if template fundamentally changes?
-    //   unmount, disconnect, render
-    //
-    // if siblings are different
-    //   create new siblings
-  }
-  disconnect(): void {
-    // remove siblings
-    // call chunker.disconnect()
-  }
-  getSiblings(): N[] {
-    // return siblings so parent chunk can mount
-    return [];
-  }
-  getEffect(): ChunkEffect {
-    return {
-      quality: "UNMOUNTED",
-      timestamp: performance.now(),
-    };
-  }
-}
-
 type ChunkBaseArray<N> = ChunkBase<N>[];
 
-export type { BangerBase, ChunkBaseArray, ChunkEffect, EffectQuality };
+type Attach<N> = (parentNode: N, chunkArray: ChunkBaseArray<N>) => void;
 
-export { ChunkBase };
+type ContextFactory<N, P> = (params: P) => ChunkBase<N>;
+
+// N, A are provided initially, P S are provided later
+type Compose<N, A> = <P = void, S = void>(
+  chunker: Chunker<N, A, P, S>
+) => ContextFactory<N, P>;
+
+export type {
+  Attach,
+  BangerBase,
+  ChunkBase,
+  ChunkBaseArray,
+  ChunkEffect,
+  Compose,
+  EffectQuality,
+};

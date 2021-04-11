@@ -1,8 +1,7 @@
 // brian taylor vann
 // attribute crawl
 
-import { samestuff } from "https://raw.githubusercontent.com/taylor-vann/jackrabbit/main/src/samestuff/samestuff.ts";
-
+import { samestuff } from "../../test_deps.ts";
 import type { Template } from "../../type_flyweight/template.ts";
 import { create, incrementTarget } from "../../text_vector/text_vector.ts";
 import { crawlForAttribute } from "./attribute_crawl.ts";

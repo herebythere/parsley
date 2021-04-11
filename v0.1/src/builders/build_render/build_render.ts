@@ -16,7 +16,6 @@ import type {
   TextAction,
 } from "../../type_flyweight/integrals.ts";
 
-import { ChunkBase } from "../../type_flyweight/chunk.ts";
 import {
   decrementTarget,
   getText,
@@ -291,10 +290,6 @@ const appendInjectedAttribute: RenderInjectedAttribute = ({
 
   const { injectionID } = integral;
   const value = rs.template.injections[injectionID];
-
-  if (value instanceof ChunkBase) {
-    return;
-  }
 
   // add to injection map
   rs.attributes[injectionID] = {

@@ -1,7 +1,7 @@
 // brian taylor vann
 // text vector
 
-import { samestuff } from "https://raw.githubusercontent.com/taylor-vann/jackrabbit/main/src/samestuff/samestuff.ts";
+import { samestuff } from "../test_deps.ts";
 import {
   copy,
   create,

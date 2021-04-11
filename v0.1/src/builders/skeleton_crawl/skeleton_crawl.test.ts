@@ -1,9 +1,7 @@
 // brian taylor vann
 // skeleton crawl
 
-// @ts-ignore remote file
-import { samestuff } from "https://raw.githubusercontent.com/taylor-vann/jackrabbit/main/src/samestuff/samestuff.ts";
-
+import { samestuff } from "../../test_deps.ts";
 import type { Template } from "../../type_flyweight/template.ts";
 import { crawl } from "./skeleton_crawl.ts";
 

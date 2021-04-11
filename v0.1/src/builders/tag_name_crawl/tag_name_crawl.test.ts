@@ -1,7 +1,7 @@
 // brian taylor vann
 // tag name crawl
 
-import { samestuff } from "https://raw.githubusercontent.com/taylor-vann/jackrabbit/main/src/samestuff/samestuff.ts";
+import { samestuff } from "../../test_deps.ts";
 import { Template } from "../../type_flyweight/template.ts";
 import { create, incrementTarget } from "../../text_vector/text_vector.ts";
 

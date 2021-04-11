@@ -17,7 +17,13 @@ export type {
   DisconnectChunk,
   UpdateChunk,
 } from "./type_flyweight/chunker.ts";
-export type { BangerBase, ChunkBaseArray } from "./type_flyweight/chunk.ts";
+export type {
+  Attach,
+  BangerBase,
+  ChunkBaseArray,
+  ChunkEffect,
+  EffectQuality,
+} from "./type_flyweight/chunk.ts";
 export type { Draw, Template } from "./type_flyweight/template.ts";
 
 export { Chunk } from "./chunk/chunk.ts";

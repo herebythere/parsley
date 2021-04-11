@@ -1,19 +1,19 @@
 // brian taylor vann
 // chunk
 
-import type { Chunker } from "../type_flyweight/chunker.ts";
 import type {
+  ChunkBase,
   BangerBase,
   ChunkEffect,
   EffectQuality,
 } from "../type_flyweight/chunk.ts";
+import type { Chunker } from "../type_flyweight/chunker.ts";
 import type { Hooks } from "../type_flyweight/hooks.ts";
 import type {
   ReferenceMap,
   RenderStructure,
 } from "../type_flyweight/render.ts";
 import type { Template } from "../type_flyweight/template.ts";
-import { ChunkBase } from "../type_flyweight/chunk.ts";
 
 import { buildRenderStructure } from "../builders/builder.ts";
 
@@ -77,7 +77,12 @@ class Banger<N, A, P, S> implements BangerBase<N> {
   }
 }
 
-class Chunk<N, A, P, S> extends ChunkBase<N> {
+class Chunk<N, A, P, S> implements ChunkBase<N> {
+  // EXTERNAL EFFECTS
+  parentNode?: N;
+  leftNode?: N;
+  siblings: N[];
+
   // INIT PARAMS
   private hooks: Hooks<N, A>;
   private chunker: Chunker<N, A, P, S>;
@@ -91,16 +96,9 @@ class Chunk<N, A, P, S> extends ChunkBase<N> {
   private state: S;
   private effect: ChunkEffect;
 
-  // EXTERNAL EFFECTS
-  private parentNode?: N;
-  private leftNode?: N;
-  private siblings: N[];
-
   // INIT
 
   constructor(baseParams: ContextParams<N, A, P, S>) {
-    super();
-
     // REQUIRED EFFECTS
     this.banger = new Banger(this);
     this.hooks = baseParams.hooks;
@@ -125,6 +123,8 @@ class Chunk<N, A, P, S> extends ChunkBase<N> {
   }
 
   // LIFECYCLE API
+  //
+
   update(params: P): void {
     this.setParams(params);
 
@@ -199,13 +199,14 @@ class Chunk<N, A, P, S> extends ChunkBase<N> {
   disconnect(): void {
     disconnectDescendants(this.hooks, this.rs);
     if (this.state !== undefined && this.chunker.disconnect !== undefined) {
-      this.chunker.disconnect({state: this.state});
+      this.chunker.disconnect({ state: this.state });
     }
     this.updateEffect("DISCONNECTED");
   }
 
   // CONTEXT API
- 
+  //
+
   getSiblings(): N[] {
     return this.siblings;
   }
@@ -302,9 +303,7 @@ const updateAttributes: UpdateAttributesFunc = (hooks, rs, template) => {
 
     // give yourself a chance to remove attribute
     hooks.removeAttribute(pastInjection.params);
-
     pastInjection.params.value = attributeValue;
-
     hooks.setAttribute(pastInjection.params);
   }
 };

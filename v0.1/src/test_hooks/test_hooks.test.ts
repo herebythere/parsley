@@ -43,7 +43,12 @@ const testSetAttribute = () => {
   const assertions = [];
 
   const node = hooks.createNode("basic");
-  hooks.setAttribute({ references: {}, node, attribute: "checked", value: true });
+  hooks.setAttribute({
+    references: {},
+    node,
+    attribute: "checked",
+    value: true,
+  });
 
   if (node.kind !== "ELEMENT") {
     assertions.push("node should be an ELEMENT");

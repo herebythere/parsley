@@ -3,9 +3,7 @@
 
 // we need an injection test or two
 
-// @ts-ignore remote file
-import { samestuff } from "https://raw.githubusercontent.com/taylor-vann/jackrabbit/main/src/samestuff/samestuff.ts";
-
+import { samestuff } from "../../test_deps.ts";
 import { BuildIntegralsParams } from "./build_integrals.ts";
 import { buildSkeleton } from "../build_skeleton/build_skeleton.ts";
 import { buildIntegrals } from "./build_integrals.ts";
@@ -361,8 +359,6 @@ const findSelfClosingNodeWithAttributes = () => {
   const results = buildIntegrals(params);
 
   if (!samestuff(expectedResults, results)) {
-    console.log(results);
-    console.log(expectedResults);
     assertions.push("unexpected results found.");
   }
 

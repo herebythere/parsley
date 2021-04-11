@@ -4,7 +4,7 @@
 import type { Hooks } from "../type_flyweight/hooks.ts";
 import type { Template } from "../type_flyweight/template.ts";
 import type { RenderStructure } from "../type_flyweight/render.ts";
-import type {Integrals} from "../type_flyweight/integrals.ts";
+import type { Integrals } from "../type_flyweight/integrals.ts";
 import { buildIntegrals } from "./build_integrals/build_integrals.ts";
 import { buildSkeleton } from "./build_skeleton/build_skeleton.ts";
 import { buildRender } from "./build_render/build_render.ts";

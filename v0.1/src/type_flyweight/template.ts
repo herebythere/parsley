@@ -1,5 +1,5 @@
 // brian taylor vann
-// template
+// template types
 
 // N Node
 // A Attributables

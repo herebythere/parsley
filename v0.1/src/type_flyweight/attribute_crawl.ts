@@ -1,5 +1,5 @@
 // brian taylor vann
-// attribute crawl
+// attribute crawl types
 
 import { Vector } from "./text_vector.ts";
 
