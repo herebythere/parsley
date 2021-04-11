@@ -5,7 +5,7 @@
 // A Attributables
 
 import { Template, AttributeValue } from "./template.ts";
-import { ChunkBaseArray } from "./chunk.ts";
+import { ChunkBaseArray } from "./chunker.ts";
 
 interface AttributeInjectionParams<N, A> {
   references: ReferenceMap<N>;

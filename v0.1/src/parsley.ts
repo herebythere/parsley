@@ -9,7 +9,9 @@
 export type { Hooks } from "./type_flyweight/hooks.ts";
 export type { Position, Vector } from "./type_flyweight/text_vector.ts";
 export type {
+  Attach,
   Chunker,
+  ChunkBaseArray,
   Compose,
   ConnectChunk,
   ConnectParams,
@@ -18,9 +20,8 @@ export type {
   UpdateChunk,
 } from "./type_flyweight/chunker.ts";
 export type {
-  Attach,
   BangerBase,
-  ChunkBaseArray,
+  ChunkBase,
   ChunkEffect,
   EffectQuality,
 } from "./type_flyweight/chunk.ts";

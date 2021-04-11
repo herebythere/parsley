@@ -2,7 +2,6 @@
 // chunk types
 
 import { ReferenceMap } from "./render.ts";
-import { Chunker } from "./chunker.ts";
 
 // UNMOUNTED      // siblings have no parent
 // MOUNTED        // siblings have a parent
@@ -59,23 +58,10 @@ interface BangerBase<N> {
   getReferences(): ReferenceMap<N> | undefined;
 }
 
-type ChunkBaseArray<N> = ChunkBase<N>[];
-
-type Attach<N> = (parentNode: N, chunkArray: ChunkBaseArray<N>) => void;
-
-type ContextFactory<N, P> = (params: P) => ChunkBase<N>;
-
-// N, A are provided initially, P S are provided later
-type Compose<N, A> = <P = void, S = void>(
-  chunker: Chunker<N, A, P, S>
-) => ContextFactory<N, P>;
 
 export type {
-  Attach,
   BangerBase,
   ChunkBase,
-  ChunkBaseArray,
   ChunkEffect,
-  Compose,
   EffectQuality,
 };

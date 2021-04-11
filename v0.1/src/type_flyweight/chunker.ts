@@ -37,8 +37,13 @@ type Compose<N, A> = <P = void, S = void>(
   chunker: Chunker<N, A, P, S>
 ) => ContextFactory<N, P>;
 
+type ChunkBaseArray<N> = ChunkBase<N>[];
+type Attach<N> = (parentNode: N, chunkArray: ChunkBaseArray<N>) => void;
+
 export type {
+  Attach,
   Chunker,
+  ChunkBaseArray,
   Compose,
   ConnectChunk,
   ConnectParams,
