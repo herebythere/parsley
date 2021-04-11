@@ -1,9 +1,10 @@
 // brian taylor vann
 // test hooks
 
-import { Hooks } from "../type_flyweight/hooks.ts";
-import { Draw } from "../type_flyweight/template.ts";
-import { TestNode } from "./test_element.ts";
+import type { Hooks } from "../type_flyweight/hooks.ts";
+import type { Draw } from "../type_flyweight/template.ts";
+import type { TestNode } from "./test_element.ts";
+
 import { Chunk } from "../chunk/chunk.ts";
 
 type TestAttributes = string | number;

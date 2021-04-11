@@ -6,12 +6,17 @@
 // P Params
 // S State
 
-export type { Hooks } from "./type_flyweight/hooks.ts";
-export type { Position, Vector } from "./type_flyweight/text_vector.ts";
+export type {
+  BangerBase,
+  ChunkBase,
+  ChunkEffect,
+  EffectQuality,
+} from "./type_flyweight/chunk.ts";
+
 export type {
   Attach,
-  Chunker,
   ChunkBaseArray,
+  Chunker,
   Compose,
   ConnectChunk,
   ConnectParams,
@@ -19,12 +24,18 @@ export type {
   DisconnectChunk,
   UpdateChunk,
 } from "./type_flyweight/chunker.ts";
+
 export type {
-  BangerBase,
-  ChunkBase,
-  ChunkEffect,
-  EffectQuality,
-} from "./type_flyweight/chunk.ts";
+  CreateNode,
+  CreateTextNode,
+  GetSibling,
+  Hooks,
+  InsertDescendant,
+  RemoveDescendant,
+  SetAttribute,
+  SetAttributeParams,
+} from "./type_flyweight/hooks.ts";
+
 export type { Draw, Template } from "./type_flyweight/template.ts";
 
 export { Chunk } from "./chunk/chunk.ts";

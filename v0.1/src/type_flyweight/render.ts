@@ -4,8 +4,8 @@
 // N Node
 // A Attributables
 
-import { Template, AttributeValue } from "./template.ts";
-import { ChunkBaseArray } from "./chunker.ts";
+import type { Template, AttributeValue } from "./template.ts";
+import type { ChunkBaseArray } from "./chunker.ts";
 
 interface AttributeInjectionParams<N, A> {
   references: ReferenceMap<N>;

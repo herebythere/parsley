@@ -1,8 +1,9 @@
 // brian taylor vann
 // skeleton crawl
 
-import { samestuff } from "../../test_deps.ts";
 import type { Template } from "../../type_flyweight/template.ts";
+
+import { samestuff } from "../../test_deps.ts";
 import { crawl } from "./skeleton_crawl.ts";
 
 type TextTextInterpolator = <N, A>(

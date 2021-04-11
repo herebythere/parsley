@@ -1,15 +1,16 @@
 // brian taylor vann
 // build render
 
+import type { Integrals } from "../../type_flyweight/integrals.ts";
+import type { Template, AttributeValue } from "../../type_flyweight/template.ts";
+import type { TestNode } from "../../test_hooks/test_element.ts";
+import type { Chunker } from "../../type_flyweight/chunker.ts";
+
 import { buildIntegrals } from "../build_integrals/build_integrals.ts";
 import { buildRender } from "./build_render.ts";
 import { buildSkeleton } from "../build_skeleton/build_skeleton.ts";
 import { Chunk } from "../../chunk/chunk.ts";
 import { hooks, draw, TestAttributes } from "../../test_hooks/test_hooks.ts";
-import { Integrals } from "../../type_flyweight/integrals.ts";
-import { Template, AttributeValue } from "../../type_flyweight/template.ts";
-import { TestNode } from "../../test_hooks/test_element.ts";
-import { Chunker } from "../../type_flyweight/chunker.ts";
 
 interface InterpolatorResults<N, A> {
   template: Template<N, A>;
@@ -26,7 +27,7 @@ const runTestsAsynchronously = true;
 const testTextInterpolator: TextTextInterpolator<
   TestNode,
   TestAttributes,
-  Object,
+  Record<string, string>,
   unknown
 > = (templateArray, ...injections) => {
   const template = { templateArray, injections };

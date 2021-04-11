@@ -1,8 +1,8 @@
 // brian taylor vann
 // chunker types
 
-import { Template } from "./template.ts";
-import { ChunkBase, BangerBase } from "./chunk.ts";
+import type { Template } from "./template.ts";
+import type { ChunkBase, BangerBase } from "./chunk.ts";
 
 interface UpdateParams<N, P, S> {
   params: P;

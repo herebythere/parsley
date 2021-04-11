@@ -1,14 +1,13 @@
 // brian taylor vann
 // integral types
 
-import {
+import type {
   ImplicitAttributeAction,
   ExplicitAttributeAction,
   InjectedAttributeAction,
   AttributeAction,
 } from "./attribute_crawl.ts";
-
-import { Vector } from "./text_vector.ts";
+import type { Vector } from "./text_vector.ts";
 
 interface NodeAction {
   kind: "NODE";

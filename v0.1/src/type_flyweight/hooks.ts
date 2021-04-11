@@ -1,8 +1,8 @@
 // brian taylor vann
 // hook types
 
-import { AttributeValue } from "./template.ts";
-import { ReferenceMap } from "./render.ts";
+import type { AttributeValue } from "./template.ts";
+import type { ReferenceMap } from "./render.ts";
 
 interface SetAttributeParams<N, A> {
   references: ReferenceMap<N>;

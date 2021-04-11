@@ -1,7 +1,7 @@
 // brian taylor vann
 // attribute crawl types
 
-import { Vector } from "./text_vector.ts";
+import type { Vector } from "./text_vector.ts";
 
 type ImplicitAttributeAction = {
   kind: "IMPLICIT_ATTRIBUTE";

@@ -1,10 +1,11 @@
 // brian taylor vann
 // chunk
 
+import type { Chunker } from "../type_flyweight/chunker.ts";
+import type { TestNode } from "../test_hooks/test_element.ts";
+
 import { Chunk } from "./chunk.ts";
 import { hooks, draw, TestAttributes } from "../test_hooks/test_hooks.ts";
-import { Chunker } from "../type_flyweight/chunker.ts";
-import { TestNode } from "../test_hooks/test_element.ts";
 
 const title = "context";
 const runTestsAsynchronously = true;

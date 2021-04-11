@@ -1,10 +1,10 @@
 // brian taylor vann
 // tag name crawl
 
-import { samestuff } from "../../test_deps.ts";
-import { Template } from "../../type_flyweight/template.ts";
-import { create, incrementTarget } from "../../text_vector/text_vector.ts";
+import type { Template } from "../../type_flyweight/template.ts";
 
+import { samestuff } from "../../test_deps.ts";
+import { create, incrementTarget } from "../../text_vector/text_vector.ts";
 import { crawlForTagName } from "./tag_name_crawl.ts";
 
 type TextTextInterpolator = <N, A>(
