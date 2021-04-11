@@ -18,7 +18,7 @@ import { Chunk } from "https://raw.githubusercontent.com/taylor-vann/parsley/mai
 
 ## How to use
 
-Parsley contructs interactive documents from XML. But its an ancillary library that requires an external interface.
+Parsley contructs interactive documents from XML through external interface.
 
 The [hooks interface](https://github.com/taylor-vann/parsley-dom/blob/main/v0.1/src/hooks/hooks.ts) in [Parsley-dom](https://github.com/taylor-vann/parsley-dom) uses Parsley to maintain document structure.
 
