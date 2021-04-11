@@ -13,7 +13,7 @@ Clone this repository and copy a version into your codebase.
 Import `v0.1` into a deno project.
 
 ```ts
-import { style } from "https://raw.githubusercontent.com/taylor-vann/parsley/main/v0.1/src/parsley.ts";
+import { Chunk } from "https://raw.githubusercontent.com/taylor-vann/parsley/main/v0.1/src/parsley.ts";
 ```
 
 ## How to use
