@@ -2,7 +2,10 @@
 // build render
 
 import type { Integrals } from "../../type_flyweight/integrals.ts";
-import type { Template, AttributeValue } from "../../type_flyweight/template.ts";
+import type {
+  Template,
+  AttributeValue,
+} from "../../type_flyweight/template.ts";
 import type { TestNode } from "../../test_hooks/test_element.ts";
 import type { Chunker } from "../../type_flyweight/chunker.ts";
 
@@ -310,6 +313,61 @@ const testAddContext = () => {
   return assertions;
 };
 
+const testBuildingCachedIntegrals = () => {
+  const assertions: string[] = [];
+
+  const { template, integrals } = testTextInterpolator`
+    <p
+      checked
+      label=""
+      disabled="false"
+      skies="${"blue"}">
+        Hello world, it's me!
+    </p>`;
+
+  buildRender({
+    hooks,
+    integrals,
+    template,
+  });
+
+  const secondRenderResults = buildRender({
+    hooks,
+    integrals,
+    template,
+  });
+
+  if (secondRenderResults.siblings.length !== 2) {
+    assertions.push("siblings should have length 2");
+    return assertions;
+  }
+
+  const sibling = secondRenderResults.siblings[1][0];
+
+  if (sibling.kind !== "ELEMENT") {
+    assertions.push("sibling should be an ELEMENT");
+    return assertions;
+  }
+  if (sibling.tagname !== "p") {
+    assertions.push("sibling tagname should be p");
+  }
+  if (sibling.attributes["checked"] !== true) {
+    assertions.push("sibling should be checked");
+  }
+  if (sibling.attributes["disabled"] !== "false") {
+    assertions.push("sibling should be disabled");
+  }
+
+  if (sibling.attributes["label"] !== "") {
+    assertions.push("label should be empty string");
+  }
+  if (sibling.attributes["skies"] !== "blue") {
+    assertions.push("sibling skies should be blue");
+  }
+
+  return assertions;
+};
+
 const tests = [
   testCreateNode,
   testCloseNode,
@@ -317,6 +375,7 @@ const tests = [
   testAddAttributesToNodes,
   testAddAttributesToMultipleNodes,
   testAddContext,
+  testBuildingCachedIntegrals,
 ];
 
 const unitTestBuildRender = {

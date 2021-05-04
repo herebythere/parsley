@@ -146,11 +146,11 @@ const BREAK_RUNES = {
     "\n": true
 };
 const crawlForTagName = (template, innerXmlBounds)=>{
-    const tagVector = copy2(innerXmlBounds);
-    let positionChar = getCharAtPosition(template, tagVector.origin);
+    let positionChar = getCharAtPosition(template, innerXmlBounds.origin);
     if (positionChar === undefined || BREAK_RUNES[positionChar]) {
         return;
     }
+    const tagVector = copy2(innerXmlBounds);
     while(BREAK_RUNES[positionChar] === undefined && !hasOriginEclipsedTaraget(tagVector)){
         if (incrementOrigin(template, tagVector) === undefined) {
             return;
@@ -168,7 +168,7 @@ const crawlForTagName = (template, innerXmlBounds)=>{
             ...tagVector.origin
         }
     };
-    if (BREAK_RUNES[positionChar]) {
+    if (positionChar !== undefined && BREAK_RUNES[positionChar]) {
         decrementTarget(template, adjustedVector);
     }
     return adjustedVector;
@@ -190,13 +190,14 @@ const getAttributeName = (template, vectorBounds)=>{
     if (positionChar === undefined || BREAK_RUNES1[positionChar]) {
         return;
     }
-    let tagNameCrawlState = ATTRIBUTE_FOUND;
     const bounds = copy2(vectorBounds);
-    while(tagNameCrawlState === ATTRIBUTE_FOUND && !hasOriginEclipsedTaraget(bounds)){
-        if (incrementOrigin(template, bounds) === undefined) {
-            return;
+    let tagNameCrawlState = ATTRIBUTE_FOUND;
+    while(tagNameCrawlState === ATTRIBUTE_FOUND && !hasOriginEclipsedTaraget(vectorBounds)){
+        if (incrementOrigin(template, vectorBounds) === undefined) {
+            tagNameCrawlState = IMPLICIT_ATTRIBUTE;
+            break;
         }
-        positionChar = getCharAtPosition(template, bounds.origin);
+        positionChar = getCharAtPosition(template, vectorBounds.origin);
         if (positionChar === undefined) {
             return;
         }
@@ -210,10 +211,10 @@ const getAttributeName = (template, vectorBounds)=>{
     }
     const attributeVector = {
         origin: {
-            ...vectorBounds.origin
+            ...bounds.origin
         },
         target: {
-            ...bounds.origin
+            ...vectorBounds.origin
         }
     };
     if (tagNameCrawlState === ATTRIBUTE_FOUND) {
@@ -235,7 +236,16 @@ const getAttributeName = (template, vectorBounds)=>{
         decrementTarget(template, attributeVector);
         return {
             kind: EXPLICIT_ATTRIBUTE,
-            valueVector: attributeVector,
+            valueVector: {
+                origin: {
+                    arrayIndex: -1,
+                    stringIndex: -1
+                },
+                target: {
+                    arrayIndex: -1,
+                    stringIndex: -1
+                }
+            },
             attributeVector
         };
     }
@@ -246,24 +256,18 @@ const getAttributeValue = (template, vectorBounds, attributeAction)=>{
         return;
     }
     const bound = copy2(vectorBounds);
-    incrementOrigin(template, bound);
-    if (hasOriginEclipsedTaraget(bound)) {
-        return;
-    }
-    positionChar = getCharAtPosition(template, bound.origin);
+    incrementOrigin(template, vectorBounds);
+    positionChar = getCharAtPosition(template, vectorBounds.origin);
     if (positionChar !== QUOTE_RUNE) {
         return;
     }
-    const { arrayIndex  } = bound.origin;
-    const valVector = copy2(bound);
-    if (incrementOrigin(template, valVector) === undefined) {
+    const arrayIndex = vectorBounds.origin.arrayIndex;
+    const valVector = copy2(vectorBounds);
+    if (incrementOrigin(template, vectorBounds) === undefined) {
         return;
     }
-    positionChar = getCharAtPosition(template, valVector.origin);
-    if (positionChar === undefined) {
-        return;
-    }
-    const arrayIndexDistance = Math.abs(arrayIndex - valVector.origin.arrayIndex);
+    positionChar = getCharAtPosition(template, vectorBounds.origin);
+    let arrayIndexDistance = Math.abs(arrayIndex - vectorBounds.origin.arrayIndex);
     if (arrayIndexDistance === 1 && positionChar === QUOTE_RUNE) {
         return {
             kind: INJECTED_ATTRIBUTE,
@@ -271,33 +275,34 @@ const getAttributeValue = (template, vectorBounds, attributeAction)=>{
             attributeVector: attributeAction.attributeVector,
             valueVector: {
                 origin: {
-                    ...bound.origin
+                    ...valVector.origin
                 },
                 target: {
-                    ...valVector.origin
+                    ...vectorBounds.origin
                 }
             }
         };
     }
-    while(positionChar !== QUOTE_RUNE && !hasOriginEclipsedTaraget(valVector)){
-        if (incrementOrigin(template, valVector) === undefined) {
+    if (arrayIndexDistance > 0) {
+        return;
+    }
+    while(positionChar !== QUOTE_RUNE && !hasOriginEclipsedTaraget(vectorBounds)){
+        if (incrementOrigin(template, vectorBounds) === undefined) {
             return;
         }
-        if (arrayIndex < valVector.origin.arrayIndex) {
-            return;
-        }
-        positionChar = getCharAtPosition(template, valVector.origin);
-        if (positionChar === undefined) {
+        positionChar = getCharAtPosition(template, vectorBounds.origin);
+        arrayIndexDistance = Math.abs(arrayIndex - vectorBounds.origin.arrayIndex);
+        if (arrayIndexDistance > 0) {
             return;
         }
     }
     if (attributeAction.kind === "EXPLICIT_ATTRIBUTE" && positionChar === QUOTE_RUNE) {
         attributeAction.valueVector = {
             origin: {
-                ...bound.origin
+                ...valVector.origin
             },
             target: {
-                ...valVector.origin
+                ...vectorBounds.origin
             }
         };
         return attributeAction;
@@ -311,12 +316,7 @@ const crawlForAttribute = (template, vectorBounds)=>{
     if (attrResults.kind === "IMPLICIT_ATTRIBUTE") {
         return attrResults;
     }
-    const valBounds = copy2(vectorBounds);
-    valBounds.origin = {
-        ...attrResults.attributeVector.target
-    };
-    incrementOrigin(template, valBounds);
-    return getAttributeValue(template, valBounds, attrResults);
+    return getAttributeValue(template, vectorBounds, attrResults);
 };
 const incrementOriginToNextSpaceRune = (template, innerXmlBounds)=>{
     let positionChar = getCharAtPosition(template, innerXmlBounds.origin);
@@ -350,9 +350,6 @@ const incrementOriginToNextCharRune = (template, innerXmlBounds)=>{
             return;
         }
         positionChar = getCharAtPosition(template, innerXmlBounds.origin);
-        if (positionChar === undefined) {
-            return;
-        }
     }
     return innerXmlBounds;
 };
@@ -366,26 +363,26 @@ const appendNodeAttributeIntegrals = ({ integrals , template , chunk ,  })=>{
         if (incrementOriginToNextCharRune(template, chunk) === undefined) {
             return;
         }
-        const attributeCrawlResults = crawlForAttribute(template, chunk);
-        if (attributeCrawlResults === undefined) {
+        const attrCrawl = crawlForAttribute(template, chunk);
+        if (attrCrawl === undefined) {
             return;
         }
-        if (attributeCrawlResults.kind === "IMPLICIT_ATTRIBUTE") {
+        if (attrCrawl.kind === "IMPLICIT_ATTRIBUTE") {
             chunk.origin = {
-                ...attributeCrawlResults.attributeVector.target
+                ...attrCrawl.attributeVector.target
             };
         }
-        if (attributeCrawlResults.kind === "EXPLICIT_ATTRIBUTE") {
+        if (attrCrawl.kind === "EXPLICIT_ATTRIBUTE") {
             chunk.origin = {
-                ...attributeCrawlResults.valueVector.target
+                ...attrCrawl.valueVector.target
             };
         }
-        if (attributeCrawlResults.kind === "INJECTED_ATTRIBUTE") {
+        if (attrCrawl.kind === "INJECTED_ATTRIBUTE") {
             chunk.origin = {
-                ...attributeCrawlResults.valueVector.target
+                ...attrCrawl.valueVector.target
             };
         }
-        integrals.push(attributeCrawlResults);
+        integrals.push(attrCrawl);
     }
     return integrals;
 };
@@ -505,7 +502,7 @@ const buildIntegrals = ({ template , skeleton  })=>{
                 injectionID: origin.arrayIndex - 1
             });
         }
-        if (nodeType === "OPEN_NODE_CONFIRMED") {
+        if (nodeType === "OPENED_FOUND") {
             appendNodeIntegrals({
                 kind: "NODE",
                 integrals,
@@ -513,21 +510,21 @@ const buildIntegrals = ({ template , skeleton  })=>{
                 chunk
             });
         }
-        if (nodeType === "CLOSE_NODE_CONFIRMED") {
+        if (nodeType === "CLOSED_FOUND") {
             appendCloseNodeIntegrals({
                 integrals,
                 template,
                 chunk
             });
         }
-        if (nodeType === "CONTENT_NODE") {
+        if (nodeType === "CONTENT") {
             appendContentIntegrals({
                 integrals,
                 template,
                 chunk
             });
         }
-        if (nodeType === "SELF_CLOSING_NODE_CONFIRMED") {
+        if (nodeType === "INDEPENDENT_FOUND") {
             appendNodeIntegrals({
                 kind: "SELF_CLOSING_NODE",
                 integrals,
@@ -539,57 +536,63 @@ const buildIntegrals = ({ template , skeleton  })=>{
     return integrals;
 };
 const routers = {
-    CONTENT_NODE: {
-        "<": "OPEN_NODE",
-        DEFAULT: "CONTENT_NODE"
+    CONTENT: {
+        "<": "OPENED",
+        DEFAULT: "CONTENT"
     },
-    OPEN_NODE: {
-        " ": "CONTENT_NODE",
-        "\n": "CONTENT_NODE",
-        "<": "OPEN_NODE",
-        "/": "CLOSE_NODE",
-        DEFAULT: "OPEN_NODE_VALID"
+    OPENED: {
+        " ": "CONTENT",
+        "\n": "CONTENT",
+        "<": "OPENED",
+        "/": "CLOSED",
+        DEFAULT: "OPENED_VALID"
     },
-    OPEN_NODE_VALID: {
-        "<": "OPEN_NODE",
-        "/": "SELF_CLOSING_NODE_VALID",
-        ">": "OPEN_NODE_CONFIRMED",
-        DEFAULT: "OPEN_NODE_VALID"
+    ATTRIBUTE: {
+        "\\": "ATTRIBUTE_ESC_CHAR",
+        '"': "OPENED_VALID",
+        DEFAULT: "ATTRIBUTE"
     },
-    CLOSE_NODE: {
-        " ": "CONTENT_NODE",
-        "\n": "CONTENT_NODE",
-        "<": "OPEN_NODE",
-        DEFAULT: "CLOSE_NODE_VALID"
+    ATTRIBUTE_ESC_CHAR: {
+        DEFAULT: "ATTRIBUTE"
     },
-    CLOSE_NODE_VALID: {
-        "<": "OPEN_NODE",
-        ">": "CLOSE_NODE_CONFIRMED",
-        DEFAULT: "CLOSE_NODE_VALID"
+    OPENED_VALID: {
+        "<": "OPENED",
+        "/": "INDEPENDENT_VALID",
+        ">": "OPENED_FOUND",
+        '"': "ATTRIBUTE",
+        DEFAULT: "OPENED_VALID"
     },
-    SELF_CLOSING_NODE_VALID: {
-        "<": "OPEN_NODE",
-        ">": "SELF_CLOSING_NODE_CONFIRMED",
-        DEFAULT: "SELF_CLOSING_NODE_VALID"
+    CLOSED: {
+        " ": "CONTENT",
+        "\n": "CONTENT",
+        "<": "OPENED",
+        DEFAULT: "CLOSED_VALID"
+    },
+    CLOSED_VALID: {
+        "<": "OPENED",
+        ">": "CLOSED_FOUND",
+        DEFAULT: "CLOSED_VALID"
+    },
+    INDEPENDENT_VALID: {
+        "<": "OPENED",
+        ">": "INDEPENDENT_FOUND",
+        DEFAULT: "INDEPENDENT_VALID"
     }
 };
-const DEFAULT = "DEFAULT";
-const CONTENT_NODE = "CONTENT_NODE";
-const OPEN_NODE = "OPEN_NODE";
 const validSieve = {
-    ["OPEN_NODE_VALID"]: "OPEN_NODE_VALID",
-    ["CLOSE_NODE_VALID"]: "CLOSE_NODE_VALID",
-    ["SELF_CLOSING_NODE_VALID"]: "SELF_CLOSING_NODE_VALID"
+    OPENED_VALID: "OPENED_VALID",
+    CLOSED_VALID: "CLOSED_VALID",
+    INDEPENDENT_VALID: "INDEPENDENT_VALID"
 };
 const confirmedSieve = {
-    ["OPEN_NODE_CONFIRMED"]: "OPEN_NODE_CONFIRMED",
-    ["CLOSE_NODE_CONFIRMED"]: "CLOSE_NODE_CONFIRMED",
-    ["SELF_CLOSING_NODE_CONFIRMED"]: "SELF_CLOSING_NODE_CONFIRMED"
+    OPENED_FOUND: "OPENED_FOUND",
+    CLOSED_FOUND: "CLOSED_FOUND",
+    INDEPENDENT_FOUND: "INDEPENDENT_FOUND"
 };
 const setStartStateProperties = (template, previousCrawl)=>{
     if (previousCrawl === undefined) {
         return {
-            nodeType: CONTENT_NODE,
+            nodeType: "CONTENT",
             vector: create()
         };
     }
@@ -598,7 +601,7 @@ const setStartStateProperties = (template, previousCrawl)=>{
         return;
     }
     const crawlState = {
-        nodeType: CONTENT_NODE,
+        nodeType: "CONTENT",
         vector: followingVector
     };
     return crawlState;
@@ -607,7 +610,7 @@ const setNodeType = (template, crawlState)=>{
     const nodeStates = routers[crawlState.nodeType];
     const __char = getCharAtPosition(template, crawlState.vector.target);
     if (nodeStates !== undefined && __char !== undefined) {
-        const defaultNodeType = nodeStates[DEFAULT] ?? CONTENT_NODE;
+        const defaultNodeType = nodeStates["DEFAULT"] ?? "CONTENT";
         crawlState.nodeType = nodeStates[__char] ?? defaultNodeType;
     }
     return crawlState;
@@ -617,19 +620,19 @@ const crawl = (template, previousCrawl)=>{
     if (crawlState === undefined) {
         return;
     }
-    let openPosition;
     setNodeType(template, crawlState);
+    let openedPosition;
     while(incrementTarget(template, crawlState.vector)){
-        if (validSieve[crawlState.nodeType] === undefined && crawlState.vector.target.stringIndex === 0) {
-            crawlState.nodeType = CONTENT_NODE;
+        if (validSieve[crawlState.nodeType] === undefined && crawlState.nodeType !== "ATTRIBUTE" && crawlState.vector.target.stringIndex === 0) {
+            crawlState.nodeType = "CONTENT";
         }
         setNodeType(template, crawlState);
-        if (crawlState.nodeType === OPEN_NODE) {
-            openPosition = copy1(crawlState.vector.target);
+        if (crawlState.nodeType === "OPENED") {
+            openedPosition = copy1(crawlState.vector.target);
         }
         if (confirmedSieve[crawlState.nodeType]) {
-            if (openPosition !== undefined) {
-                crawlState.vector.origin = openPosition;
+            if (openedPosition !== undefined) {
+                crawlState.vector.origin = openedPosition;
             }
             break;
         }
@@ -637,7 +640,7 @@ const crawl = (template, previousCrawl)=>{
     return crawlState;
 };
 const DEFAULT_CRAWL_RESULTS = {
-    nodeType: "CONTENT_NODE",
+    nodeType: "CONTENT",
     vector: {
         origin: {
             arrayIndex: 0,
@@ -650,10 +653,10 @@ const DEFAULT_CRAWL_RESULTS = {
     }
 };
 const SKELETON_SIEVE = {
-    ["OPEN_NODE_CONFIRMED"]: "OPEN_NODE",
-    ["SELF_CLOSING_NODE_CONFIRMED"]: "SELF_CLOSING_NODE",
-    ["CLOSE_NODE_CONFIRMED"]: "CLOSE_NODE",
-    ["CONTENT_NODE"]: "CONTENT_NODE"
+    ["OPENED_FOUND"]: "OPENED",
+    ["INDEPENDENT_FOUND"]: "INDEPENDENT",
+    ["CLOSED_FOUND"]: "CLOSED",
+    ["CONTENT"]: "CONTENT"
 };
 const isDistanceGreaterThanOne = ({ template , origin , target ,  })=>{
     if (hasOriginEclipsedTaraget({
@@ -688,7 +691,7 @@ const buildMissingStringNode = ({ template , previousCrawl , currentCrawl ,  })=
         increment(template, origin);
     }
     return {
-        nodeType: "CONTENT_NODE",
+        nodeType: "CONTENT",
         vector: {
             origin,
             target
@@ -735,7 +738,6 @@ const createTextNode = ({ hooks , rs , integral  })=>{
     const parentNode = rs.stack[rs.stack.length - 1]?.node;
     const lastNodeIndex = rs.lastNodes.length - 1;
     const leftNode = rs.lastNodes[lastNodeIndex];
-    const isSiblingLevel = rs.stack.length === 0;
     if (rs.stack.length === 0) {
         rs.siblings.push([
             descendant
@@ -864,15 +866,15 @@ const createChunkArrayInjection = ({ hooks , rs , integral ,  })=>{
     rs.lastNodes[lastNodeIndex] = prevSibling;
 };
 const appendExplicitAttribute = ({ hooks , rs , integral ,  })=>{
-    const references = rs.references;
     const node = rs.stack[rs.stack.length - 1].node;
     const attribute = getText(rs.template, integral.attributeVector);
     if (attribute === undefined) {
         return;
     }
-    incrementOrigin(rs.template, integral.valueVector);
-    decrementTarget(rs.template, integral.valueVector);
-    const value = getText(rs.template, integral.valueVector);
+    const valueVector = copy2(integral.valueVector);
+    incrementOrigin(rs.template, valueVector);
+    decrementTarget(rs.template, valueVector);
+    const value = getText(rs.template, valueVector);
     if (value === undefined) {
         return;
     }
@@ -942,14 +944,7 @@ const buildRender = ({ hooks , template , integrals  })=>{
         stack: []
     };
     for (const integral of integrals){
-        if (integral.kind === "NODE") {
-            createNode({
-                hooks,
-                rs,
-                integral
-            });
-        }
-        if (integral.kind === "SELF_CLOSING_NODE") {
+        if (integral.kind === "NODE" || integral.kind === "SELF_CLOSING_NODE") {
             createNode({
                 hooks,
                 rs,
@@ -1022,6 +1017,7 @@ const buildRenderStructure = (hooks, template)=>{
     return render;
 };
 class Banger {
+    chunk;
     constructor(chunk){
         this.chunk = chunk;
     }
@@ -1033,6 +1029,16 @@ class Banger {
     }
 }
 class Chunk1 {
+    parentNode;
+    leftNode;
+    siblings;
+    hooks;
+    chunker;
+    banger;
+    rs;
+    params;
+    state;
+    effect;
     constructor(baseParams){
         this.banger = new Banger(this);
         this.hooks = baseParams.hooks;

@@ -4,16 +4,18 @@
 import type { Vector } from "./text_vector.ts";
 
 type CrawlStatus =
-  | "CONTENT_NODE"
-  | "OPEN_NODE"
-  | "OPEN_NODE_VALID"
-  | "OPEN_NODE_CONFIRMED"
-  | "CLOSE_NODE"
-  | "CLOSE_NODE_VALID"
-  | "CLOSE_NODE_CONFIRMED"
-  | "SELF_CLOSING_NODE"
-  | "SELF_CLOSING_NODE_VALID"
-  | "SELF_CLOSING_NODE_CONFIRMED";
+  | "CONTENT"
+  | "OPENED"
+  | "OPENED_VALID"
+  | "OPENED_FOUND"
+  | "CLOSED"
+  | "CLOSED_VALID"
+  | "CLOSED_FOUND"
+  | "INDEPENDENT"
+  | "INDEPENDENT_VALID"
+  | "INDEPENDENT_FOUND"
+  | "ATTRIBUTE"
+  | "ATTRIBUTE_ESC_CHAR";
 
 interface CrawlResults {
   nodeType: CrawlStatus;

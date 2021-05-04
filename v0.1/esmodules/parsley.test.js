@@ -205,13 +205,14 @@ const getAttributeName = (template, vectorBounds)=>{
     if (positionChar === undefined || BREAK_RUNES[positionChar]) {
         return;
     }
-    let tagNameCrawlState = ATTRIBUTE_FOUND;
     const bounds = copy2(vectorBounds);
-    while(tagNameCrawlState === ATTRIBUTE_FOUND && !hasOriginEclipsedTaraget(bounds)){
-        if (incrementOrigin(template, bounds) === undefined) {
-            return;
+    let tagNameCrawlState = ATTRIBUTE_FOUND;
+    while(tagNameCrawlState === ATTRIBUTE_FOUND && !hasOriginEclipsedTaraget(vectorBounds)){
+        if (incrementOrigin(template, vectorBounds) === undefined) {
+            tagNameCrawlState = IMPLICIT_ATTRIBUTE;
+            break;
         }
-        positionChar = getCharAtPosition(template, bounds.origin);
+        positionChar = getCharAtPosition(template, vectorBounds.origin);
         if (positionChar === undefined) {
             return;
         }
@@ -225,10 +226,10 @@ const getAttributeName = (template, vectorBounds)=>{
     }
     const attributeVector = {
         origin: {
-            ...vectorBounds.origin
+            ...bounds.origin
         },
         target: {
-            ...bounds.origin
+            ...vectorBounds.origin
         }
     };
     if (tagNameCrawlState === ATTRIBUTE_FOUND) {
@@ -250,7 +251,16 @@ const getAttributeName = (template, vectorBounds)=>{
         decrementTarget(template, attributeVector);
         return {
             kind: EXPLICIT_ATTRIBUTE,
-            valueVector: attributeVector,
+            valueVector: {
+                origin: {
+                    arrayIndex: -1,
+                    stringIndex: -1
+                },
+                target: {
+                    arrayIndex: -1,
+                    stringIndex: -1
+                }
+            },
             attributeVector
         };
     }
@@ -261,24 +271,18 @@ const getAttributeValue = (template, vectorBounds, attributeAction)=>{
         return;
     }
     const bound = copy2(vectorBounds);
-    incrementOrigin(template, bound);
-    if (hasOriginEclipsedTaraget(bound)) {
-        return;
-    }
-    positionChar = getCharAtPosition(template, bound.origin);
+    incrementOrigin(template, vectorBounds);
+    positionChar = getCharAtPosition(template, vectorBounds.origin);
     if (positionChar !== QUOTE_RUNE) {
         return;
     }
-    const { arrayIndex  } = bound.origin;
-    const valVector = copy2(bound);
-    if (incrementOrigin(template, valVector) === undefined) {
+    const arrayIndex = vectorBounds.origin.arrayIndex;
+    const valVector = copy2(vectorBounds);
+    if (incrementOrigin(template, vectorBounds) === undefined) {
         return;
     }
-    positionChar = getCharAtPosition(template, valVector.origin);
-    if (positionChar === undefined) {
-        return;
-    }
-    const arrayIndexDistance = Math.abs(arrayIndex - valVector.origin.arrayIndex);
+    positionChar = getCharAtPosition(template, vectorBounds.origin);
+    let arrayIndexDistance = Math.abs(arrayIndex - vectorBounds.origin.arrayIndex);
     if (arrayIndexDistance === 1 && positionChar === QUOTE_RUNE) {
         return {
             kind: INJECTED_ATTRIBUTE,
@@ -286,33 +290,34 @@ const getAttributeValue = (template, vectorBounds, attributeAction)=>{
             attributeVector: attributeAction.attributeVector,
             valueVector: {
                 origin: {
-                    ...bound.origin
+                    ...valVector.origin
                 },
                 target: {
-                    ...valVector.origin
+                    ...vectorBounds.origin
                 }
             }
         };
     }
-    while(positionChar !== QUOTE_RUNE && !hasOriginEclipsedTaraget(valVector)){
-        if (incrementOrigin(template, valVector) === undefined) {
+    if (arrayIndexDistance > 0) {
+        return;
+    }
+    while(positionChar !== QUOTE_RUNE && !hasOriginEclipsedTaraget(vectorBounds)){
+        if (incrementOrigin(template, vectorBounds) === undefined) {
             return;
         }
-        if (arrayIndex < valVector.origin.arrayIndex) {
-            return;
-        }
-        positionChar = getCharAtPosition(template, valVector.origin);
-        if (positionChar === undefined) {
+        positionChar = getCharAtPosition(template, vectorBounds.origin);
+        arrayIndexDistance = Math.abs(arrayIndex - vectorBounds.origin.arrayIndex);
+        if (arrayIndexDistance > 0) {
             return;
         }
     }
     if (attributeAction.kind === "EXPLICIT_ATTRIBUTE" && positionChar === QUOTE_RUNE) {
         attributeAction.valueVector = {
             origin: {
-                ...bound.origin
+                ...valVector.origin
             },
             target: {
-                ...valVector.origin
+                ...vectorBounds.origin
             }
         };
         return attributeAction;
@@ -326,12 +331,7 @@ const crawlForAttribute = (template, vectorBounds)=>{
     if (attrResults.kind === "IMPLICIT_ATTRIBUTE") {
         return attrResults;
     }
-    const valBounds = copy2(vectorBounds);
-    valBounds.origin = {
-        ...attrResults.attributeVector.target
-    };
-    incrementOrigin(template, valBounds);
-    return getAttributeValue(template, valBounds, attrResults);
+    return getAttributeValue(template, vectorBounds, attrResults);
 };
 const title = "attribute_crawl";
 const testTextInterpolator = (templateArray, ...injections)=>{
@@ -654,6 +654,46 @@ const malformedInjectedStringWithStartingSpaces = ()=>{
     }
     return assertions;
 };
+const htmlAddressWithSpecialCharacters = ()=>{
+    const assertions = [];
+    const expectedResults = {
+        kind: "EXPLICIT_ATTRIBUTE",
+        valueVector: {
+            origin: {
+                arrayIndex: 0,
+                stringIndex: 5
+            },
+            target: {
+                arrayIndex: 0,
+                stringIndex: 65
+            }
+        },
+        attributeVector: {
+            origin: {
+                arrayIndex: 0,
+                stringIndex: 0
+            },
+            target: {
+                arrayIndex: 0,
+                stringIndex: 3
+            }
+        }
+    };
+    const template = testTextInterpolator`href="http://supersalad.com/?=the-death-star-is-quite-operational"`;
+    const vector = create1();
+    let safety = 0;
+    while(incrementTarget(template, vector) && safety < 256){
+        safety += 1;
+    }
+    const results = crawlForAttribute(template, vector);
+    if (!samestuff(expectedResults, results)) {
+        assertions.push("unexpected results found.");
+    }
+    if (results === undefined) {
+        assertions.push("this should have returned results");
+    }
+    return assertions;
+};
 const tests12 = [
     emptyString,
     emptySpaceString,
@@ -668,7 +708,8 @@ const tests12 = [
     injectedString,
     malformedInjectedString,
     malformedInjectedStringWithTrailingSpaces,
-    malformedInjectedStringWithStartingSpaces, 
+    malformedInjectedStringWithStartingSpaces,
+    htmlAddressWithSpecialCharacters, 
 ];
 const unitTestAttributeCrawl = {
     title,
@@ -676,57 +717,63 @@ const unitTestAttributeCrawl = {
     runTestsAsynchronously: true
 };
 const routers = {
-    CONTENT_NODE: {
-        "<": "OPEN_NODE",
-        DEFAULT: "CONTENT_NODE"
+    CONTENT: {
+        "<": "OPENED",
+        DEFAULT: "CONTENT"
     },
-    OPEN_NODE: {
-        " ": "CONTENT_NODE",
-        "\n": "CONTENT_NODE",
-        "<": "OPEN_NODE",
-        "/": "CLOSE_NODE",
-        DEFAULT: "OPEN_NODE_VALID"
+    OPENED: {
+        " ": "CONTENT",
+        "\n": "CONTENT",
+        "<": "OPENED",
+        "/": "CLOSED",
+        DEFAULT: "OPENED_VALID"
     },
-    OPEN_NODE_VALID: {
-        "<": "OPEN_NODE",
-        "/": "SELF_CLOSING_NODE_VALID",
-        ">": "OPEN_NODE_CONFIRMED",
-        DEFAULT: "OPEN_NODE_VALID"
+    ATTRIBUTE: {
+        "\\": "ATTRIBUTE_ESC_CHAR",
+        '"': "OPENED_VALID",
+        DEFAULT: "ATTRIBUTE"
     },
-    CLOSE_NODE: {
-        " ": "CONTENT_NODE",
-        "\n": "CONTENT_NODE",
-        "<": "OPEN_NODE",
-        DEFAULT: "CLOSE_NODE_VALID"
+    ATTRIBUTE_ESC_CHAR: {
+        DEFAULT: "ATTRIBUTE"
     },
-    CLOSE_NODE_VALID: {
-        "<": "OPEN_NODE",
-        ">": "CLOSE_NODE_CONFIRMED",
-        DEFAULT: "CLOSE_NODE_VALID"
+    OPENED_VALID: {
+        "<": "OPENED",
+        "/": "INDEPENDENT_VALID",
+        ">": "OPENED_FOUND",
+        '"': "ATTRIBUTE",
+        DEFAULT: "OPENED_VALID"
     },
-    SELF_CLOSING_NODE_VALID: {
-        "<": "OPEN_NODE",
-        ">": "SELF_CLOSING_NODE_CONFIRMED",
-        DEFAULT: "SELF_CLOSING_NODE_VALID"
+    CLOSED: {
+        " ": "CONTENT",
+        "\n": "CONTENT",
+        "<": "OPENED",
+        DEFAULT: "CLOSED_VALID"
+    },
+    CLOSED_VALID: {
+        "<": "OPENED",
+        ">": "CLOSED_FOUND",
+        DEFAULT: "CLOSED_VALID"
+    },
+    INDEPENDENT_VALID: {
+        "<": "OPENED",
+        ">": "INDEPENDENT_FOUND",
+        DEFAULT: "INDEPENDENT_VALID"
     }
 };
-const DEFAULT = "DEFAULT";
-const CONTENT_NODE = "CONTENT_NODE";
-const OPEN_NODE = "OPEN_NODE";
 const validSieve = {
-    ["OPEN_NODE_VALID"]: "OPEN_NODE_VALID",
-    ["CLOSE_NODE_VALID"]: "CLOSE_NODE_VALID",
-    ["SELF_CLOSING_NODE_VALID"]: "SELF_CLOSING_NODE_VALID"
+    OPENED_VALID: "OPENED_VALID",
+    CLOSED_VALID: "CLOSED_VALID",
+    INDEPENDENT_VALID: "INDEPENDENT_VALID"
 };
 const confirmedSieve = {
-    ["OPEN_NODE_CONFIRMED"]: "OPEN_NODE_CONFIRMED",
-    ["CLOSE_NODE_CONFIRMED"]: "CLOSE_NODE_CONFIRMED",
-    ["SELF_CLOSING_NODE_CONFIRMED"]: "SELF_CLOSING_NODE_CONFIRMED"
+    OPENED_FOUND: "OPENED_FOUND",
+    CLOSED_FOUND: "CLOSED_FOUND",
+    INDEPENDENT_FOUND: "INDEPENDENT_FOUND"
 };
 const setStartStateProperties = (template, previousCrawl)=>{
     if (previousCrawl === undefined) {
         return {
-            nodeType: CONTENT_NODE,
+            nodeType: "CONTENT",
             vector: create1()
         };
     }
@@ -735,7 +782,7 @@ const setStartStateProperties = (template, previousCrawl)=>{
         return;
     }
     const crawlState = {
-        nodeType: CONTENT_NODE,
+        nodeType: "CONTENT",
         vector: followingVector
     };
     return crawlState;
@@ -744,7 +791,7 @@ const setNodeType = (template, crawlState)=>{
     const nodeStates = routers[crawlState.nodeType];
     const __char = getCharAtPosition(template, crawlState.vector.target);
     if (nodeStates !== undefined && __char !== undefined) {
-        const defaultNodeType = nodeStates[DEFAULT] ?? CONTENT_NODE;
+        const defaultNodeType = nodeStates["DEFAULT"] ?? "CONTENT";
         crawlState.nodeType = nodeStates[__char] ?? defaultNodeType;
     }
     return crawlState;
@@ -754,19 +801,19 @@ const crawl = (template, previousCrawl)=>{
     if (crawlState === undefined) {
         return;
     }
-    let openPosition;
     setNodeType(template, crawlState);
+    let openedPosition;
     while(incrementTarget(template, crawlState.vector)){
-        if (validSieve[crawlState.nodeType] === undefined && crawlState.vector.target.stringIndex === 0) {
-            crawlState.nodeType = CONTENT_NODE;
+        if (validSieve[crawlState.nodeType] === undefined && crawlState.nodeType !== "ATTRIBUTE" && crawlState.vector.target.stringIndex === 0) {
+            crawlState.nodeType = "CONTENT";
         }
         setNodeType(template, crawlState);
-        if (crawlState.nodeType === OPEN_NODE) {
-            openPosition = copy1(crawlState.vector.target);
+        if (crawlState.nodeType === "OPENED") {
+            openedPosition = copy1(crawlState.vector.target);
         }
         if (confirmedSieve[crawlState.nodeType]) {
-            if (openPosition !== undefined) {
-                crawlState.vector.origin = openPosition;
+            if (openedPosition !== undefined) {
+                crawlState.vector.origin = openedPosition;
             }
             break;
         }
@@ -774,7 +821,7 @@ const crawl = (template, previousCrawl)=>{
     return crawlState;
 };
 const DEFAULT_CRAWL_RESULTS = {
-    nodeType: "CONTENT_NODE",
+    nodeType: "CONTENT",
     vector: {
         origin: {
             arrayIndex: 0,
@@ -787,10 +834,10 @@ const DEFAULT_CRAWL_RESULTS = {
     }
 };
 const SKELETON_SIEVE = {
-    ["OPEN_NODE_CONFIRMED"]: "OPEN_NODE",
-    ["SELF_CLOSING_NODE_CONFIRMED"]: "SELF_CLOSING_NODE",
-    ["CLOSE_NODE_CONFIRMED"]: "CLOSE_NODE",
-    ["CONTENT_NODE"]: "CONTENT_NODE"
+    ["OPENED_FOUND"]: "OPENED",
+    ["INDEPENDENT_FOUND"]: "INDEPENDENT",
+    ["CLOSED_FOUND"]: "CLOSED",
+    ["CONTENT"]: "CONTENT"
 };
 const isDistanceGreaterThanOne = ({ template , origin , target ,  })=>{
     if (hasOriginEclipsedTaraget({
@@ -825,7 +872,7 @@ const buildMissingStringNode = ({ template , previousCrawl , currentCrawl ,  })=
         increment(template, origin);
     }
     return {
-        nodeType: "CONTENT_NODE",
+        nodeType: "CONTENT",
         vector: {
             origin,
             target
@@ -860,11 +907,11 @@ const BREAK_RUNES1 = {
     "\n": true
 };
 const crawlForTagName = (template, innerXmlBounds)=>{
-    const tagVector = copy2(innerXmlBounds);
-    let positionChar = getCharAtPosition(template, tagVector.origin);
+    let positionChar = getCharAtPosition(template, innerXmlBounds.origin);
     if (positionChar === undefined || BREAK_RUNES1[positionChar]) {
         return;
     }
+    const tagVector = copy2(innerXmlBounds);
     while(BREAK_RUNES1[positionChar] === undefined && !hasOriginEclipsedTaraget(tagVector)){
         if (incrementOrigin(template, tagVector) === undefined) {
             return;
@@ -882,7 +929,7 @@ const crawlForTagName = (template, innerXmlBounds)=>{
             ...tagVector.origin
         }
     };
-    if (BREAK_RUNES1[positionChar]) {
+    if (positionChar !== undefined && BREAK_RUNES1[positionChar]) {
         decrementTarget(template, adjustedVector);
     }
     return adjustedVector;
@@ -919,9 +966,6 @@ const incrementOriginToNextCharRune = (template, innerXmlBounds)=>{
             return;
         }
         positionChar = getCharAtPosition(template, innerXmlBounds.origin);
-        if (positionChar === undefined) {
-            return;
-        }
     }
     return innerXmlBounds;
 };
@@ -935,26 +979,26 @@ const appendNodeAttributeIntegrals = ({ integrals , template , chunk ,  })=>{
         if (incrementOriginToNextCharRune(template, chunk) === undefined) {
             return;
         }
-        const attributeCrawlResults = crawlForAttribute(template, chunk);
-        if (attributeCrawlResults === undefined) {
+        const attrCrawl = crawlForAttribute(template, chunk);
+        if (attrCrawl === undefined) {
             return;
         }
-        if (attributeCrawlResults.kind === "IMPLICIT_ATTRIBUTE") {
+        if (attrCrawl.kind === "IMPLICIT_ATTRIBUTE") {
             chunk.origin = {
-                ...attributeCrawlResults.attributeVector.target
+                ...attrCrawl.attributeVector.target
             };
         }
-        if (attributeCrawlResults.kind === "EXPLICIT_ATTRIBUTE") {
+        if (attrCrawl.kind === "EXPLICIT_ATTRIBUTE") {
             chunk.origin = {
-                ...attributeCrawlResults.valueVector.target
+                ...attrCrawl.valueVector.target
             };
         }
-        if (attributeCrawlResults.kind === "INJECTED_ATTRIBUTE") {
+        if (attrCrawl.kind === "INJECTED_ATTRIBUTE") {
             chunk.origin = {
-                ...attributeCrawlResults.valueVector.target
+                ...attrCrawl.valueVector.target
             };
         }
-        integrals.push(attributeCrawlResults);
+        integrals.push(attrCrawl);
     }
     return integrals;
 };
@@ -1074,7 +1118,7 @@ const buildIntegrals = ({ template , skeleton  })=>{
                 injectionID: origin.arrayIndex - 1
             });
         }
-        if (nodeType === "OPEN_NODE_CONFIRMED") {
+        if (nodeType === "OPENED_FOUND") {
             appendNodeIntegrals({
                 kind: "NODE",
                 integrals,
@@ -1082,21 +1126,21 @@ const buildIntegrals = ({ template , skeleton  })=>{
                 chunk
             });
         }
-        if (nodeType === "CLOSE_NODE_CONFIRMED") {
+        if (nodeType === "CLOSED_FOUND") {
             appendCloseNodeIntegrals({
                 integrals,
                 template,
                 chunk
             });
         }
-        if (nodeType === "CONTENT_NODE") {
+        if (nodeType === "CONTENT") {
             appendContentIntegrals({
                 integrals,
                 template,
                 chunk
             });
         }
-        if (nodeType === "SELF_CLOSING_NODE_CONFIRMED") {
+        if (nodeType === "INDEPENDENT_FOUND") {
             appendNodeIntegrals({
                 kind: "SELF_CLOSING_NODE",
                 integrals,
@@ -1839,7 +1883,6 @@ const createTextNode = ({ hooks , rs , integral  })=>{
     const parentNode = rs.stack[rs.stack.length - 1]?.node;
     const lastNodeIndex = rs.lastNodes.length - 1;
     const leftNode = rs.lastNodes[lastNodeIndex];
-    const isSiblingLevel = rs.stack.length === 0;
     if (rs.stack.length === 0) {
         rs.siblings.push([
             descendant
@@ -1968,15 +2011,15 @@ const createChunkArrayInjection = ({ hooks , rs , integral ,  })=>{
     rs.lastNodes[lastNodeIndex] = prevSibling;
 };
 const appendExplicitAttribute = ({ hooks , rs , integral ,  })=>{
-    const references = rs.references;
     const node = rs.stack[rs.stack.length - 1].node;
     const attribute = getText(rs.template, integral.attributeVector);
     if (attribute === undefined) {
         return;
     }
-    incrementOrigin(rs.template, integral.valueVector);
-    decrementTarget(rs.template, integral.valueVector);
-    const value = getText(rs.template, integral.valueVector);
+    const valueVector = copy2(integral.valueVector);
+    incrementOrigin(rs.template, valueVector);
+    decrementTarget(rs.template, valueVector);
+    const value = getText(rs.template, valueVector);
     if (value === undefined) {
         return;
     }
@@ -2046,14 +2089,7 @@ const buildRender = ({ hooks , template , integrals  })=>{
         stack: []
     };
     for (const integral of integrals){
-        if (integral.kind === "NODE") {
-            createNode({
-                hooks,
-                rs,
-                integral
-            });
-        }
-        if (integral.kind === "SELF_CLOSING_NODE") {
+        if (integral.kind === "NODE" || integral.kind === "SELF_CLOSING_NODE") {
             createNode({
                 hooks,
                 rs,
@@ -2126,6 +2162,7 @@ const buildRenderStructure = (hooks, template)=>{
     return render;
 };
 class Banger {
+    chunk;
     constructor(chunk){
         this.chunk = chunk;
     }
@@ -2137,6 +2174,16 @@ class Banger {
     }
 }
 class Chunk {
+    parentNode;
+    leftNode;
+    siblings;
+    hooks;
+    chunker;
+    banger;
+    rs;
+    params;
+    state;
+    effect;
     constructor(baseParams){
         this.banger = new Banger(this);
         this.hooks = baseParams.hooks;
@@ -2696,13 +2743,53 @@ const testAddContext = ()=>{
     }
     return assertions;
 };
+const testBuildingCachedIntegrals = ()=>{
+    const assertions = [];
+    const { template: template2 , integrals  } = testTextInterpolator2`\n    <p\n      checked\n      label=""\n      disabled="false"\n      skies="${"blue"}">\n        Hello world, it's me!\n    </p>`;
+    buildRender({
+        hooks,
+        integrals,
+        template: template2
+    });
+    const secondRenderResults = buildRender({
+        hooks,
+        integrals,
+        template: template2
+    });
+    if (secondRenderResults.siblings.length !== 2) {
+        assertions.push("siblings should have length 2");
+        return assertions;
+    }
+    const sibling = secondRenderResults.siblings[1][0];
+    if (sibling.kind !== "ELEMENT") {
+        assertions.push("sibling should be an ELEMENT");
+        return assertions;
+    }
+    if (sibling.tagname !== "p") {
+        assertions.push("sibling tagname should be p");
+    }
+    if (sibling.attributes["checked"] !== true) {
+        assertions.push("sibling should be checked");
+    }
+    if (sibling.attributes["disabled"] !== "false") {
+        assertions.push("sibling should be disabled");
+    }
+    if (sibling.attributes["label"] !== "") {
+        assertions.push("label should be empty string");
+    }
+    if (sibling.attributes["skies"] !== "blue") {
+        assertions.push("sibling skies should be blue");
+    }
+    return assertions;
+};
 const tests2 = [
     testCreateNode,
     testCloseNode,
     testTextNode,
     testAddAttributesToNodes,
     testAddAttributesToMultipleNodes,
-    testAddContext, 
+    testAddContext,
+    testBuildingCachedIntegrals, 
 ];
 const unitTestBuildRender = {
     title: title2,
@@ -2720,7 +2807,7 @@ const findNothingWhenThereIsPlainText = ()=>{
     const assertions = [];
     const sourceSkeleton = [
         {
-            nodeType: "CONTENT_NODE",
+            nodeType: "CONTENT",
             vector: {
                 origin: {
                     arrayIndex: 0,
@@ -2744,7 +2831,7 @@ const findStatementInPlainText = ()=>{
     const assertions = [];
     const sourceSkeleton = [
         {
-            nodeType: "OPEN_NODE_CONFIRMED",
+            nodeType: "OPENED_FOUND",
             vector: {
                 origin: {
                     arrayIndex: 0,
@@ -2768,7 +2855,7 @@ const findComplexFromPlainText = ()=>{
     const assertions = [];
     const sourceSkeleton = [
         {
-            nodeType: "CONTENT_NODE",
+            nodeType: "CONTENT",
             vector: {
                 origin: {
                     arrayIndex: 0,
@@ -2781,7 +2868,7 @@ const findComplexFromPlainText = ()=>{
             }
         },
         {
-            nodeType: "OPEN_NODE_CONFIRMED",
+            nodeType: "OPENED_FOUND",
             vector: {
                 origin: {
                     arrayIndex: 0,
@@ -2794,7 +2881,7 @@ const findComplexFromPlainText = ()=>{
             }
         },
         {
-            nodeType: "CONTENT_NODE",
+            nodeType: "CONTENT",
             vector: {
                 origin: {
                     arrayIndex: 0,
@@ -2807,7 +2894,7 @@ const findComplexFromPlainText = ()=>{
             }
         },
         {
-            nodeType: "CLOSE_NODE_CONFIRMED",
+            nodeType: "CLOSED_FOUND",
             vector: {
                 origin: {
                     arrayIndex: 0,
@@ -2831,7 +2918,7 @@ const findCompoundFromPlainText = ()=>{
     const assertions = [];
     const sourceSkeleton = [
         {
-            nodeType: "OPEN_NODE_CONFIRMED",
+            nodeType: "OPENED_FOUND",
             vector: {
                 origin: {
                     arrayIndex: 0,
@@ -2844,7 +2931,7 @@ const findCompoundFromPlainText = ()=>{
             }
         },
         {
-            nodeType: "CONTENT_NODE",
+            nodeType: "CONTENT",
             vector: {
                 origin: {
                     arrayIndex: 0,
@@ -2857,7 +2944,7 @@ const findCompoundFromPlainText = ()=>{
             }
         },
         {
-            nodeType: "CLOSE_NODE_CONFIRMED",
+            nodeType: "CLOSED_FOUND",
             vector: {
                 origin: {
                     arrayIndex: 0,
@@ -2881,7 +2968,7 @@ const findInjectionFromPlainText = ()=>{
     const assertions = [];
     const sourceSkeleton = [
         {
-            nodeType: "OPEN_NODE_CONFIRMED",
+            nodeType: "OPENED_FOUND",
             vector: {
                 origin: {
                     arrayIndex: 0,
@@ -2894,7 +2981,7 @@ const findInjectionFromPlainText = ()=>{
             }
         },
         {
-            nodeType: "CLOSE_NODE_CONFIRMED",
+            nodeType: "CLOSED_FOUND",
             vector: {
                 origin: {
                     arrayIndex: 1,
@@ -2918,7 +3005,7 @@ const findPreceedingInjectionFromPlainText = ()=>{
     const assertions = [];
     const sourceSkeleton = [
         {
-            nodeType: "OPEN_NODE_CONFIRMED",
+            nodeType: "OPENED_FOUND",
             vector: {
                 origin: {
                     arrayIndex: 1,
@@ -2931,7 +3018,7 @@ const findPreceedingInjectionFromPlainText = ()=>{
             }
         },
         {
-            nodeType: "CLOSE_NODE_CONFIRMED",
+            nodeType: "CLOSED_FOUND",
             vector: {
                 origin: {
                     arrayIndex: 2,
@@ -2955,7 +3042,7 @@ const findTrailingInjectionFromPlainText = ()=>{
     const assertions = [];
     const sourceSkeleton = [
         {
-            nodeType: "OPEN_NODE_CONFIRMED",
+            nodeType: "OPENED_FOUND",
             vector: {
                 origin: {
                     arrayIndex: 0,
@@ -2968,7 +3055,7 @@ const findTrailingInjectionFromPlainText = ()=>{
             }
         },
         {
-            nodeType: "CLOSE_NODE_CONFIRMED",
+            nodeType: "CLOSED_FOUND",
             vector: {
                 origin: {
                     arrayIndex: 1,
@@ -2981,7 +3068,7 @@ const findTrailingInjectionFromPlainText = ()=>{
             }
         },
         {
-            nodeType: "CONTENT_NODE",
+            nodeType: "CONTENT",
             vector: {
                 origin: {
                     arrayIndex: 2,
@@ -3005,7 +3092,7 @@ const findMultipleInjectionFromPlainText = ()=>{
     const assertions = [];
     const sourceSkeleton = [
         {
-            nodeType: "OPEN_NODE_CONFIRMED",
+            nodeType: "OPENED_FOUND",
             vector: {
                 origin: {
                     arrayIndex: 1,
@@ -3018,7 +3105,7 @@ const findMultipleInjectionFromPlainText = ()=>{
             }
         },
         {
-            nodeType: "CLOSE_NODE_CONFIRMED",
+            nodeType: "CLOSED_FOUND",
             vector: {
                 origin: {
                     arrayIndex: 2,
@@ -3031,7 +3118,7 @@ const findMultipleInjectionFromPlainText = ()=>{
             }
         },
         {
-            nodeType: "CONTENT_NODE",
+            nodeType: "CONTENT",
             vector: {
                 origin: {
                     arrayIndex: 3,
@@ -3055,7 +3142,7 @@ const findBrokenFromPlainText = ()=>{
     const assertions = [];
     const sourceSkeleton = [
         {
-            nodeType: "CONTENT_NODE",
+            nodeType: "CONTENT",
             vector: {
                 origin: {
                     arrayIndex: 0,
@@ -3068,7 +3155,7 @@ const findBrokenFromPlainText = ()=>{
             }
         },
         {
-            nodeType: "CLOSE_NODE_CONFIRMED",
+            nodeType: "CLOSED_FOUND",
             vector: {
                 origin: {
                     arrayIndex: 1,
@@ -3081,7 +3168,7 @@ const findBrokenFromPlainText = ()=>{
             }
         },
         {
-            nodeType: "OPEN_NODE_CONFIRMED",
+            nodeType: "OPENED_FOUND",
             vector: {
                 origin: {
                     arrayIndex: 1,
@@ -3094,7 +3181,7 @@ const findBrokenFromPlainText = ()=>{
             }
         },
         {
-            nodeType: "CONTENT_NODE",
+            nodeType: "CONTENT",
             vector: {
                 origin: {
                     arrayIndex: 1,
@@ -3107,7 +3194,7 @@ const findBrokenFromPlainText = ()=>{
             }
         },
         {
-            nodeType: "CLOSE_NODE_CONFIRMED",
+            nodeType: "CLOSED_FOUND",
             vector: {
                 origin: {
                     arrayIndex: 1,
@@ -3131,7 +3218,7 @@ const findSelfClosingNodesInOddPlainText = ()=>{
     const assertions = [];
     const sourceSkeleton = [
         {
-            nodeType: "CONTENT_NODE",
+            nodeType: "CONTENT",
             vector: {
                 origin: {
                     arrayIndex: 0,
@@ -3144,7 +3231,7 @@ const findSelfClosingNodesInOddPlainText = ()=>{
             }
         },
         {
-            nodeType: "SELF_CLOSING_NODE_CONFIRMED",
+            nodeType: "INDEPENDENT_FOUND",
             vector: {
                 origin: {
                     arrayIndex: 0,
@@ -3157,7 +3244,7 @@ const findSelfClosingNodesInOddPlainText = ()=>{
             }
         },
         {
-            nodeType: "SELF_CLOSING_NODE_CONFIRMED",
+            nodeType: "INDEPENDENT_FOUND",
             vector: {
                 origin: {
                     arrayIndex: 0,
@@ -3170,7 +3257,7 @@ const findSelfClosingNodesInOddPlainText = ()=>{
             }
         },
         {
-            nodeType: "CONTENT_NODE",
+            nodeType: "CONTENT",
             vector: {
                 origin: {
                     arrayIndex: 0,
@@ -3183,7 +3270,7 @@ const findSelfClosingNodesInOddPlainText = ()=>{
             }
         },
         {
-            nodeType: "SELF_CLOSING_NODE_CONFIRMED",
+            nodeType: "INDEPENDENT_FOUND",
             vector: {
                 origin: {
                     arrayIndex: 0,
@@ -3196,7 +3283,7 @@ const findSelfClosingNodesInOddPlainText = ()=>{
             }
         },
         {
-            nodeType: "CONTENT_NODE",
+            nodeType: "CONTENT",
             vector: {
                 origin: {
                     arrayIndex: 1,
@@ -3216,6 +3303,158 @@ const findSelfClosingNodesInOddPlainText = ()=>{
     }
     return assertions;
 };
+const findOneCharacterDescendants = ()=>{
+    const assertions = [];
+    const sourceSkeleton = [
+        {
+            nodeType: "CONTENT",
+            vector: {
+                origin: {
+                    arrayIndex: 0,
+                    stringIndex: 0
+                },
+                target: {
+                    arrayIndex: 0,
+                    stringIndex: 4
+                }
+            }
+        },
+        {
+            nodeType: "OPENED_FOUND",
+            vector: {
+                origin: {
+                    arrayIndex: 0,
+                    stringIndex: 5
+                },
+                target: {
+                    arrayIndex: 0,
+                    stringIndex: 7
+                }
+            }
+        },
+        {
+            nodeType: "CONTENT",
+            vector: {
+                origin: {
+                    arrayIndex: 0,
+                    stringIndex: 8
+                },
+                target: {
+                    arrayIndex: 0,
+                    stringIndex: 21
+                }
+            }
+        },
+        {
+            nodeType: "OPENED_FOUND",
+            vector: {
+                origin: {
+                    arrayIndex: 0,
+                    stringIndex: 22
+                },
+                target: {
+                    arrayIndex: 0,
+                    stringIndex: 82
+                }
+            }
+        },
+        {
+            nodeType: "CONTENT",
+            vector: {
+                origin: {
+                    arrayIndex: 0,
+                    stringIndex: 83
+                },
+                target: {
+                    arrayIndex: 0,
+                    stringIndex: 87
+                }
+            }
+        },
+        {
+            nodeType: "CLOSED_FOUND",
+            vector: {
+                origin: {
+                    arrayIndex: 0,
+                    stringIndex: 88
+                },
+                target: {
+                    arrayIndex: 0,
+                    stringIndex: 91
+                }
+            }
+        },
+        {
+            nodeType: "CONTENT",
+            vector: {
+                origin: {
+                    arrayIndex: 0,
+                    stringIndex: 92
+                },
+                target: {
+                    arrayIndex: 0,
+                    stringIndex: 97
+                }
+            }
+        },
+        {
+            nodeType: "CLOSED_FOUND",
+            vector: {
+                origin: {
+                    arrayIndex: 0,
+                    stringIndex: 98
+                },
+                target: {
+                    arrayIndex: 0,
+                    stringIndex: 101
+                }
+            }
+        },
+        {
+            nodeType: "CONTENT",
+            vector: {
+                origin: {
+                    arrayIndex: 0,
+                    stringIndex: 102
+                },
+                target: {
+                    arrayIndex: 0,
+                    stringIndex: 104
+                }
+            }
+        }, 
+    ];
+    const testComplexNode = testTextInterpolator3`\n    <p>\n      hello, <a href="http://superawesome.com/" alt="\"superawesome.com\"" >world</a>!\n    </p>\n  `;
+    const testSkeleton = buildSkeleton(testComplexNode);
+    if (!samestuff(sourceSkeleton, testSkeleton)) {
+        assertions.push("skeletons are not equal");
+    }
+    return assertions;
+};
+const findOpenNodeWithInjected = ()=>{
+    const assertions = [];
+    const sourceSkeleton = [
+        {
+            "nodeType": "OPENED_FOUND",
+            "vector": {
+                "origin": {
+                    "arrayIndex": 0,
+                    "stringIndex": 0
+                },
+                "target": {
+                    "arrayIndex": 1,
+                    "stringIndex": 1
+                }
+            }
+        }
+    ];
+    const testComplexNode = testTextInterpolator3`<p message="${"hello, world!"}">`;
+    const testSkeleton = buildSkeleton(testComplexNode);
+    if (!samestuff(sourceSkeleton, testSkeleton)) {
+        assertions.push("skeletons are not equal");
+    }
+    return assertions;
+};
 const tests3 = [
     findInjectionFromPlainText,
     findNothingWhenThereIsPlainText,
@@ -3226,7 +3465,9 @@ const tests3 = [
     findPreceedingInjectionFromPlainText,
     findTrailingInjectionFromPlainText,
     findMultipleInjectionFromPlainText,
-    findSelfClosingNodesInOddPlainText, 
+    findSelfClosingNodesInOddPlainText,
+    findOneCharacterDescendants,
+    findOpenNodeWithInjected
 ];
 const unitTestBuildSkeleton = {
     title: title3,
@@ -3544,7 +3785,7 @@ const title5 = "skeleton crawl";
 const findNothingWhenThereIsPlainText1 = ()=>{
     const assertions = [];
     const expectedResults = {
-        nodeType: "CONTENT_NODE",
+        nodeType: "CONTENT",
         vector: {
             origin: {
                 arrayIndex: 0,
@@ -3566,7 +3807,7 @@ const findNothingWhenThereIsPlainText1 = ()=>{
 const findParagraphInPlainText = ()=>{
     const assertions = [];
     const expectedResults = {
-        nodeType: "OPEN_NODE_CONFIRMED",
+        nodeType: "OPENED_FOUND",
         vector: {
             origin: {
                 arrayIndex: 0,
@@ -3588,7 +3829,7 @@ const findParagraphInPlainText = ()=>{
 const findImageInPlainText = ()=>{
     const assertions = [];
     const expectedResults = {
-        nodeType: "OPEN_NODE_CONFIRMED",
+        nodeType: "OPENED_FOUND",
         vector: {
             origin: {
                 arrayIndex: 0,
@@ -3610,7 +3851,7 @@ const findImageInPlainText = ()=>{
 const findCloseParagraphInPlainText = ()=>{
     const assertions = [];
     const expectedResults = {
-        nodeType: "CLOSE_NODE_CONFIRMED",
+        nodeType: "CLOSED_FOUND",
         vector: {
             origin: {
                 arrayIndex: 0,
@@ -3632,7 +3873,7 @@ const findCloseParagraphInPlainText = ()=>{
 const findIndependentParagraphInPlainText = ()=>{
     const assertions = [];
     const expectedResults = {
-        nodeType: "SELF_CLOSING_NODE_CONFIRMED",
+        nodeType: "INDEPENDENT_FOUND",
         vector: {
             origin: {
                 arrayIndex: 0,
@@ -3654,7 +3895,7 @@ const findIndependentParagraphInPlainText = ()=>{
 const findOpenParagraphInTextWithArgs = ()=>{
     const assertions = [];
     const expectedResults = {
-        nodeType: "OPEN_NODE_CONFIRMED",
+        nodeType: "OPENED_FOUND",
         vector: {
             origin: {
                 arrayIndex: 1,
@@ -3676,7 +3917,7 @@ const findOpenParagraphInTextWithArgs = ()=>{
 const notFoundInUgglyMessText = ()=>{
     const assertions = [];
     const expectedResults = {
-        nodeType: "CONTENT_NODE",
+        nodeType: "CONTENT",
         vector: {
             origin: {
                 arrayIndex: 0,
@@ -3698,7 +3939,7 @@ const notFoundInUgglyMessText = ()=>{
 const notFoundInReallyUgglyMessText = ()=>{
     const assertions = [];
     const expectedResults = {
-        nodeType: "CONTENT_NODE",
+        nodeType: "CONTENT",
         vector: {
             origin: {
                 arrayIndex: 0,
@@ -3720,7 +3961,7 @@ const notFoundInReallyUgglyMessText = ()=>{
 const invalidCloseNodeWithArgs = ()=>{
     const assertions = [];
     const expectedResults = {
-        nodeType: "CONTENT_NODE",
+        nodeType: "CONTENT",
         vector: {
             origin: {
                 arrayIndex: 0,
@@ -3742,7 +3983,7 @@ const invalidCloseNodeWithArgs = ()=>{
 const validCloseNodeWithArgs = ()=>{
     const assertions = [];
     const expectedResults = {
-        nodeType: "CLOSE_NODE_CONFIRMED",
+        nodeType: "CLOSED_FOUND",
         vector: {
             origin: {
                 arrayIndex: 0,
@@ -3764,7 +4005,7 @@ const validCloseNodeWithArgs = ()=>{
 const invalidIndependentNodeWithArgs = ()=>{
     const assertions = [];
     const expectedResults = {
-        nodeType: "CONTENT_NODE",
+        nodeType: "CONTENT",
         vector: {
             origin: {
                 arrayIndex: 0,
@@ -3786,7 +4027,7 @@ const invalidIndependentNodeWithArgs = ()=>{
 const validIndependentNodeWithArgs = ()=>{
     const assertions = [];
     const expectedResults = {
-        nodeType: "SELF_CLOSING_NODE_CONFIRMED",
+        nodeType: "INDEPENDENT_FOUND",
         vector: {
             origin: {
                 arrayIndex: 0,
@@ -3808,7 +4049,7 @@ const validIndependentNodeWithArgs = ()=>{
 const invalidOpenNodeWithArgs = ()=>{
     const assertions = [];
     const expectedResults = {
-        nodeType: "CONTENT_NODE",
+        nodeType: "CONTENT",
         vector: {
             origin: {
                 arrayIndex: 0,
@@ -3830,7 +4071,7 @@ const invalidOpenNodeWithArgs = ()=>{
 const validOpenNodeWithArgs = ()=>{
     const assertions = [];
     const expectedResults = {
-        nodeType: "OPEN_NODE_CONFIRMED",
+        nodeType: "OPENED_FOUND",
         vector: {
             origin: {
                 arrayIndex: 0,
@@ -3852,7 +4093,7 @@ const validOpenNodeWithArgs = ()=>{
 const findNextCrawlWithPreviousCrawl = ()=>{
     const assertions = [];
     const expectedResults = {
-        nodeType: "SELF_CLOSING_NODE_CONFIRMED",
+        nodeType: "INDEPENDENT_FOUND",
         vector: {
             origin: {
                 arrayIndex: 2,
@@ -3872,6 +4113,28 @@ const findNextCrawlWithPreviousCrawl = ()=>{
     }
     return assertions;
 };
+const findOneCharacterDescendants1 = ()=>{
+    const assertions = [];
+    const expectedResults = {
+        nodeType: "OPENED_FOUND",
+        vector: {
+            origin: {
+                arrayIndex: 0,
+                stringIndex: 0
+            },
+            target: {
+                arrayIndex: 0,
+                stringIndex: 35
+            }
+        }
+    };
+    const testComplexNode = testTextInterpolator4`<a href="https://superawesome.com" >world</a>`;
+    const results = crawl(testComplexNode);
+    if (!samestuff(expectedResults, results)) {
+        assertions.push("unexpected results found");
+    }
+    return assertions;
+};
 const tests5 = [
     findNothingWhenThereIsPlainText1,
     findParagraphInPlainText,
@@ -3887,7 +4150,8 @@ const tests5 = [
     validIndependentNodeWithArgs,
     invalidOpenNodeWithArgs,
     validOpenNodeWithArgs,
-    findNextCrawlWithPreviousCrawl, 
+    findNextCrawlWithPreviousCrawl,
+    findOneCharacterDescendants1, 
 ];
 const unitTestSkeletonCrawl = {
     title: title5,
@@ -3897,89 +4161,111 @@ const unitTestSkeletonCrawl = {
 const title6 = "skeleton routers";
 const notFoundReducesCorrectState = ()=>{
     const assertions = [];
-    if (routers["CONTENT_NODE"]?.["<"] !== "OPEN_NODE") {
-        assertions.push("< should return OPEN_NODE");
+    if (routers["CONTENT"]?.["<"] !== "OPENED") {
+        assertions.push("< should return OPENED");
     }
-    if (routers["CONTENT_NODE"]?.["DEFAULT"] !== "CONTENT_NODE") {
-        assertions.push("space should return CONTENT_NODE");
-    }
-    return assertions;
-};
-const openNodeReducesCorrectState = ()=>{
-    const assertions = [];
-    if (routers["OPEN_NODE"]?.["<"] !== "OPEN_NODE") {
-        assertions.push("< should return OPEN_NODE");
-    }
-    if (routers["OPEN_NODE"]?.["/"] !== "CLOSE_NODE") {
-        assertions.push("/ should return CLOSE_NODE");
-    }
-    if (routers["OPEN_NODE"]?.[" "] !== "CONTENT_NODE") {
-        assertions.push("space should return CONTENT_NODE");
-    }
-    if (routers["OPEN_NODE"]?.["DEFAULT"] !== "OPEN_NODE_VALID") {
-        assertions.push("space should return OPEN_NODE_VALID");
+    if (routers["CONTENT"]?.["DEFAULT"] !== "CONTENT") {
+        assertions.push("space should return CONTENT");
     }
     return assertions;
 };
-const openNodeValidReducesCorrectState = ()=>{
+const openedNodeReducesCorrectState = ()=>{
     const assertions = [];
-    if (routers["OPEN_NODE_VALID"]?.["<"] !== "OPEN_NODE") {
-        assertions.push("< should return OPEN_NODE");
+    if (routers["OPENED"]?.["<"] !== "OPENED") {
+        assertions.push("< should return OPENED");
     }
-    if (routers["OPEN_NODE_VALID"]?.["/"] !== "SELF_CLOSING_NODE_VALID") {
-        assertions.push("/ should return SELF_CLOSING_NODE_VALID");
+    if (routers["OPENED"]?.["/"] !== "CLOSED") {
+        assertions.push("/ should return CLOSED");
     }
-    if (routers["OPEN_NODE_VALID"]?.[">"] !== "OPEN_NODE_CONFIRMED") {
-        assertions.push("> should return OPEN_NODE_CONFIRMED");
+    if (routers["OPENED"]?.[" "] !== "CONTENT") {
+        assertions.push("space should return CONTENT");
     }
-    if (routers["OPEN_NODE_VALID"]?.["DEFAULT"] !== "OPEN_NODE_VALID") {
-        assertions.push("space should return OPEN_NODE_VALID");
+    if (routers["OPENED"]?.["DEFAULT"] !== "OPENED_VALID") {
+        assertions.push("space should return OPENED_VALID");
+    }
+    return assertions;
+};
+const openedNodeValidReducesCorrectState = ()=>{
+    const assertions = [];
+    if (routers["OPENED_VALID"]?.["<"] !== "OPENED") {
+        assertions.push("< should return OPENED");
+    }
+    if (routers["OPENED_VALID"]?.["/"] !== "INDEPENDENT_VALID") {
+        assertions.push("/ should return INDEPENDENT_VALID");
+    }
+    if (routers["OPENED_VALID"]?.[">"] !== "OPENED_FOUND") {
+        assertions.push("> should return OPENED_FOUND");
+    }
+    if (routers["OPENED_VALID"]?.['"'] !== "ATTRIBUTE") {
+        assertions.push("> should return ATTRIBUTE");
+    }
+    if (routers["OPENED_VALID"]?.["DEFAULT"] !== "OPENED_VALID") {
+        assertions.push("space should return OPENED_VALID");
+    }
+    return assertions;
+};
+const attributeReducesCorrectState = ()=>{
+    const assertions = [];
+    if (routers["ATTRIBUTE"]?.["\\"] !== "ATTRIBUTE_ESC_CHAR") {
+        assertions.push("\\ should return ATTRIBUTE_ESC_CHAR");
+    }
+    if (routers["ATTRIBUTE"]?.['"'] !== "OPENED_VALID") {
+        assertions.push('" should return OPENED_VALID');
+    }
+    return assertions;
+};
+const attributeEscCharReducesCorrectState = ()=>{
+    const assertions = [];
+    if (routers["ATTRIBUTE_ESC_CHAR"]?.["DEFAULT"] !== "ATTRIBUTE") {
+        assertions.push('DEFAULT should return ATTRIBUTE');
     }
     return assertions;
 };
 const independentNodeValidReducesCorrectState = ()=>{
     const assertions = [];
-    if (routers["SELF_CLOSING_NODE_VALID"]?.["<"] !== "OPEN_NODE") {
-        assertions.push("< should return OPEN_NODE");
+    if (routers["INDEPENDENT_VALID"]?.["<"] !== "OPENED") {
+        assertions.push("< should return OPENED");
     }
-    if (routers["SELF_CLOSING_NODE_VALID"]?.["DEFAULT"] !== "SELF_CLOSING_NODE_VALID") {
-        assertions.push("space should return SELF_CLOSING_NODE_VALID");
-    }
-    return assertions;
-};
-const closeNodeReducesCorrectState = ()=>{
-    const assertions = [];
-    if (routers["CLOSE_NODE"]?.["<"] !== "OPEN_NODE") {
-        assertions.push("< should return OPEN_NODE");
-    }
-    if (routers["CLOSE_NODE"]?.["DEFAULT"] !== "CLOSE_NODE_VALID") {
-        assertions.push("space should return CLOSE_NODE_VALID");
-    }
-    if (routers["CLOSE_NODE"]?.[" "] !== "CONTENT_NODE") {
-        assertions.push("space should return CONTENT_NODE");
+    if (routers["INDEPENDENT_VALID"]?.["DEFAULT"] !== "INDEPENDENT_VALID") {
+        assertions.push("space should return INDEPENDENT_VALID");
     }
     return assertions;
 };
-const closeNodeValidReducesCorrectState = ()=>{
+const closedNodeReducesCorrectState = ()=>{
     const assertions = [];
-    if (routers["CLOSE_NODE_VALID"]?.["<"] !== "OPEN_NODE") {
-        assertions.push("< should return OPEN_NODE");
+    if (routers["CLOSED"]?.["<"] !== "OPENED") {
+        assertions.push("< should return OPENED");
     }
-    if (routers["CLOSE_NODE_VALID"]?.[">"] !== "CLOSE_NODE_CONFIRMED") {
-        assertions.push("> should return CLOSE_NODE_CONFIRMED");
+    if (routers["CLOSED"]?.["DEFAULT"] !== "CLOSED_VALID") {
+        assertions.push("space should return CLOSED_VALID");
     }
-    if (routers["CLOSE_NODE_VALID"]?.["DEFAULT"] !== "CLOSE_NODE_VALID") {
-        assertions.push("space should return CLOSE_NODE_VALID");
+    if (routers["CLOSED"]?.[" "] !== "CONTENT") {
+        assertions.push("space should return CONTENT");
+    }
+    return assertions;
+};
+const closedNodeValidReducesCorrectState = ()=>{
+    const assertions = [];
+    if (routers["CLOSED_VALID"]?.["<"] !== "OPENED") {
+        assertions.push("< should return OPENED");
+    }
+    if (routers["CLOSED_VALID"]?.[">"] !== "CLOSED_FOUND") {
+        assertions.push("> should return CLOSED_FOUND");
+    }
+    if (routers["CLOSED_VALID"]?.["DEFAULT"] !== "CLOSED_VALID") {
+        assertions.push("space should return CLOSED_VALID");
     }
     return assertions;
 };
 const tests6 = [
     notFoundReducesCorrectState,
-    openNodeReducesCorrectState,
-    openNodeValidReducesCorrectState,
+    openedNodeReducesCorrectState,
+    openedNodeValidReducesCorrectState,
+    attributeEscCharReducesCorrectState,
+    attributeReducesCorrectState,
     independentNodeValidReducesCorrectState,
-    closeNodeReducesCorrectState,
-    closeNodeValidReducesCorrectState, 
+    closedNodeReducesCorrectState,
+    closedNodeValidReducesCorrectState, 
 ];
 const unitTestSkeletonRouters = {
     title: title6,

@@ -25,7 +25,7 @@ const findNothingWhenThereIsPlainText = () => {
   const assertions: string[] = [];
 
   const expectedResults = {
-    nodeType: "CONTENT_NODE",
+    nodeType: "CONTENT",
     vector: {
       origin: {
         arrayIndex: 0,
@@ -53,7 +53,7 @@ const findParagraphInPlainText = () => {
   const assertions: string[] = [];
 
   const expectedResults = {
-    nodeType: "OPEN_NODE_CONFIRMED",
+    nodeType: "OPENED_FOUND",
     vector: {
       origin: {
         arrayIndex: 0,
@@ -81,7 +81,7 @@ const findImageInPlainText = () => {
   const assertions: string[] = [];
 
   const expectedResults = {
-    nodeType: "OPEN_NODE_CONFIRMED",
+    nodeType: "OPENED_FOUND",
     vector: {
       origin: {
         arrayIndex: 0,
@@ -109,7 +109,7 @@ const findCloseParagraphInPlainText = () => {
   const assertions: string[] = [];
 
   const expectedResults = {
-    nodeType: "CLOSE_NODE_CONFIRMED",
+    nodeType: "CLOSED_FOUND",
     vector: {
       origin: {
         arrayIndex: 0,
@@ -137,7 +137,7 @@ const findIndependentParagraphInPlainText = () => {
   const assertions: string[] = [];
 
   const expectedResults = {
-    nodeType: "SELF_CLOSING_NODE_CONFIRMED",
+    nodeType: "INDEPENDENT_FOUND",
     vector: {
       origin: {
         arrayIndex: 0,
@@ -165,7 +165,7 @@ const findOpenParagraphInTextWithArgs = () => {
   const assertions: string[] = [];
 
   const expectedResults = {
-    nodeType: "OPEN_NODE_CONFIRMED",
+    nodeType: "OPENED_FOUND",
     vector: {
       origin: {
         arrayIndex: 1,
@@ -193,7 +193,7 @@ const notFoundInUgglyMessText = () => {
   const assertions: string[] = [];
 
   const expectedResults = {
-    nodeType: "CONTENT_NODE",
+    nodeType: "CONTENT",
     vector: {
       origin: {
         arrayIndex: 0,
@@ -221,7 +221,7 @@ const notFoundInReallyUgglyMessText = () => {
   const assertions: string[] = [];
 
   const expectedResults = {
-    nodeType: "CONTENT_NODE",
+    nodeType: "CONTENT",
     vector: {
       origin: {
         arrayIndex: 0,
@@ -248,7 +248,7 @@ const invalidCloseNodeWithArgs = () => {
   const assertions: string[] = [];
 
   const expectedResults = {
-    nodeType: "CONTENT_NODE",
+    nodeType: "CONTENT",
     vector: {
       origin: {
         arrayIndex: 0,
@@ -276,7 +276,7 @@ const validCloseNodeWithArgs = () => {
   const assertions: string[] = [];
 
   const expectedResults = {
-    nodeType: "CLOSE_NODE_CONFIRMED",
+    nodeType: "CLOSED_FOUND",
     vector: {
       origin: {
         arrayIndex: 0,
@@ -304,7 +304,7 @@ const invalidIndependentNodeWithArgs = () => {
   const assertions: string[] = [];
 
   const expectedResults = {
-    nodeType: "CONTENT_NODE",
+    nodeType: "CONTENT",
     vector: {
       origin: {
         arrayIndex: 0,
@@ -332,7 +332,7 @@ const validIndependentNodeWithArgs = () => {
   const assertions: string[] = [];
 
   const expectedResults = {
-    nodeType: "SELF_CLOSING_NODE_CONFIRMED",
+    nodeType: "INDEPENDENT_FOUND",
     vector: {
       origin: {
         arrayIndex: 0,
@@ -360,7 +360,7 @@ const invalidOpenNodeWithArgs = () => {
   const assertions: string[] = [];
 
   const expectedResults = {
-    nodeType: "CONTENT_NODE",
+    nodeType: "CONTENT",
     vector: {
       origin: {
         arrayIndex: 0,
@@ -388,7 +388,7 @@ const validOpenNodeWithArgs = () => {
   const assertions: string[] = [];
 
   const expectedResults = {
-    nodeType: "OPEN_NODE_CONFIRMED",
+    nodeType: "OPENED_FOUND",
     vector: {
       origin: {
         arrayIndex: 0,
@@ -416,7 +416,7 @@ const findNextCrawlWithPreviousCrawl = () => {
   const assertions: string[] = [];
 
   const expectedResults = {
-    nodeType: "SELF_CLOSING_NODE_CONFIRMED",
+    nodeType: "INDEPENDENT_FOUND",
     vector: {
       origin: {
         arrayIndex: 2,
@@ -441,6 +441,33 @@ const findNextCrawlWithPreviousCrawl = () => {
   return assertions;
 };
 
+const findOneCharacterDescendants = () => {
+  const assertions: string[] = [];
+
+  const expectedResults = {
+    nodeType: "OPENED_FOUND",
+    vector: {
+      origin: {
+        arrayIndex: 0,
+        stringIndex: 0,
+      },
+      target: {
+        arrayIndex: 0,
+        stringIndex: 35,
+      },
+    },
+  };
+
+  const testComplexNode = testTextInterpolator`<a href="https://superawesome.com" >world</a>`;
+  const results = crawl(testComplexNode);
+
+  if (!samestuff(expectedResults, results)) {
+    assertions.push("unexpected results found");
+  }
+
+  return assertions;
+};
+
 const tests = [
   findNothingWhenThereIsPlainText,
   findParagraphInPlainText,
@@ -457,6 +484,7 @@ const tests = [
   invalidOpenNodeWithArgs,
   validOpenNodeWithArgs,
   findNextCrawlWithPreviousCrawl,
+  findOneCharacterDescendants,
 ];
 
 const unitTestSkeletonCrawl = {

@@ -24,12 +24,12 @@ const crawlForTagName = <N, A>(
   template: Template<N, A>,
   innerXmlBounds: Vector
 ) => {
-  const tagVector: Vector = copy(innerXmlBounds);
-  let positionChar = getCharAtPosition(template, tagVector.origin);
+  let positionChar = getCharAtPosition(template, innerXmlBounds.origin);
   if (positionChar === undefined || BREAK_RUNES[positionChar]) {
     return;
   }
 
+  const tagVector = copy(innerXmlBounds);
   while (
     BREAK_RUNES[positionChar] === undefined &&
     !hasOriginEclipsedTaraget(tagVector)
@@ -37,7 +37,6 @@ const crawlForTagName = <N, A>(
     if (incrementOrigin(template, tagVector) === undefined) {
       return;
     }
-
     positionChar = getCharAtPosition(template, tagVector.origin);
     if (positionChar === undefined) {
       return;
@@ -50,7 +49,7 @@ const crawlForTagName = <N, A>(
   };
 
   // decrement target if break rune found
-  if (BREAK_RUNES[positionChar]) {
+  if (positionChar !== undefined && BREAK_RUNES[positionChar]) {
     decrementTarget(template, adjustedVector);
   }
 

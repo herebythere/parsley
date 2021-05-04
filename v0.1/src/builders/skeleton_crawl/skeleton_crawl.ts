@@ -36,20 +36,16 @@ type Crawl = <N, A>(
   previousCrawl?: CrawlResults
 ) => CrawlResults | undefined;
 
-const DEFAULT = "DEFAULT";
-const CONTENT_NODE = "CONTENT_NODE";
-const OPEN_NODE = "OPEN_NODE";
-
 const validSieve: Sieve = {
-  ["OPEN_NODE_VALID"]: "OPEN_NODE_VALID",
-  ["CLOSE_NODE_VALID"]: "CLOSE_NODE_VALID",
-  ["SELF_CLOSING_NODE_VALID"]: "SELF_CLOSING_NODE_VALID",
+  OPENED_VALID: "OPENED_VALID",
+  CLOSED_VALID: "CLOSED_VALID",
+  INDEPENDENT_VALID: "INDEPENDENT_VALID",
 };
 
 const confirmedSieve: Sieve = {
-  ["OPEN_NODE_CONFIRMED"]: "OPEN_NODE_CONFIRMED",
-  ["CLOSE_NODE_CONFIRMED"]: "CLOSE_NODE_CONFIRMED",
-  ["SELF_CLOSING_NODE_CONFIRMED"]: "SELF_CLOSING_NODE_CONFIRMED",
+  OPENED_FOUND: "OPENED_FOUND",
+  CLOSED_FOUND: "CLOSED_FOUND",
+  INDEPENDENT_FOUND: "INDEPENDENT_FOUND",
 };
 
 const setStartStateProperties: SetStartStateProperties = (
@@ -58,7 +54,7 @@ const setStartStateProperties: SetStartStateProperties = (
 ) => {
   if (previousCrawl === undefined) {
     return {
-      nodeType: CONTENT_NODE,
+      nodeType: "CONTENT",
       vector: create(),
     };
   }
@@ -69,7 +65,7 @@ const setStartStateProperties: SetStartStateProperties = (
   }
 
   const crawlState: CrawlResults = {
-    nodeType: CONTENT_NODE,
+    nodeType: "CONTENT",
     vector: followingVector,
   };
 
@@ -81,7 +77,7 @@ const setNodeType: SetNodeType = (template, crawlState) => {
   const char = getCharAtPosition(template, crawlState.vector.target);
 
   if (nodeStates !== undefined && char !== undefined) {
-    const defaultNodeType = nodeStates[DEFAULT] ?? CONTENT_NODE;
+    const defaultNodeType = nodeStates["DEFAULT"] ?? "CONTENT";
     crawlState.nodeType = nodeStates[char] ?? defaultNodeType;
   }
 
@@ -93,27 +89,27 @@ const crawl: Crawl = (template, previousCrawl) => {
   if (crawlState === undefined) {
     return;
   }
-
-  let openPosition: Position | undefined;
   setNodeType(template, crawlState);
 
+  let openedPosition: Position | undefined;
   while (incrementTarget(template, crawlState.vector)) {
     if (
       validSieve[crawlState.nodeType] === undefined &&
+      crawlState.nodeType !== "ATTRIBUTE" &&
       crawlState.vector.target.stringIndex === 0
     ) {
-      crawlState.nodeType = CONTENT_NODE;
+      crawlState.nodeType = "CONTENT";
     }
 
     setNodeType(template, crawlState);
 
-    if (crawlState.nodeType === OPEN_NODE) {
-      openPosition = copyPosition(crawlState.vector.target);
+    if (crawlState.nodeType === "OPENED") {
+      openedPosition = copyPosition(crawlState.vector.target);
     }
 
     if (confirmedSieve[crawlState.nodeType]) {
-      if (openPosition !== undefined) {
-        crawlState.vector.origin = openPosition;
+      if (openedPosition !== undefined) {
+        crawlState.vector.origin = openedPosition;
       }
       break;
     }

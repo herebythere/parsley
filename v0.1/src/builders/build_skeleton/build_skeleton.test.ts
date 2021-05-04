@@ -28,7 +28,7 @@ const findNothingWhenThereIsPlainText = () => {
 
   const sourceSkeleton: SkeletonNodes = [
     {
-      nodeType: "CONTENT_NODE",
+      nodeType: "CONTENT",
       vector: {
         origin: { arrayIndex: 0, stringIndex: 0 },
         target: { arrayIndex: 0, stringIndex: 20 },
@@ -52,7 +52,7 @@ const findStatementInPlainText = () => {
 
   const sourceSkeleton: SkeletonNodes = [
     {
-      nodeType: "OPEN_NODE_CONFIRMED",
+      nodeType: "OPENED_FOUND",
       vector: {
         origin: { arrayIndex: 0, stringIndex: 0 },
         target: { arrayIndex: 0, stringIndex: 6 },
@@ -75,28 +75,28 @@ const findComplexFromPlainText = () => {
   const assertions: string[] = [];
   const sourceSkeleton: SkeletonNodes = [
     {
-      nodeType: "CONTENT_NODE",
+      nodeType: "CONTENT",
       vector: {
         origin: { arrayIndex: 0, stringIndex: 0 },
         target: { arrayIndex: 0, stringIndex: 4 },
       },
     },
     {
-      nodeType: "OPEN_NODE_CONFIRMED",
+      nodeType: "OPENED_FOUND",
       vector: {
         origin: { arrayIndex: 0, stringIndex: 5 },
         target: { arrayIndex: 0, stringIndex: 7 },
       },
     },
     {
-      nodeType: "CONTENT_NODE",
+      nodeType: "CONTENT",
       vector: {
         origin: { arrayIndex: 0, stringIndex: 8 },
         target: { arrayIndex: 0, stringIndex: 12 },
       },
     },
     {
-      nodeType: "CLOSE_NODE_CONFIRMED",
+      nodeType: "CLOSED_FOUND",
       vector: {
         origin: { arrayIndex: 0, stringIndex: 13 },
         target: { arrayIndex: 0, stringIndex: 16 },
@@ -120,21 +120,21 @@ const findCompoundFromPlainText = () => {
 
   const sourceSkeleton: SkeletonNodes = [
     {
-      nodeType: "OPEN_NODE_CONFIRMED",
+      nodeType: "OPENED_FOUND",
       vector: {
         origin: { arrayIndex: 0, stringIndex: 0 },
         target: { arrayIndex: 0, stringIndex: 3 },
       },
     },
     {
-      nodeType: "CONTENT_NODE",
+      nodeType: "CONTENT",
       vector: {
         origin: { arrayIndex: 0, stringIndex: 4 },
         target: { arrayIndex: 0, stringIndex: 8 },
       },
     },
     {
-      nodeType: "CLOSE_NODE_CONFIRMED",
+      nodeType: "CLOSED_FOUND",
       vector: {
         origin: { arrayIndex: 0, stringIndex: 9 },
         target: { arrayIndex: 0, stringIndex: 13 },
@@ -158,14 +158,14 @@ const findInjectionFromPlainText = () => {
 
   const sourceSkeleton: SkeletonNodes = [
     {
-      nodeType: "OPEN_NODE_CONFIRMED",
+      nodeType: "OPENED_FOUND",
       vector: {
         origin: { arrayIndex: 0, stringIndex: 0 },
         target: { arrayIndex: 0, stringIndex: 3 },
       },
     },
     {
-      nodeType: "CLOSE_NODE_CONFIRMED",
+      nodeType: "CLOSED_FOUND",
       vector: {
         origin: { arrayIndex: 1, stringIndex: 0 },
         target: { arrayIndex: 1, stringIndex: 4 },
@@ -189,14 +189,14 @@ const findPreceedingInjectionFromPlainText = () => {
 
   const sourceSkeleton: SkeletonNodes = [
     {
-      nodeType: "OPEN_NODE_CONFIRMED",
+      nodeType: "OPENED_FOUND",
       vector: {
         origin: { arrayIndex: 1, stringIndex: 0 },
         target: { arrayIndex: 1, stringIndex: 3 },
       },
     },
     {
-      nodeType: "CLOSE_NODE_CONFIRMED",
+      nodeType: "CLOSED_FOUND",
       vector: {
         origin: { arrayIndex: 2, stringIndex: 0 },
         target: { arrayIndex: 2, stringIndex: 4 },
@@ -220,21 +220,21 @@ const findTrailingInjectionFromPlainText = () => {
 
   const sourceSkeleton: SkeletonNodes = [
     {
-      nodeType: "OPEN_NODE_CONFIRMED",
+      nodeType: "OPENED_FOUND",
       vector: {
         origin: { arrayIndex: 0, stringIndex: 0 },
         target: { arrayIndex: 0, stringIndex: 3 },
       },
     },
     {
-      nodeType: "CLOSE_NODE_CONFIRMED",
+      nodeType: "CLOSED_FOUND",
       vector: {
         origin: { arrayIndex: 1, stringIndex: 0 },
         target: { arrayIndex: 1, stringIndex: 4 },
       },
     },
     {
-      nodeType: "CONTENT_NODE",
+      nodeType: "CONTENT",
       vector: {
         origin: { arrayIndex: 2, stringIndex: 0 },
         target: { arrayIndex: 2, stringIndex: 0 },
@@ -257,21 +257,21 @@ const findMultipleInjectionFromPlainText = () => {
 
   const sourceSkeleton: SkeletonNodes = [
     {
-      nodeType: "OPEN_NODE_CONFIRMED",
+      nodeType: "OPENED_FOUND",
       vector: {
         origin: { arrayIndex: 1, stringIndex: 0 },
         target: { arrayIndex: 1, stringIndex: 3 },
       },
     },
     {
-      nodeType: "CLOSE_NODE_CONFIRMED",
+      nodeType: "CLOSED_FOUND",
       vector: {
         origin: { arrayIndex: 2, stringIndex: 0 },
         target: { arrayIndex: 2, stringIndex: 4 },
       },
     },
     {
-      nodeType: "CONTENT_NODE",
+      nodeType: "CONTENT",
       vector: {
         origin: { arrayIndex: 3, stringIndex: 0 },
         target: { arrayIndex: 3, stringIndex: 0 },
@@ -294,35 +294,35 @@ const findBrokenFromPlainText = () => {
 
   const sourceSkeleton: SkeletonNodes = [
     {
-      nodeType: "CONTENT_NODE",
+      nodeType: "CONTENT",
       vector: {
         origin: { arrayIndex: 0, stringIndex: 0 },
         target: { arrayIndex: 1, stringIndex: 5 },
       },
     },
     {
-      nodeType: "CLOSE_NODE_CONFIRMED",
+      nodeType: "CLOSED_FOUND",
       vector: {
         origin: { arrayIndex: 1, stringIndex: 6 },
         target: { arrayIndex: 1, stringIndex: 10 },
       },
     },
     {
-      nodeType: "OPEN_NODE_CONFIRMED",
+      nodeType: "OPENED_FOUND",
       vector: {
         origin: { arrayIndex: 1, stringIndex: 11 },
         target: { arrayIndex: 1, stringIndex: 13 },
       },
     },
     {
-      nodeType: "CONTENT_NODE",
+      nodeType: "CONTENT",
       vector: {
         origin: { arrayIndex: 1, stringIndex: 14 },
         target: { arrayIndex: 1, stringIndex: 18 },
       },
     },
     {
-      nodeType: "CLOSE_NODE_CONFIRMED",
+      nodeType: "CLOSED_FOUND",
       vector: {
         origin: { arrayIndex: 1, stringIndex: 19 },
         target: { arrayIndex: 1, stringIndex: 22 },
@@ -346,28 +346,28 @@ const findSelfClosingNodesInOddPlainText = () => {
 
   const sourceSkeleton: SkeletonNodes = [
     {
-      nodeType: "CONTENT_NODE",
+      nodeType: "CONTENT",
       vector: {
         origin: { arrayIndex: 0, stringIndex: 0 },
         target: { arrayIndex: 0, stringIndex: 4 },
       },
     },
     {
-      nodeType: "SELF_CLOSING_NODE_CONFIRMED",
+      nodeType: "INDEPENDENT_FOUND",
       vector: {
         origin: { arrayIndex: 0, stringIndex: 5 },
         target: { arrayIndex: 0, stringIndex: 10 },
       },
     },
     {
-      nodeType: "SELF_CLOSING_NODE_CONFIRMED",
+      nodeType: "INDEPENDENT_FOUND",
       vector: {
         origin: { arrayIndex: 0, stringIndex: 11 },
         target: { arrayIndex: 0, stringIndex: 18 },
       },
     },
     {
-      nodeType: "CONTENT_NODE",
+      nodeType: "CONTENT",
       vector: {
         origin: {
           arrayIndex: 0,
@@ -380,14 +380,14 @@ const findSelfClosingNodesInOddPlainText = () => {
       },
     },
     {
-      nodeType: "SELF_CLOSING_NODE_CONFIRMED",
+      nodeType: "INDEPENDENT_FOUND",
       vector: {
         origin: { arrayIndex: 0, stringIndex: 24 },
         target: { arrayIndex: 0, stringIndex: 33 },
       },
     },
     {
-      nodeType: "CONTENT_NODE",
+      nodeType: "CONTENT",
       vector: {
         origin: { arrayIndex: 1, stringIndex: 0 },
         target: { arrayIndex: 1, stringIndex: 11 },
@@ -409,6 +409,170 @@ const findSelfClosingNodesInOddPlainText = () => {
   return assertions;
 };
 
+const findOneCharacterDescendants = () => {
+  const assertions: string[] = [];
+
+  const sourceSkeleton: SkeletonNodes = [
+    {
+      nodeType: "CONTENT",
+      vector: {
+        origin: {
+          arrayIndex: 0,
+          stringIndex: 0,
+        },
+        target: {
+          arrayIndex: 0,
+          stringIndex: 4,
+        },
+      },
+    },
+    {
+      nodeType: "OPENED_FOUND",
+      vector: {
+        origin: {
+          arrayIndex: 0,
+          stringIndex: 5,
+        },
+        target: {
+          arrayIndex: 0,
+          stringIndex: 7,
+        },
+      },
+    },
+    {
+      nodeType: "CONTENT",
+      vector: {
+        origin: {
+          arrayIndex: 0,
+          stringIndex: 8,
+        },
+        target: {
+          arrayIndex: 0,
+          stringIndex: 21,
+        },
+      },
+    },
+    {
+      nodeType: "OPENED_FOUND",
+      vector: {
+        origin: {
+          arrayIndex: 0,
+          stringIndex: 22,
+        },
+        target: {
+          arrayIndex: 0,
+          stringIndex: 82,
+        },
+      },
+    },
+    {
+      nodeType: "CONTENT",
+      vector: {
+        origin: {
+          arrayIndex: 0,
+          stringIndex: 83,
+        },
+        target: {
+          arrayIndex: 0,
+          stringIndex: 87,
+        },
+      },
+    },
+    {
+      nodeType: "CLOSED_FOUND",
+      vector: {
+        origin: {
+          arrayIndex: 0,
+          stringIndex: 88,
+        },
+        target: {
+          arrayIndex: 0,
+          stringIndex: 91,
+        },
+      },
+    },
+    {
+      nodeType: "CONTENT",
+      vector: {
+        origin: {
+          arrayIndex: 0,
+          stringIndex: 92,
+        },
+        target: {
+          arrayIndex: 0,
+          stringIndex: 97,
+        },
+      },
+    },
+    {
+      nodeType: "CLOSED_FOUND",
+      vector: {
+        origin: {
+          arrayIndex: 0,
+          stringIndex: 98,
+        },
+        target: {
+          arrayIndex: 0,
+          stringIndex: 101,
+        },
+      },
+    },
+    {
+      nodeType: "CONTENT",
+      vector: {
+        origin: {
+          arrayIndex: 0,
+          stringIndex: 102,
+        },
+        target: {
+          arrayIndex: 0,
+          stringIndex: 104,
+        },
+      },
+    },
+  ];
+
+  const testComplexNode = testTextInterpolator`
+    <p>
+      hello, <a href="http://superawesome.com/" alt="\"superawesome.com\"" >world</a>!
+    </p>
+  `;
+  const testSkeleton = buildSkeleton(testComplexNode);
+
+  if (!samestuff(sourceSkeleton, testSkeleton)) {
+    assertions.push("skeletons are not equal");
+  }
+
+  return assertions;
+};
+
+const findOpenNodeWithInjected = () => {
+  const assertions: string[] = [];
+
+  const sourceSkeleton: SkeletonNodes = [{
+		"nodeType": "OPENED_FOUND",
+		"vector": {
+			"origin": {
+				"arrayIndex": 0,
+				"stringIndex": 0
+			},
+			"target": {
+				"arrayIndex": 1,
+				"stringIndex": 1
+			}
+		}
+	}];
+
+  const testComplexNode = testTextInterpolator`<p message="${"hello, world!"}">`;
+  const testSkeleton = buildSkeleton(testComplexNode);
+
+  if (!samestuff(sourceSkeleton, testSkeleton)) {
+    assertions.push("skeletons are not equal");
+  }
+
+  return assertions;
+};
+
 const tests = [
   findInjectionFromPlainText,
   findNothingWhenThereIsPlainText,
@@ -420,6 +584,8 @@ const tests = [
   findTrailingInjectionFromPlainText,
   findMultipleInjectionFromPlainText,
   findSelfClosingNodesInOddPlainText,
+  findOneCharacterDescendants,
+	findOpenNodeWithInjected
 ];
 
 const unitTestBuildSkeleton = {

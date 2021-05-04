@@ -108,9 +108,6 @@ const incrementOriginToNextCharRune: VectorCrawl = (
       return;
     }
     positionChar = getCharAtPosition(template, innerXmlBounds.origin);
-    if (positionChar === undefined) {
-      return;
-    }
   }
 
   return innerXmlBounds;
@@ -132,24 +129,24 @@ const appendNodeAttributeIntegrals: AppendNodeAttributeIntegrals = ({
       return;
     }
 
-    const attributeCrawlResults = crawlForAttribute(template, chunk);
+    const attrCrawl = crawlForAttribute(template, chunk);
     // something has gone wrong and we should stop
-    if (attributeCrawlResults === undefined) {
+    if (attrCrawl === undefined) {
       return;
     }
 
     // set origin to following position
-    if (attributeCrawlResults.kind === "IMPLICIT_ATTRIBUTE") {
-      chunk.origin = { ...attributeCrawlResults.attributeVector.target };
+    if (attrCrawl.kind === "IMPLICIT_ATTRIBUTE") {
+      chunk.origin = { ...attrCrawl.attributeVector.target };
     }
-    if (attributeCrawlResults.kind === "EXPLICIT_ATTRIBUTE") {
-      chunk.origin = { ...attributeCrawlResults.valueVector.target };
+    if (attrCrawl.kind === "EXPLICIT_ATTRIBUTE") {
+      chunk.origin = { ...attrCrawl.valueVector.target };
     }
-    if (attributeCrawlResults.kind === "INJECTED_ATTRIBUTE") {
-      chunk.origin = { ...attributeCrawlResults.valueVector.target };
+    if (attrCrawl.kind === "INJECTED_ATTRIBUTE") {
+      chunk.origin = { ...attrCrawl.valueVector.target };
     }
 
-    integrals.push(attributeCrawlResults);
+    integrals.push(attrCrawl);
   }
 
   return integrals;
@@ -298,16 +295,16 @@ const buildIntegrals: BuildIntegrals = ({ template, skeleton }) => {
       });
     }
 
-    if (nodeType === "OPEN_NODE_CONFIRMED") {
+    if (nodeType === "OPENED_FOUND") {
       appendNodeIntegrals({ kind: "NODE", integrals, template, chunk });
     }
-    if (nodeType === "CLOSE_NODE_CONFIRMED") {
+    if (nodeType === "CLOSED_FOUND") {
       appendCloseNodeIntegrals({ integrals, template, chunk });
     }
-    if (nodeType === "CONTENT_NODE") {
+    if (nodeType === "CONTENT") {
       appendContentIntegrals({ integrals, template, chunk });
     }
-    if (nodeType === "SELF_CLOSING_NODE_CONFIRMED") {
+    if (nodeType === "INDEPENDENT_FOUND") {
       appendNodeIntegrals({
         kind: "SELF_CLOSING_NODE",
         integrals,
@@ -320,6 +317,7 @@ const buildIntegrals: BuildIntegrals = ({ template, skeleton }) => {
   return integrals;
 };
 
+export type { BuildIntegralsParams };
+
 export { buildIntegrals };
 
-export type { BuildIntegralsParams };

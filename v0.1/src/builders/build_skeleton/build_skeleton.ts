@@ -16,11 +16,7 @@ import {
 } from "../../text_position/text_position.ts";
 import { hasOriginEclipsedTaraget } from "../../text_vector/text_vector.ts";
 
-type NodeType =
-  | "OPEN_NODE"
-  | "SELF_CLOSING_NODE"
-  | "CLOSE_NODE"
-  | "CONTENT_NODE";
+type NodeType = "OPENED" | "INDEPENDENT" | "CLOSED" | "CONTENT";
 
 interface BuildMissingStringNodeParams<N, A> {
   template: Template<N, A>;
@@ -48,7 +44,7 @@ type IsDistanceGreaterThanOne = <N, A>(
 const MAX_DEPTH = 128;
 
 const DEFAULT_CRAWL_RESULTS: CrawlResults = {
-  nodeType: "CONTENT_NODE",
+  nodeType: "CONTENT",
   vector: {
     origin: { arrayIndex: 0, stringIndex: 0 },
     target: { arrayIndex: 0, stringIndex: 0 },
@@ -56,10 +52,10 @@ const DEFAULT_CRAWL_RESULTS: CrawlResults = {
 };
 
 const SKELETON_SIEVE: BuildSkeletonSieve = {
-  ["OPEN_NODE_CONFIRMED"]: "OPEN_NODE",
-  ["SELF_CLOSING_NODE_CONFIRMED"]: "SELF_CLOSING_NODE",
-  ["CLOSE_NODE_CONFIRMED"]: "CLOSE_NODE",
-  ["CONTENT_NODE"]: "CONTENT_NODE",
+  ["OPENED_FOUND"]: "OPENED",
+  ["INDEPENDENT_FOUND"]: "INDEPENDENT",
+  ["CLOSED_FOUND"]: "CLOSED",
+  ["CONTENT"]: "CONTENT",
 };
 
 const isDistanceGreaterThanOne: IsDistanceGreaterThanOne = ({
@@ -123,7 +119,7 @@ const buildMissingStringNode: BuildMissingStringNode = ({
   }
 
   return {
-    nodeType: "CONTENT_NODE",
+    nodeType: "CONTENT",
     vector: {
       origin,
       target,
