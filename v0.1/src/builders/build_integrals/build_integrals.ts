@@ -298,16 +298,16 @@ const buildIntegrals: BuildIntegrals = ({ template, skeleton }) => {
       });
     }
 
-    if (nodeType === "OPEN_NODE_CONFIRMED") {
+    if (nodeType === "OPENED_FOUND") {
       appendNodeIntegrals({ kind: "NODE", integrals, template, chunk });
     }
-    if (nodeType === "CLOSE_NODE_CONFIRMED") {
+    if (nodeType === "CLOSED_FOUND") {
       appendCloseNodeIntegrals({ integrals, template, chunk });
     }
-    if (nodeType === "CONTENT_NODE") {
+    if (nodeType === "CONTENT") {
       appendContentIntegrals({ integrals, template, chunk });
     }
-    if (nodeType === "SELF_CLOSING_NODE_CONFIRMED") {
+    if (nodeType === "INDEPENDENT_FOUND") {
       appendNodeIntegrals({
         kind: "SELF_CLOSING_NODE",
         integrals,
@@ -320,6 +320,7 @@ const buildIntegrals: BuildIntegrals = ({ template, skeleton }) => {
   return integrals;
 };
 
+export type { BuildIntegralsParams };
+
 export { buildIntegrals };
 
-export type { BuildIntegralsParams };

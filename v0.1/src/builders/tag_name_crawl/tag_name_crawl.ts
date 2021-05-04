@@ -24,12 +24,12 @@ const crawlForTagName = <N, A>(
   template: Template<N, A>,
   innerXmlBounds: Vector
 ) => {
-  const tagVector: Vector = copy(innerXmlBounds);
-  let positionChar = getCharAtPosition(template, tagVector.origin);
+  let positionChar = getCharAtPosition(template, innerXmlBounds.origin);
   if (positionChar === undefined || BREAK_RUNES[positionChar]) {
     return;
   }
 
+  const tagVector: Vector = copy(innerXmlBounds);
   while (
     BREAK_RUNES[positionChar] === undefined &&
     !hasOriginEclipsedTaraget(tagVector)

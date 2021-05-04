@@ -228,6 +228,7 @@ const emptyExplicitString = () => {
 
   const results = crawlForAttribute(template, vector);
   if (!samestuff(expectedResults, results)) {
+    
     assertions.push("unexpected results found.");
   }
 
@@ -273,6 +274,7 @@ const validExplicitString = () => {
   const results = crawlForAttribute(template, vector);
 
   if (!samestuff(expectedResults, results)) {
+    
     assertions.push("unexpected results found.");
   }
 
@@ -364,6 +366,7 @@ const injectedString = () => {
   const results = crawlForAttribute(template, vector);
 
   if (!samestuff(expectedResults, results)) {
+    
     assertions.push("unexpected results found.");
   }
 
@@ -431,6 +434,54 @@ const malformedInjectedStringWithStartingSpaces = () => {
   return assertions;
 };
 
+const htmlAddressWithSpecialCharacters = () => {
+  const assertions = [];
+
+  const expectedResults: ExplicitAttributeAction = {
+    kind: "EXPLICIT_ATTRIBUTE",
+    valueVector: {
+      origin: {
+        arrayIndex: 0,
+        stringIndex: 5,
+      },
+      target: {
+        arrayIndex: 0,
+        stringIndex: 65,
+      },
+    },
+    attributeVector: {
+      origin: {
+        arrayIndex: 0,
+        stringIndex: 0,
+      },
+      target: {
+        arrayIndex: 0,
+        stringIndex: 3,
+      },
+    },
+  };
+
+  const template = testTextInterpolator`href="http://supersalad.com/?=the-death-star-is-quite-operational"`;
+  const vector = create();
+
+  let safety = 0;
+  while (incrementTarget(template, vector) && safety < RECURSION_SAFETY) {
+    safety += 1;
+  }
+
+  const results = crawlForAttribute(template, vector);
+  
+  if (!samestuff(expectedResults, results)) {
+    assertions.push("unexpected results found.");
+  }
+
+  if (results === undefined) {
+    assertions.push("this should have returned results");
+  }
+
+  return assertions;
+};
+
 const tests = [
   emptyString,
   emptySpaceString,
@@ -446,6 +497,7 @@ const tests = [
   malformedInjectedString,
   malformedInjectedStringWithTrailingSpaces,
   malformedInjectedStringWithStartingSpaces,
+  htmlAddressWithSpecialCharacters,
 ];
 
 const unitTestAttributeCrawl = {

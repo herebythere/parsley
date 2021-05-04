@@ -7,38 +7,47 @@ type Routes = Record<string, CrawlStatus>;
 type Routers = Partial<Record<CrawlStatus, Routes>>;
 
 const routers: Routers = {
-  CONTENT_NODE: {
-    "<": "OPEN_NODE",
-    DEFAULT: "CONTENT_NODE",
+  CONTENT: {
+    "<": "OPENED",
+    DEFAULT: "CONTENT",
   },
-  OPEN_NODE: {
-    " ": "CONTENT_NODE",
-    "\n": "CONTENT_NODE",
-    "<": "OPEN_NODE",
-    "/": "CLOSE_NODE",
-    DEFAULT: "OPEN_NODE_VALID",
+  OPENED: {
+    " ": "CONTENT",
+    "\n": "CONTENT",
+    "<": "OPENED",
+    "/": "CLOSED",
+    DEFAULT: "OPENED_VALID",
   },
-  OPEN_NODE_VALID: {
-    "<": "OPEN_NODE",
-    "/": "SELF_CLOSING_NODE_VALID",
-    ">": "OPEN_NODE_CONFIRMED",
-    DEFAULT: "OPEN_NODE_VALID",
+  ATTRIBUTE: {
+    "\\": "ATTRIBUTE_ESC_CHAR",
+    '"': "OPENED_VALID",
+    DEFAULT: "ATTRIBUTE",
   },
-  CLOSE_NODE: {
-    " ": "CONTENT_NODE",
-    "\n": "CONTENT_NODE",
-    "<": "OPEN_NODE",
-    DEFAULT: "CLOSE_NODE_VALID",
+  ATTRIBUTE_ESC_CHAR: {
+    DEFAULT: "ATTRIBUTE",
   },
-  CLOSE_NODE_VALID: {
-    "<": "OPEN_NODE",
-    ">": "CLOSE_NODE_CONFIRMED",
-    DEFAULT: "CLOSE_NODE_VALID",
+  OPENED_VALID: {
+    "<": "OPENED",
+    "/": "INDEPENDENT_VALID",
+    ">": "OPENED_FOUND",
+    '"': "ATTRIBUTE",
+    DEFAULT: "OPENED_VALID",
   },
-  SELF_CLOSING_NODE_VALID: {
-    "<": "OPEN_NODE",
-    ">": "SELF_CLOSING_NODE_CONFIRMED",
-    DEFAULT: "SELF_CLOSING_NODE_VALID",
+  CLOSED: {
+    " ": "CONTENT",
+    "\n": "CONTENT",
+    "<": "OPENED",
+    DEFAULT: "CLOSED_VALID",
+  },
+  CLOSED_VALID: {
+    "<": "OPENED",
+    ">": "CLOSED_FOUND",
+    DEFAULT: "CLOSED_VALID",
+  },
+  INDEPENDENT_VALID: {
+    "<": "OPENED",
+    ">": "INDEPENDENT_FOUND",
+    DEFAULT: "INDEPENDENT_VALID",
   },
 };
 

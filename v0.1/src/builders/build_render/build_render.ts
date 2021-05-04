@@ -20,6 +20,7 @@ import {
   decrementTarget,
   getText,
   incrementOrigin,
+  copy,
 } from "../../text_vector/text_vector.ts";
 
 interface BuildRenderParams<N, A> {
@@ -229,18 +230,19 @@ const appendExplicitAttribute: RenderAppendExplicitAttribute = ({
   rs,
   integral,
 }) => {
-  const references = rs.references;
   const node = rs.stack[rs.stack.length - 1].node;
-
   const attribute = getText(rs.template, integral.attributeVector);
   if (attribute === undefined) {
     return;
   }
 
-  incrementOrigin(rs.template, integral.valueVector);
-  decrementTarget(rs.template, integral.valueVector);
+  // get copy of text
+  // then decrement
+  const valueVector = copy(integral.valueVector);
+  incrementOrigin(rs.template, valueVector);
+  decrementTarget(rs.template, valueVector);
 
-  const value = getText(rs.template, integral.valueVector);
+  const value = getText(rs.template, valueVector);
   if (value === undefined) {
     return;
   }
@@ -312,10 +314,7 @@ const buildRender: BuildRender = ({ hooks, template, integrals }) => {
   };
 
   for (const integral of integrals) {
-    if (integral.kind === "NODE") {
-      createNode({ hooks, rs, integral });
-    }
-    if (integral.kind === "SELF_CLOSING_NODE") {
+    if (integral.kind === "NODE" || integral.kind === "SELF_CLOSING_NODE") {
       createNode({ hooks, rs, integral });
     }
     if (integral.kind === "CLOSE_NODE") {

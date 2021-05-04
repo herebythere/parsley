@@ -4,6 +4,19 @@ Dynamically maintain XML documents like [DOM](https://github.com/taylor-vann/par
 
 unminimized and uncompressed < 38kb
 
+## Abstract
+
+// maintain any kind of document through xml
+
+// this library is portable, capable of existing in any language
+// like python or c#
+
+// invent new document schemas! create any kind of xml! medical
+// data, movie scripts, flash cards
+
+// dynamically express any kind of xml! What if x-rays
+// were more interactive?
+
 ## Install
 
 Clone this repository and copy a version into your codebase.
