@@ -6,16 +6,19 @@ unminimized and uncompressed < 38kb
 
 ## Abstract
 
-// maintain any kind of document through xml
+Parsley is a portable library that generates libraries to create documents!
 
-// this library is portable, capable of existing in any language
-// like python or c#
+It's an XML factory that will, provided an interface, generate an API to maintain custom document structures.
 
-// invent new document schemas! create any kind of xml! medical
-// data, movie scripts, flash cards
+Parsley can build interfaces to represent:
 
-// dynamically express any kind of xml! What if x-rays
-// were more interactive?
+- Screenplays
+- Game Dialog
+- World Objects in ThreeJS
+- Geodatabase XML
+- Application resources
+- Historical Records
+- DOM & SVG
 
 ## Install
 
@@ -34,6 +37,10 @@ import { Chunk } from "https://raw.githubusercontent.com/taylor-vann/parsley/mai
 Parsley contructs interactive documents from XML through an external interface.
 
 The [hooks interface](https://github.com/taylor-vann/parsley-dom/blob/main/v0.1/src/hooks/hooks.ts) in [Parsley-dom](https://github.com/taylor-vann/parsley-dom) uses Parsley to maintain document structure.
+
+## Plans
+
+Currently Parsley is written in Typescript. But it's a completely portable set of abstractions.
 
 ## License
 

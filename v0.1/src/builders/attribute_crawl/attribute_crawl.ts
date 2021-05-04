@@ -10,7 +10,6 @@ import {
   decrementTarget,
   hasOriginEclipsedTaraget,
   incrementOrigin,
-  incrementTarget,
 } from "../../text_vector/text_vector.ts";
 import { getCharAtPosition } from "../../text_position/text_position.ts";
 
