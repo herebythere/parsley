@@ -77,7 +77,6 @@ const createTextNode: RenderTextNode = ({ hooks, rs, integral }) => {
   const lastNodeIndex = rs.lastNodes.length - 1;
   const leftNode = rs.lastNodes[lastNodeIndex];
 
-  const isSiblingLevel = rs.stack.length === 0;
   if (rs.stack.length === 0) {
     rs.siblings.push([descendant]);
   } else {

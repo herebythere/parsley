@@ -122,11 +122,8 @@ const getAttributeValue: AttributeValueCrawl = (
   }
 
   const bound = copy(vectorBounds);
-  incrementOrigin(template, vectorBounds);
-  if (hasOriginEclipsedTaraget(vectorBounds)) {
-    return;
-  }
 
+  incrementOrigin(template, vectorBounds);
   positionChar = getCharAtPosition(template, vectorBounds.origin);
   if (positionChar !== QUOTE_RUNE) {
     return;
@@ -137,21 +134,18 @@ const getAttributeValue: AttributeValueCrawl = (
   const valVector = copy(vectorBounds);
 
   // check for injected attribute
+  // incrementOrigin(template, vectorBounds)
   if (incrementOrigin(template, vectorBounds) === undefined) {
     return;
   }
   positionChar = getCharAtPosition(template, vectorBounds.origin);
-  if (positionChar === undefined) {
-    return;
-  }
 
   let arrayIndexDistance = Math.abs(
     arrayIndex - vectorBounds.origin.arrayIndex
   );
 
   // check if quote rune?
-  if (arrayIndexDistance === 1) {
-    if (positionChar === QUOTE_RUNE) {
+  if (arrayIndexDistance === 1 && positionChar === QUOTE_RUNE) {
       return {
         kind: INJECTED_ATTRIBUTE,
         injectionID: arrayIndex,
@@ -161,7 +155,6 @@ const getAttributeValue: AttributeValueCrawl = (
           target: { ...vectorBounds.origin },
         },
       };
-    }
   }
 
   if (arrayIndexDistance > 0) {
@@ -176,9 +169,6 @@ const getAttributeValue: AttributeValueCrawl = (
       return;
     }
     positionChar = getCharAtPosition(template, vectorBounds.origin);
-    if (positionChar === undefined) {
-      return;
-    }
 
     arrayIndexDistance = Math.abs(
       arrayIndex - vectorBounds.origin.arrayIndex

@@ -272,9 +272,6 @@ const getAttributeValue = (template, vectorBounds, attributeAction)=>{
     }
     const bound = copy2(vectorBounds);
     incrementOrigin(template, vectorBounds);
-    if (hasOriginEclipsedTaraget(vectorBounds)) {
-        return;
-    }
     positionChar = getCharAtPosition(template, vectorBounds.origin);
     if (positionChar !== QUOTE_RUNE) {
         return;
@@ -285,26 +282,21 @@ const getAttributeValue = (template, vectorBounds, attributeAction)=>{
         return;
     }
     positionChar = getCharAtPosition(template, vectorBounds.origin);
-    if (positionChar === undefined) {
-        return;
-    }
     let arrayIndexDistance = Math.abs(arrayIndex - vectorBounds.origin.arrayIndex);
-    if (arrayIndexDistance === 1) {
-        if (positionChar === QUOTE_RUNE) {
-            return {
-                kind: INJECTED_ATTRIBUTE,
-                injectionID: arrayIndex,
-                attributeVector: attributeAction.attributeVector,
-                valueVector: {
-                    origin: {
-                        ...valVector.origin
-                    },
-                    target: {
-                        ...vectorBounds.origin
-                    }
+    if (arrayIndexDistance === 1 && positionChar === QUOTE_RUNE) {
+        return {
+            kind: INJECTED_ATTRIBUTE,
+            injectionID: arrayIndex,
+            attributeVector: attributeAction.attributeVector,
+            valueVector: {
+                origin: {
+                    ...valVector.origin
+                },
+                target: {
+                    ...vectorBounds.origin
                 }
-            };
-        }
+            }
+        };
     }
     if (arrayIndexDistance > 0) {
         return;
@@ -314,9 +306,6 @@ const getAttributeValue = (template, vectorBounds, attributeAction)=>{
             return;
         }
         positionChar = getCharAtPosition(template, vectorBounds.origin);
-        if (positionChar === undefined) {
-            return;
-        }
         arrayIndexDistance = Math.abs(arrayIndex - vectorBounds.origin.arrayIndex);
         if (arrayIndexDistance > 0) {
             return;
@@ -940,7 +929,7 @@ const crawlForTagName = (template, innerXmlBounds)=>{
             ...tagVector.origin
         }
     };
-    if (BREAK_RUNES1[positionChar]) {
+    if (positionChar !== undefined && BREAK_RUNES1[positionChar]) {
         decrementTarget(template, adjustedVector);
     }
     return adjustedVector;
@@ -977,9 +966,6 @@ const incrementOriginToNextCharRune = (template, innerXmlBounds)=>{
             return;
         }
         positionChar = getCharAtPosition(template, innerXmlBounds.origin);
-        if (positionChar === undefined) {
-            return;
-        }
     }
     return innerXmlBounds;
 };
@@ -993,26 +979,26 @@ const appendNodeAttributeIntegrals = ({ integrals , template , chunk ,  })=>{
         if (incrementOriginToNextCharRune(template, chunk) === undefined) {
             return;
         }
-        const attributeCrawlResults = crawlForAttribute(template, chunk);
-        if (attributeCrawlResults === undefined) {
+        const attrCrawl = crawlForAttribute(template, chunk);
+        if (attrCrawl === undefined) {
             return;
         }
-        if (attributeCrawlResults.kind === "IMPLICIT_ATTRIBUTE") {
+        if (attrCrawl.kind === "IMPLICIT_ATTRIBUTE") {
             chunk.origin = {
-                ...attributeCrawlResults.attributeVector.target
+                ...attrCrawl.attributeVector.target
             };
         }
-        if (attributeCrawlResults.kind === "EXPLICIT_ATTRIBUTE") {
+        if (attrCrawl.kind === "EXPLICIT_ATTRIBUTE") {
             chunk.origin = {
-                ...attributeCrawlResults.valueVector.target
+                ...attrCrawl.valueVector.target
             };
         }
-        if (attributeCrawlResults.kind === "INJECTED_ATTRIBUTE") {
+        if (attrCrawl.kind === "INJECTED_ATTRIBUTE") {
             chunk.origin = {
-                ...attributeCrawlResults.valueVector.target
+                ...attrCrawl.valueVector.target
             };
         }
-        integrals.push(attributeCrawlResults);
+        integrals.push(attrCrawl);
     }
     return integrals;
 };
@@ -1897,7 +1883,6 @@ const createTextNode = ({ hooks , rs , integral  })=>{
     const parentNode = rs.stack[rs.stack.length - 1]?.node;
     const lastNodeIndex = rs.lastNodes.length - 1;
     const leftNode = rs.lastNodes[lastNodeIndex];
-    const isSiblingLevel = rs.stack.length === 0;
     if (rs.stack.length === 0) {
         rs.siblings.push([
             descendant

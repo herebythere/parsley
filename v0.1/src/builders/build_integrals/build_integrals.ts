@@ -108,9 +108,6 @@ const incrementOriginToNextCharRune: VectorCrawl = (
       return;
     }
     positionChar = getCharAtPosition(template, innerXmlBounds.origin);
-    if (positionChar === undefined) {
-      return;
-    }
   }
 
   return innerXmlBounds;
@@ -132,24 +129,24 @@ const appendNodeAttributeIntegrals: AppendNodeAttributeIntegrals = ({
       return;
     }
 
-    const attributeCrawlResults = crawlForAttribute(template, chunk);
+    const attrCrawl = crawlForAttribute(template, chunk);
     // something has gone wrong and we should stop
-    if (attributeCrawlResults === undefined) {
+    if (attrCrawl === undefined) {
       return;
     }
 
     // set origin to following position
-    if (attributeCrawlResults.kind === "IMPLICIT_ATTRIBUTE") {
-      chunk.origin = { ...attributeCrawlResults.attributeVector.target };
+    if (attrCrawl.kind === "IMPLICIT_ATTRIBUTE") {
+      chunk.origin = { ...attrCrawl.attributeVector.target };
     }
-    if (attributeCrawlResults.kind === "EXPLICIT_ATTRIBUTE") {
-      chunk.origin = { ...attributeCrawlResults.valueVector.target };
+    if (attrCrawl.kind === "EXPLICIT_ATTRIBUTE") {
+      chunk.origin = { ...attrCrawl.valueVector.target };
     }
-    if (attributeCrawlResults.kind === "INJECTED_ATTRIBUTE") {
-      chunk.origin = { ...attributeCrawlResults.valueVector.target };
+    if (attrCrawl.kind === "INJECTED_ATTRIBUTE") {
+      chunk.origin = { ...attrCrawl.valueVector.target };
     }
 
-    integrals.push(attributeCrawlResults);
+    integrals.push(attrCrawl);
   }
 
   return integrals;
