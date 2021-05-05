@@ -2177,13 +2177,13 @@ class Chunk {
     parentNode;
     leftNode;
     siblings;
+    effect;
     hooks;
     chunker;
     banger;
     rs;
     params;
     state;
-    effect;
     constructor(baseParams){
         this.banger = new Banger(this);
         this.hooks = baseParams.hooks;
@@ -2193,34 +2193,46 @@ class Chunk {
             banger: this.banger,
             params: baseParams.params
         });
-        const template1 = this.getTemplate();
-        this.rs = buildRenderStructure(this.hooks, template1);
+        const template = this.getTemplate();
+        this.rs = buildRenderStructure(this.hooks, template);
         this.siblings = getUpdatedSiblings(this.rs);
-        this.effect = this.updateEffect("UNMOUNTED");
+        this.effect = this.updateEffect(true, false);
     }
     bang() {
         this.update(this.params);
     }
-    update(params) {
+    connect(params) {
         this.setParams(params);
         const template1 = this.getTemplate();
-        if (this.effect.quality === "DISCONNECTED") {
-            this.disconnect();
-            this.remount(template1);
+        this.state = this.chunker.connect({
+            banger: this.banger,
+            params
+        });
+        this.rs = buildRenderStructure(this.hooks, template1);
+        this.siblings = getUpdatedSiblings(this.rs);
+        this.updateEffect(true, false);
+        return this.state;
+    }
+    update(params) {
+        this.setParams(params);
+        if (!this.effect.connected) {
+            this.connect(this.params);
             return;
         }
+        const template1 = this.getTemplate();
         if (hasTemplateChanged(this.rs, template1)) {
-            this.remount(template1);
+            this.disconnect();
+            this.connect(params);
             return;
         }
         updateAttributes(this.hooks, this.rs, template1);
-        const descendantsHaveUpdated = updateDescendants({
-            contextParentNode: this.parentNode,
+        const descendantsUpdated = updateDescendants({
+            chunkParentNode: this.parentNode,
             hooks: this.hooks,
             rs: this.rs,
             template: template1
         });
-        if (descendantsHaveUpdated) {
+        if (descendantsUpdated) {
             this.siblings = getUpdatedSiblings(this.rs);
         }
     }
@@ -2238,49 +2250,34 @@ class Chunk {
                 descendant
             });
         }
-        this.updateEffect("MOUNTED");
+        this.updateEffect(this.effect.connected, true);
         return descendant;
     }
     unmount() {
-        this.parentNode = undefined;
-        this.leftNode = undefined;
         for(const siblingID in this.siblings){
             const sibling = this.siblings[siblingID];
             this.hooks.removeDescendant(sibling);
         }
-        this.updateEffect("UNMOUNTED");
+        this.parentNode = undefined;
+        this.leftNode = undefined;
+        this.updateEffect(this.effect.connected, false);
     }
     disconnect() {
         disconnectDescendants(this.hooks, this.rs);
-        if (this.state !== undefined && this.chunker.disconnect !== undefined) {
-            this.chunker.disconnect({
+        if (this.state !== undefined) {
+            this.chunker?.disconnect({
                 state: this.state
             });
         }
-        this.updateEffect("DISCONNECTED");
+        this.updateEffect(false, this.effect.mounted);
     }
     getSiblings() {
         return this.siblings;
     }
     getReferences() {
-        if (this.rs !== undefined) {
-            return this.rs.references;
-        }
+        return this.rs.references;
     }
     getEffect() {
-        return this.effect;
-    }
-    remount(template) {
-        this.rs = buildRenderStructure(this.hooks, template);
-        this.siblings = getUpdatedSiblings(this.rs);
-        this.mount(this.parentNode, this.leftNode);
-        this.effect = this.updateEffect("CONNECTED");
-    }
-    updateEffect(quality) {
-        this.effect = {
-            timestamp: performance.now(),
-            quality
-        };
         return this.effect;
     }
     setParams(params) {
@@ -2293,28 +2290,36 @@ class Chunk {
             params: this.params
         });
     }
+    updateEffect(connected, mounted) {
+        this.effect = {
+            timestamp: performance.now(),
+            connected,
+            mounted
+        };
+        return this.effect;
+    }
 }
 const getUpdatedSiblings = (rs)=>{
-    const siblings = [];
-    const originalSiblings = rs.siblings;
-    for(const siblingArrayID in originalSiblings){
-        const siblingArray = originalSiblings[siblingArrayID];
+    const siblingsDelta = [];
+    const siblings = rs.siblings;
+    for(const siblingsID in siblings){
+        const siblingArray = siblings[siblingsID];
         for(const siblingID in siblingArray){
             const sibling = siblingArray[siblingID];
-            siblings.push(sibling);
+            siblingsDelta.push(sibling);
         }
     }
-    return siblings;
+    return siblingsDelta;
 };
-const hasTemplateChanged = (rs, template2)=>{
-    const templateLength = template2.templateArray.length;
+const hasTemplateChanged = (rs, template1)=>{
+    const templateLength = template1.templateArray.length;
     if (rs.template.templateArray.length !== templateLength) {
         return true;
     }
     let index = 0;
     while(index < templateLength){
         const sourceStr = rs.template.templateArray[index];
-        const targetStr = template2.templateArray[index];
+        const targetStr = template1.templateArray[index];
         if (sourceStr !== targetStr) {
             return true;
         }
@@ -2322,89 +2327,108 @@ const hasTemplateChanged = (rs, template2)=>{
     }
     return false;
 };
-const updateAttributes = (hooks, rs, template2)=>{
+const updateAttributes = (hooks, rs, template1)=>{
     for(const attributesID in rs.attributes){
         const pastInjection = rs.attributes[attributesID];
-        const attributeValue = template2.injections[attributesID];
+        const attributeValue = template1.injections[attributesID];
         if (attributeValue === pastInjection.params.value) {
             continue;
         }
-        hooks.removeAttribute(pastInjection.params);
         pastInjection.params.value = attributeValue;
         hooks.setAttribute(pastInjection.params);
     }
 };
-const updateDescendants = ({ hooks , rs , template: template2 , contextParentNode ,  })=>{
+const updateDescendants = ({ hooks , rs , template: template1 , chunkParentNode ,  })=>{
     let siblingLevelUpdated = false;
     for(const descenantID in rs.descendants){
         const pastDescendant = rs.descendants[descenantID];
-        const descendant = template2.injections[descenantID];
+        const descendant = template1.injections[descenantID];
+        const text = String(descendant);
         if (pastDescendant.kind === "TEXT" && !Array.isArray(descendant)) {
-            const text = String(descendant);
             if (pastDescendant.params.text === text) {
                 continue;
             }
         }
-        if (pastDescendant.kind === "CHUNK_ARRAY") {
-            const chunkArray = pastDescendant.params.chunkArray;
-            for(const contextID in chunkArray){
-                chunkArray[contextID].unmount();
+        if (pastDescendant.kind === "TEXT" && Array.isArray(descendant)) {
+            hooks.removeDescendant(pastDescendant.params.textNode);
+        }
+        if (pastDescendant.kind === "CHUNK_ARRAY" && !Array.isArray(descendant)) {
+            const { chunkArray  } = pastDescendant.params;
+            for(const chunkID in chunkArray){
+                chunkArray[chunkID].unmount();
+            }
+        }
+        if (pastDescendant.kind === "CHUNK_ARRAY" && Array.isArray(descendant)) {
+            const { chunkArray  } = pastDescendant.params;
+            let index = chunkArray.length;
+            let deltaIndex = descendant.length;
+            let hasChanged = false;
+            while(index > -1 && deltaIndex > -1){
+                if (chunkArray[index] === descendant[deltaIndex]) {
+                    index -= 1;
+                } else {
+                    hasChanged = true;
+                    chunkArray[index].disconnect();
+                }
+                deltaIndex -= 1;
+            }
+            if (!hasChanged) {
+                continue;
             }
         }
         const { leftNode , parentNode , siblingIndex  } = pastDescendant.params;
+        const parentDefault = parentNode ?? chunkParentNode;
         if (!siblingLevelUpdated) {
             siblingLevelUpdated = siblingIndex !== undefined;
         }
-        if (pastDescendant.kind === "TEXT") {
-            hooks.removeDescendant(pastDescendant.params.textNode);
-        }
-        if (!Array.isArray(descendant)) {
-            const text = String(descendant);
-            const textNode = hooks.createTextNode(text);
+        if (Array.isArray(descendant)) {
             rs.descendants[descenantID] = {
-                kind: "TEXT",
+                kind: "CHUNK_ARRAY",
                 params: {
-                    textNode,
-                    text,
+                    chunkArray: descendant,
                     leftNode,
                     parentNode,
                     siblingIndex
                 }
             };
-            hooks.insertDescendant({
-                descendant: textNode,
-                leftNode,
-                parentNode: parentNode ?? contextParentNode
-            });
+            let currLeftNode = leftNode;
+            for(const chunkID in descendant){
+                const chunk1 = descendant[chunkID];
+                if (!chunk1.effect.mounted) {
+                    currLeftNode = chunk1.mount(parentDefault, currLeftNode);
+                } else {
+                    currLeftNode = chunk1.leftNode;
+                }
+            }
+        } else {
+            const textNode = hooks.createTextNode(text);
+            rs.descendants[descenantID] = {
+                kind: "TEXT",
+                params: {
+                    parentNode: parentDefault,
+                    leftNode,
+                    siblingIndex,
+                    text,
+                    textNode
+                }
+            };
             if (siblingIndex !== undefined) {
                 rs.siblings[siblingIndex] = [
                     textNode
                 ];
             }
-            continue;
-        }
-        const chunkArray = descendant;
-        rs.descendants[descenantID] = {
-            kind: "CHUNK_ARRAY",
-            params: {
-                chunkArray,
-                leftNode,
-                parentNode,
-                siblingIndex
-            }
-        };
-        let currLeftNode = leftNode;
-        for(const contextID in descendant){
-            const chunk1 = chunkArray[contextID];
-            currLeftNode = chunk1.mount(parentNode ?? contextParentNode, currLeftNode);
+            hooks.insertDescendant({
+                parentNode: parentDefault,
+                descendant: textNode,
+                leftNode
+            });
         }
         if (pastDescendant.kind === "CHUNK_ARRAY") {
-            const chunkArray1 = pastDescendant.params.chunkArray;
-            for(const contextID1 in chunkArray1){
-                const context = chunkArray1[contextID1];
-                const effect = context.getEffect();
-                if (effect.quality === "UNMOUNTED") {
-                    context.disconnect();
+            const { chunkArray  } = pastDescendant.params;
+            for(const chunkID in chunkArray){
+                const chunk1 = chunkArray[chunkID];
+                if (chunk1.effect.mounted) {
+                    chunk1.disconnect();
                 }
             }
         }
@@ -2424,10 +2448,10 @@ const disconnectDescendants = (hooks, rs)=>{
         }
         if (descendant.kind === "CHUNK_ARRAY") {
             const chunkArray = descendant.params.chunkArray;
-            for(const contextID in chunkArray){
-                const context = chunkArray[contextID];
-                context.unmount();
-                context.disconnect();
+            for(const chunkID in chunkArray){
+                const chunk1 = chunkArray[chunkID];
+                chunk1.unmount();
+                chunk1.disconnect();
             }
         }
     }
@@ -2524,26 +2548,26 @@ const draw = (templateArray, ...injections)=>{
 };
 const title2 = "build_render";
 const testTextInterpolator2 = (templateArray, ...injections)=>{
-    const template2 = {
+    const template1 = {
         templateArray,
         injections
     };
     const params = {
-        skeleton: buildSkeleton(template2),
-        template: template2
+        skeleton: buildSkeleton(template1),
+        template: template1
     };
     return {
-        template: template2,
+        template: template1,
         integrals: buildIntegrals(params)
     };
 };
 const testCreateNode = ()=>{
     const assertions = [];
-    const { template: template2 , integrals  } = testTextInterpolator2`<p>`;
+    const { template: template1 , integrals  } = testTextInterpolator2`<p>`;
     const results = buildRender({
         hooks,
         integrals,
-        template: template2
+        template: template1
     });
     if (results.siblings.length !== 1) {
         assertions.push("siblings should have length 1");
@@ -2561,11 +2585,11 @@ const testCreateNode = ()=>{
 };
 const testCloseNode = ()=>{
     const assertions = [];
-    const { template: template2 , integrals  } = testTextInterpolator2`<p></p>`;
+    const { template: template1 , integrals  } = testTextInterpolator2`<p></p>`;
     const results = buildRender({
         hooks,
         integrals,
-        template: template2
+        template: template1
     });
     if (results.siblings.length !== 1) {
         assertions.push("siblings should have length 1");
@@ -2583,11 +2607,11 @@ const testCloseNode = ()=>{
 };
 const testTextNode = ()=>{
     const assertions = [];
-    const { template: template2 , integrals ,  } = testTextInterpolator2`hello world!<p>It's me!</p>`;
+    const { template: template1 , integrals ,  } = testTextInterpolator2`hello world!<p>It's me!</p>`;
     const results = buildRender({
         hooks,
         integrals,
-        template: template2
+        template: template1
     });
     if (results.siblings.length !== 2) {
         assertions.push("siblings should have length 1");
@@ -2619,11 +2643,11 @@ const testTextNode = ()=>{
 };
 const testAddAttributesToNodes = ()=>{
     const assertions = [];
-    const { template: template2 , integrals  } = testTextInterpolator2`\n    <p\n      checked\n      label=""\n      disabled="false"\n      skies="${"blue"}">\n        Hello world, it's me!\n    </p>`;
+    const { template: template1 , integrals  } = testTextInterpolator2`\n    <p\n      checked\n      label=""\n      disabled="false"\n      skies="${"blue"}">\n        Hello world, it's me!\n    </p>`;
     const results = buildRender({
         hooks,
         integrals,
-        template: template2
+        template: template1
     });
     if (results.siblings.length !== 2) {
         assertions.push("siblings should have length 2");
@@ -2653,11 +2677,11 @@ const testAddAttributesToNodes = ()=>{
 };
 const testAddAttributesToMultipleNodes = ()=>{
     const assertions = [];
-    const { template: template2 , integrals  } = testTextInterpolator2`\n    <p>No properties in this paragraph!</p>\n    <p\n      checked\n      disabled="false"\n      skies="${"blue"}">\n        Hello world, it's me!\n    </p>`;
+    const { template: template1 , integrals  } = testTextInterpolator2`\n    <p>No properties in this paragraph!</p>\n    <p\n      checked\n      disabled="false"\n      skies="${"blue"}">\n        Hello world, it's me!\n    </p>`;
     const results = buildRender({
         hooks,
         integrals,
-        template: template2
+        template: template1
     });
     if (results.siblings.length !== 4) {
         assertions.push("siblings should have length 4");
@@ -2745,16 +2769,16 @@ const testAddContext = ()=>{
 };
 const testBuildingCachedIntegrals = ()=>{
     const assertions = [];
-    const { template: template2 , integrals  } = testTextInterpolator2`\n    <p\n      checked\n      label=""\n      disabled="false"\n      skies="${"blue"}">\n        Hello world, it's me!\n    </p>`;
+    const { template: template1 , integrals  } = testTextInterpolator2`\n    <p\n      checked\n      label=""\n      disabled="false"\n      skies="${"blue"}">\n        Hello world, it's me!\n    </p>`;
     buildRender({
         hooks,
         integrals,
-        template: template2
+        template: template1
     });
     const secondRenderResults = buildRender({
         hooks,
         integrals,
-        template: template2
+        template: template1
     });
     if (secondRenderResults.siblings.length !== 2) {
         assertions.push("siblings should have length 2");
@@ -4281,9 +4305,9 @@ const testTextInterpolator5 = (templateArray, ...injections)=>{
 const title7 = "tag_name_crawl";
 const testEmptyString = ()=>{
     const assertions = [];
-    const template2 = testTextInterpolator5``;
+    const template1 = testTextInterpolator5``;
     const vector = create1();
-    const results = crawlForTagName(template2, vector);
+    const results = crawlForTagName(template1, vector);
     if (results !== undefined) {
         assertions.push("this should have failed");
     }
@@ -4291,9 +4315,9 @@ const testEmptyString = ()=>{
 };
 const testEmptySpaceString = ()=>{
     const assertions = [];
-    const template2 = testTextInterpolator5` `;
+    const template1 = testTextInterpolator5` `;
     const vector = create1();
-    const results = crawlForTagName(template2, vector);
+    const results = crawlForTagName(template1, vector);
     if (results !== undefined) {
         assertions.push("this should have failed");
     }
@@ -4311,9 +4335,9 @@ const testSingleCharacterString = ()=>{
             stringIndex: 0
         }
     };
-    const template2 = testTextInterpolator5`a`;
+    const template1 = testTextInterpolator5`a`;
     const vector = create1();
-    const results = crawlForTagName(template2, vector);
+    const results = crawlForTagName(template1, vector);
     if (!samestuff(expectedResults, results)) {
         assertions.push("unexpected tag name results happen.");
     }
@@ -4331,13 +4355,13 @@ const testCharaceterString = ()=>{
             stringIndex: 0
         }
     };
-    const template2 = testTextInterpolator5`a `;
+    const template1 = testTextInterpolator5`a `;
     const vector = create1();
     let safety = 0;
-    while(incrementTarget(template2, vector) && safety < 256){
+    while(incrementTarget(template1, vector) && safety < 256){
         safety += 1;
     }
-    const results = crawlForTagName(template2, vector);
+    const results = crawlForTagName(template1, vector);
     if (!samestuff(expectedResults, results)) {
         assertions.push("unexpected tag name results happen.");
     }
@@ -4355,13 +4379,13 @@ const testMultiCharaceterString = ()=>{
             stringIndex: 2
         }
     };
-    const template2 = testTextInterpolator5`aaa `;
+    const template1 = testTextInterpolator5`aaa `;
     const vector = create1();
     let safety = 0;
-    while(incrementTarget(template2, vector) && safety < 256){
+    while(incrementTarget(template1, vector) && safety < 256){
         safety += 1;
     }
-    const results = crawlForTagName(template2, vector);
+    const results = crawlForTagName(template1, vector);
     if (!samestuff(expectedResults, results)) {
         assertions.push("unexpected tag name results happen.");
     }
@@ -4379,13 +4403,13 @@ const testMultiCharaceterStringWithTrailingSpaces = ()=>{
             stringIndex: 2
         }
     };
-    const template2 = testTextInterpolator5`aaa     `;
+    const template1 = testTextInterpolator5`aaa     `;
     const vector = create1();
     let safety = 0;
-    while(incrementTarget(template2, vector) && safety < 256){
+    while(incrementTarget(template1, vector) && safety < 256){
         safety += 1;
     }
-    const results = crawlForTagName(template2, vector);
+    const results = crawlForTagName(template1, vector);
     if (!samestuff(expectedResults, results)) {
         assertions.push("unexpected tag name results happen.");
     }

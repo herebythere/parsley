@@ -10,7 +10,6 @@ export type {
   BangerBase,
   ChunkBase,
   ChunkEffect,
-  EffectQuality,
 } from "./type_flyweight/chunk.ts";
 
 export type {
