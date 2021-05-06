@@ -6,24 +6,8 @@
 // P Params
 // S State
 
-export type {
-  BangerBase,
-  ChunkBase,
-  ChunkEffect,
-  EffectQuality,
-} from "./type_flyweight/chunk.ts";
-
-export type {
-  Attach,
-  ChunkBaseArray,
-  Chunker,
-  Compose,
-  ConnectChunk,
-  ConnectParams,
-  ContextFactory,
-  DisconnectChunk,
-  UpdateChunk,
-} from "./type_flyweight/chunker.ts";
+export type { BangerBase, ChunkBase } from "./type_flyweight/chunk.ts";
+export type { ChunkBaseArray, Chunker } from "./type_flyweight/chunker.ts";
 
 export type {
   CreateNode,
@@ -36,6 +20,12 @@ export type {
   SetAttributeParams,
 } from "./type_flyweight/hooks.ts";
 
-export type { Draw, Template } from "./type_flyweight/template.ts";
+export type {
+  Attach,
+  Compose,
+  Draw,
+  Template,
+} from "./type_flyweight/template.ts";
 
 export { Chunk } from "./chunk/chunk.ts";
+export { createCustomInterface } from "./create_interface/create_interface.ts";

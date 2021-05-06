@@ -228,7 +228,6 @@ const emptyExplicitString = () => {
 
   const results = crawlForAttribute(template, vector);
   if (!samestuff(expectedResults, results)) {
-    
     assertions.push("unexpected results found.");
   }
 
@@ -274,7 +273,6 @@ const validExplicitString = () => {
   const results = crawlForAttribute(template, vector);
 
   if (!samestuff(expectedResults, results)) {
-    
     assertions.push("unexpected results found.");
   }
 
@@ -366,7 +364,6 @@ const injectedString = () => {
   const results = crawlForAttribute(template, vector);
 
   if (!samestuff(expectedResults, results)) {
-    
     assertions.push("unexpected results found.");
   }
 
@@ -470,7 +467,7 @@ const htmlAddressWithSpecialCharacters = () => {
   }
 
   const results = crawlForAttribute(template, vector);
-  
+
   if (!samestuff(expectedResults, results)) {
     assertions.push("unexpected results found.");
   }

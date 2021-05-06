@@ -1016,160 +1016,27 @@ const buildRenderStructure = (hooks, template)=>{
     });
     return render;
 };
-class Banger {
-    chunk;
-    constructor(chunk){
-        this.chunk = chunk;
-    }
-    bang() {
-        this.chunk.bang();
-    }
-    getReferences() {
-        return this.chunk.getReferences();
-    }
-}
-class Chunk1 {
-    parentNode;
-    leftNode;
-    siblings;
-    hooks;
-    chunker;
-    banger;
-    rs;
-    params;
-    state;
-    effect;
-    constructor(baseParams){
-        this.banger = new Banger(this);
-        this.hooks = baseParams.hooks;
-        this.chunker = baseParams.chunker;
-        this.params = baseParams.params;
-        this.state = this.chunker.connect({
-            banger: this.banger,
-            params: baseParams.params
-        });
-        const template1 = this.getTemplate();
-        this.rs = buildRenderStructure(this.hooks, template1);
-        this.siblings = getUpdatedSiblings(this.rs);
-        this.effect = this.updateEffect("UNMOUNTED");
-    }
-    bang() {
-        this.update(this.params);
-    }
-    update(params) {
-        this.setParams(params);
-        const template1 = this.getTemplate();
-        if (this.effect.quality === "DISCONNECTED") {
-            this.disconnect();
-            this.remount(template1);
-            return;
-        }
-        if (hasTemplateChanged(this.rs, template1)) {
-            this.remount(template1);
-            return;
-        }
-        updateAttributes(this.hooks, this.rs, template1);
-        const descendantsHaveUpdated = updateDescendants({
-            contextParentNode: this.parentNode,
-            hooks: this.hooks,
-            rs: this.rs,
-            template: template1
-        });
-        if (descendantsHaveUpdated) {
-            this.siblings = getUpdatedSiblings(this.rs);
-        }
-    }
-    mount(parentNode, leftNode) {
-        this.parentNode = parentNode;
-        this.leftNode = leftNode;
-        let prevSibling;
-        let descendant = leftNode;
-        for(const siblingID in this.siblings){
-            prevSibling = descendant;
-            descendant = this.siblings[siblingID];
-            this.hooks.insertDescendant({
-                leftNode: prevSibling,
-                parentNode,
-                descendant
-            });
-        }
-        this.updateEffect("MOUNTED");
-        return descendant;
-    }
-    unmount() {
-        this.parentNode = undefined;
-        this.leftNode = undefined;
-        for(const siblingID in this.siblings){
-            const sibling = this.siblings[siblingID];
-            this.hooks.removeDescendant(sibling);
-        }
-        this.updateEffect("UNMOUNTED");
-    }
-    disconnect() {
-        disconnectDescendants(this.hooks, this.rs);
-        if (this.state !== undefined && this.chunker.disconnect !== undefined) {
-            this.chunker.disconnect({
-                state: this.state
-            });
-        }
-        this.updateEffect("DISCONNECTED");
-    }
-    getSiblings() {
-        return this.siblings;
-    }
-    getReferences() {
-        if (this.rs !== undefined) {
-            return this.rs.references;
-        }
-    }
-    getEffect() {
-        return this.effect;
-    }
-    remount(template) {
-        this.rs = buildRenderStructure(this.hooks, template);
-        this.siblings = getUpdatedSiblings(this.rs);
-        this.mount(this.parentNode, this.leftNode);
-        this.effect = this.updateEffect("CONNECTED");
-    }
-    updateEffect(quality) {
-        this.effect = {
-            timestamp: performance.now(),
-            quality
-        };
-        return this.effect;
-    }
-    setParams(params) {
-        this.params = params;
-    }
-    getTemplate() {
-        return this.chunker.update({
-            banger: this.banger,
-            state: this.state,
-            params: this.params
-        });
-    }
-}
 const getUpdatedSiblings = (rs)=>{
-    const siblings = [];
-    const originalSiblings = rs.siblings;
-    for(const siblingArrayID in originalSiblings){
-        const siblingArray = originalSiblings[siblingArrayID];
+    const siblingsDelta = [];
+    const siblings = rs.siblings;
+    for(const siblingsID in siblings){
+        const siblingArray = siblings[siblingsID];
         for(const siblingID in siblingArray){
             const sibling = siblingArray[siblingID];
-            siblings.push(sibling);
+            siblingsDelta.push(sibling);
         }
     }
-    return siblings;
+    return siblingsDelta;
 };
-const hasTemplateChanged = (rs, template2)=>{
-    const templateLength = template2.templateArray.length;
+const hasTemplateChanged = (rs, template)=>{
+    const templateLength = template.templateArray.length;
     if (rs.template.templateArray.length !== templateLength) {
         return true;
     }
     let index = 0;
     while(index < templateLength){
         const sourceStr = rs.template.templateArray[index];
-        const targetStr = template2.templateArray[index];
+        const targetStr = template.templateArray[index];
         if (sourceStr !== targetStr) {
             return true;
         }
@@ -1177,89 +1044,109 @@ const hasTemplateChanged = (rs, template2)=>{
     }
     return false;
 };
-const updateAttributes = (hooks, rs, template2)=>{
+const updateAttributes = (hooks, rs, template)=>{
     for(const attributesID in rs.attributes){
         const pastInjection = rs.attributes[attributesID];
-        const attributeValue = template2.injections[attributesID];
+        const attributeValue = template.injections[attributesID];
         if (attributeValue === pastInjection.params.value) {
             continue;
         }
-        hooks.removeAttribute(pastInjection.params);
         pastInjection.params.value = attributeValue;
         hooks.setAttribute(pastInjection.params);
     }
 };
-const updateDescendants = ({ hooks , rs , template: template2 , contextParentNode ,  })=>{
+const updateDescendants = ({ hooks , rs , template , chunkParentNode ,  })=>{
     let siblingLevelUpdated = false;
     for(const descenantID in rs.descendants){
         const pastDescendant = rs.descendants[descenantID];
-        const descendant = template2.injections[descenantID];
+        const descendant = template.injections[descenantID];
+        const text = String(descendant);
         if (pastDescendant.kind === "TEXT" && !Array.isArray(descendant)) {
-            const text = String(descendant);
             if (pastDescendant.params.text === text) {
                 continue;
             }
         }
-        if (pastDescendant.kind === "CHUNK_ARRAY") {
-            const chunkArray = pastDescendant.params.chunkArray;
-            for(const contextID in chunkArray){
-                chunkArray[contextID].unmount();
+        if (pastDescendant.kind === "TEXT" && Array.isArray(descendant)) {
+            hooks.removeDescendant(pastDescendant.params.textNode);
+        }
+        if (pastDescendant.kind === "CHUNK_ARRAY" && !Array.isArray(descendant)) {
+            const { chunkArray  } = pastDescendant.params;
+            for(const chunkID in chunkArray){
+                chunkArray[chunkID].unmount();
+            }
+        }
+        if (pastDescendant.kind === "CHUNK_ARRAY" && Array.isArray(descendant)) {
+            const { chunkArray  } = pastDescendant.params;
+            let index = chunkArray.length;
+            let deltaIndex = descendant.length;
+            let hasChanged = false;
+            while(index > -1 && deltaIndex > -1){
+                if (chunkArray[index] === descendant[deltaIndex]) {
+                    index -= 1;
+                } else {
+                    hasChanged = true;
+                    chunkArray[index].unmount();
+                }
+                deltaIndex -= 1;
+            }
+            if (!hasChanged) {
+                continue;
             }
         }
         const { leftNode , parentNode , siblingIndex  } = pastDescendant.params;
+        const parentDefault = parentNode ?? chunkParentNode;
         if (!siblingLevelUpdated) {
             siblingLevelUpdated = siblingIndex !== undefined;
         }
-        if (pastDescendant.kind === "TEXT") {
-            hooks.removeDescendant(pastDescendant.params.textNode);
-        }
-        if (!Array.isArray(descendant)) {
-            const text = String(descendant);
-            const textNode = hooks.createTextNode(text);
+        if (Array.isArray(descendant)) {
             rs.descendants[descenantID] = {
-                kind: "TEXT",
+                kind: "CHUNK_ARRAY",
                 params: {
-                    textNode,
-                    text,
+                    chunkArray: descendant,
                     leftNode,
                     parentNode,
                     siblingIndex
                 }
             };
-            hooks.insertDescendant({
-                descendant: textNode,
-                leftNode,
-                parentNode: parentNode ?? contextParentNode
-            });
+            let currLeftNode = leftNode;
+            for(const chunkID in descendant){
+                const chunk = descendant[chunkID];
+                if (!chunk.effect.mounted) {
+                    currLeftNode = chunk.mount(parentDefault, currLeftNode);
+                } else {
+                    currLeftNode = chunk.leftNode;
+                }
+            }
+        }
+        if (!Array.isArray(descendant)) {
+            const textNode = hooks.createTextNode(text);
+            rs.descendants[descenantID] = {
+                kind: "TEXT",
+                params: {
+                    parentNode: parentDefault,
+                    leftNode,
+                    siblingIndex,
+                    text,
+                    textNode
+                }
+            };
             if (siblingIndex !== undefined) {
                 rs.siblings[siblingIndex] = [
                     textNode
                 ];
             }
-            continue;
-        }
-        const chunkArray = descendant;
-        rs.descendants[descenantID] = {
-            kind: "CHUNK_ARRAY",
-            params: {
-                chunkArray,
-                leftNode,
-                parentNode,
-                siblingIndex
-            }
-        };
-        let currLeftNode = leftNode;
-        for(const contextID in descendant){
-            const chunk1 = chunkArray[contextID];
-            currLeftNode = chunk1.mount(parentNode ?? contextParentNode, currLeftNode);
+            hooks.insertDescendant({
+                parentNode: parentDefault,
+                descendant: textNode,
+                leftNode
+            });
         }
         if (pastDescendant.kind === "CHUNK_ARRAY") {
-            const chunkArray1 = pastDescendant.params.chunkArray;
-            for(const contextID1 in chunkArray1){
-                const context = chunkArray1[contextID1];
-                const effect = context.getEffect();
-                if (effect.quality === "UNMOUNTED") {
-                    context.disconnect();
+            const { chunkArray  } = pastDescendant.params;
+            for(const chunkID in chunkArray){
+                const chunk = chunkArray[chunkID];
+                if (chunk.effect.mounted) {
+                    chunk.disconnect();
                 }
             }
         }
@@ -1279,12 +1166,180 @@ const disconnectDescendants = (hooks, rs)=>{
         }
         if (descendant.kind === "CHUNK_ARRAY") {
             const chunkArray = descendant.params.chunkArray;
-            for(const contextID in chunkArray){
-                const context = chunkArray[contextID];
-                context.unmount();
-                context.disconnect();
+            for(const chunkID in chunkArray){
+                const chunk = chunkArray[chunkID];
+                chunk.unmount();
+                chunk.disconnect();
             }
         }
     }
 };
+class Banger {
+    chunk;
+    constructor(chunk){
+        this.chunk = chunk;
+    }
+    bang() {
+        this.chunk.bang();
+    }
+    getReferences() {
+        return this.chunk.getReferences();
+    }
+}
+class Chunk1 {
+    parentNode;
+    leftNode;
+    siblings;
+    effect;
+    hooks;
+    chunker;
+    banger;
+    rs;
+    params;
+    state;
+    constructor(baseParams){
+        this.banger = new Banger(this);
+        this.hooks = baseParams.hooks;
+        this.chunker = baseParams.chunker;
+        this.params = baseParams.params;
+        this.state = this.chunker.connect({
+            banger: this.banger,
+            params: baseParams.params
+        });
+        const template = this.getTemplate();
+        this.rs = buildRenderStructure(this.hooks, template);
+        this.siblings = getUpdatedSiblings(this.rs);
+        this.effect = this.updateEffect(true, false);
+    }
+    bang() {
+        this.update(this.params);
+    }
+    connect(params) {
+        this.setParams(params);
+        const template1 = this.getTemplate();
+        this.state = this.chunker.connect({
+            banger: this.banger,
+            params
+        });
+        this.rs = buildRenderStructure(this.hooks, template1);
+        this.siblings = getUpdatedSiblings(this.rs);
+        this.updateEffect(true, false);
+        return this.state;
+    }
+    update(params) {
+        this.setParams(params);
+        if (!this.effect.connected) {
+            this.connect(this.params);
+            return;
+        }
+        const template1 = this.getTemplate();
+        if (hasTemplateChanged(this.rs, template1)) {
+            this.disconnect();
+            this.connect(params);
+            return;
+        }
+        updateAttributes(this.hooks, this.rs, template1);
+        const descendantsUpdated = updateDescendants({
+            chunkParentNode: this.parentNode,
+            hooks: this.hooks,
+            rs: this.rs,
+            template: template1
+        });
+        if (descendantsUpdated) {
+            this.siblings = getUpdatedSiblings(this.rs);
+        }
+    }
+    mount(parentNode, leftNode) {
+        this.parentNode = parentNode;
+        this.leftNode = leftNode;
+        let prevSibling;
+        let descendant = leftNode;
+        for(const siblingID in this.siblings){
+            prevSibling = descendant;
+            descendant = this.siblings[siblingID];
+            this.hooks.insertDescendant({
+                leftNode: prevSibling,
+                parentNode,
+                descendant
+            });
+        }
+        this.updateEffect(this.effect.connected, true);
+        return descendant;
+    }
+    unmount() {
+        for(const siblingID in this.siblings){
+            const sibling = this.siblings[siblingID];
+            this.hooks.removeDescendant(sibling);
+        }
+        this.parentNode = undefined;
+        this.leftNode = undefined;
+        this.updateEffect(this.effect.connected, false);
+    }
+    disconnect() {
+        disconnectDescendants(this.hooks, this.rs);
+        if (this.state !== undefined) {
+            this.chunker?.disconnect({
+                state: this.state
+            });
+        }
+        this.updateEffect(false, this.effect.mounted);
+    }
+    getSiblings() {
+        return this.siblings;
+    }
+    getReferences() {
+        return this.rs.references;
+    }
+    getEffect() {
+        return this.effect;
+    }
+    setParams(params) {
+        this.params = params;
+    }
+    getTemplate() {
+        return this.chunker.update({
+            banger: this.banger,
+            state: this.state,
+            params: this.params
+        });
+    }
+    updateEffect(connected, mounted) {
+        this.effect = {
+            timestamp: performance.now(),
+            connected,
+            mounted
+        };
+        return this.effect;
+    }
+}
+const createCustomInterface1 = (hooks)=>{
+    const attach = (parentNode, chunkArray)=>{
+        let leftNode;
+        for(const chunkID in chunkArray){
+            const chunk1 = chunkArray[chunkID];
+            leftNode = chunk1.mount(parentNode, leftNode);
+        }
+    };
+    const compose = (chunker)=>{
+        return (params)=>{
+            return new Chunk1({
+                hooks,
+                chunker,
+                params
+            });
+        };
+    };
+    const draw = (templateArray, ...injections)=>{
+        return {
+            templateArray,
+            injections
+        };
+    };
+    return {
+        attach,
+        compose,
+        draw
+    };
+};
 export { Chunk1 as Chunk };
+export { createCustomInterface1 as createCustomInterface };

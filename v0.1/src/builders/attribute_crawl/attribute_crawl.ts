@@ -146,15 +146,15 @@ const getAttributeValue: AttributeValueCrawl = (
 
   // check if quote rune?
   if (arrayIndexDistance === 1 && positionChar === QUOTE_RUNE) {
-      return {
-        kind: INJECTED_ATTRIBUTE,
-        injectionID: arrayIndex,
-        attributeVector: attributeAction.attributeVector,
-        valueVector: {
-          origin: { ...valVector.origin },
-          target: { ...vectorBounds.origin },
-        },
-      };
+    return {
+      kind: INJECTED_ATTRIBUTE,
+      injectionID: arrayIndex,
+      attributeVector: attributeAction.attributeVector,
+      valueVector: {
+        origin: { ...valVector.origin },
+        target: { ...vectorBounds.origin },
+      },
+    };
   }
 
   if (arrayIndexDistance > 0) {
@@ -170,9 +170,7 @@ const getAttributeValue: AttributeValueCrawl = (
     }
     positionChar = getCharAtPosition(template, vectorBounds.origin);
 
-    arrayIndexDistance = Math.abs(
-      arrayIndex - vectorBounds.origin.arrayIndex
-    );
+    arrayIndexDistance = Math.abs(arrayIndex - vectorBounds.origin.arrayIndex);
     if (arrayIndexDistance > 0) {
       return;
     }

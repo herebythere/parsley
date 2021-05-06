@@ -5,7 +5,6 @@ import type {
   ChunkBase,
   BangerBase,
   ChunkEffect,
-  EffectQuality,
 } from "../type_flyweight/chunk.ts";
 import type { Chunker } from "../type_flyweight/chunker.ts";
 import type { Hooks } from "../type_flyweight/hooks.ts";
@@ -16,41 +15,18 @@ import type {
 import type { Template } from "../type_flyweight/template.ts";
 
 import { buildRenderStructure } from "../builders/builder.ts";
+import {
+  getUpdatedSiblings,
+  hasTemplateChanged,
+  updateAttributes,
+  updateDescendants,
+  disconnectDescendants,
+} from "./chunk_utils.ts";
 
 // Nodes
 // Attributes
 // Parameters
 // State
-
-// Also don't forget to take traditional naps
-
-type HasTemplateChanged = <N, A>(
-  rs: RenderStructure<N, A>,
-  template: Template<N, A>
-) => boolean;
-
-type UpdateAttributesFunc = <N, A>(
-  hooks: Hooks<N, A>,
-  rs: RenderStructure<N, A>,
-  template: Template<N, A>
-) => void;
-
-interface UpdateDescendantsFuncParams<N, A> {
-  hooks: Hooks<N, A>;
-  rs: RenderStructure<N, A>;
-  template: Template<N, A>;
-  contextLeftNode?: N;
-  contextParentNode?: N;
-}
-
-type UpdateDescendantsFunc = <N, A>(
-  params: UpdateDescendantsFuncParams<N, A>
-) => boolean;
-
-type DisconnectDescendants = <N, A>(
-  hooks: Hooks<N, A>,
-  rs: RenderStructure<N, A>
-) => void;
 
 interface ContextParams<N, A, P, S> {
   hooks: Hooks<N, A>;
@@ -58,10 +34,7 @@ interface ContextParams<N, A, P, S> {
   params: P;
 }
 
-type GetUpdatedSiblings = <N, A>(rs: RenderStructure<N, A>) => N[];
-
-// remove generics
-class Banger<N, A, P, S> implements BangerBase<N> {
+class Banger<N> implements BangerBase<N> {
   chunk: ChunkBase<N>;
 
   constructor(chunk: ChunkBase<N>) {
@@ -82,19 +55,19 @@ class Chunk<N, A, P, S> implements ChunkBase<N> {
   parentNode?: N;
   leftNode?: N;
   siblings: N[];
+  effect: ChunkEffect;
 
   // INIT PARAMS
   private hooks: Hooks<N, A>;
   private chunker: Chunker<N, A, P, S>;
 
   // REQUIRED EFFECTS
-  private banger: Banger<N, A, P, S>;
+  private banger: Banger<N>;
   private rs: RenderStructure<N, A>;
 
   // GENERATED EFFECTS
   private params: P;
   private state: S;
-  private effect: ChunkEffect;
 
   // INIT
 
@@ -103,19 +76,18 @@ class Chunk<N, A, P, S> implements ChunkBase<N> {
     this.banger = new Banger(this);
     this.hooks = baseParams.hooks;
     this.chunker = baseParams.chunker;
+    this.params = baseParams.params;
 
     // GENERATED EFFECTS
-    this.params = baseParams.params;
     this.state = this.chunker.connect({
       banger: this.banger,
       params: baseParams.params,
     });
 
     const template = this.getTemplate();
-
     this.rs = buildRenderStructure(this.hooks, template);
     this.siblings = getUpdatedSiblings(this.rs);
-    this.effect = this.updateEffect("UNMOUNTED");
+    this.effect = this.updateEffect(true, false);
   }
 
   bang() {
@@ -124,34 +96,44 @@ class Chunk<N, A, P, S> implements ChunkBase<N> {
 
   // LIFECYCLE API
   //
+  connect(params: P): S {
+    this.setParams(params);
+    const template = this.getTemplate();
+    this.state = this.chunker.connect({
+      banger: this.banger,
+      params,
+    });
+
+    this.rs = buildRenderStructure(this.hooks, template);
+    this.siblings = getUpdatedSiblings(this.rs);
+    this.updateEffect(true, false);
+
+    return this.state;
+  }
 
   update(params: P): void {
     this.setParams(params);
-
-    const template = this.getTemplate();
-
-    if (this.effect.quality === "DISCONNECTED") {
-      this.disconnect();
-      this.remount(template);
-
+    if (!this.effect.connected) {
+      this.connect(this.params);
       return;
     }
 
-    // compare template array and render new
+    const template = this.getTemplate();
     if (hasTemplateChanged(this.rs, template)) {
-      this.remount(template);
-
+      this.disconnect();
+      this.connect(params);
       return;
     }
 
     updateAttributes(this.hooks, this.rs, template);
-    const descendantsHaveUpdated = updateDescendants({
-      contextParentNode: this.parentNode,
+    const descendantsUpdated = updateDescendants({
+      chunkParentNode: this.parentNode,
       hooks: this.hooks,
       rs: this.rs,
       template,
     });
-    if (descendantsHaveUpdated) {
+
+    if (descendantsUpdated) {
       this.siblings = getUpdatedSiblings(this.rs);
     }
   }
@@ -164,7 +146,6 @@ class Chunk<N, A, P, S> implements ChunkBase<N> {
     // attach siblings to parent
     let prevSibling;
     let descendant = leftNode;
-
     for (const siblingID in this.siblings) {
       prevSibling = descendant;
       descendant = this.siblings[siblingID];
@@ -176,32 +157,30 @@ class Chunk<N, A, P, S> implements ChunkBase<N> {
       });
     }
 
-    this.updateEffect("MOUNTED");
+    this.updateEffect(this.effect.connected, true);
 
-    // return future 'left node'
     return descendant;
   }
 
   unmount(): void {
-    // remove parent and left nodes
-    this.parentNode = undefined;
-    this.leftNode = undefined;
-
-    // remove each sibling
     for (const siblingID in this.siblings) {
       const sibling = this.siblings[siblingID];
       this.hooks.removeDescendant(sibling);
     }
 
-    this.updateEffect("UNMOUNTED");
+    this.parentNode = undefined;
+    this.leftNode = undefined;
+
+    this.updateEffect(this.effect.connected, false);
   }
 
   disconnect(): void {
     disconnectDescendants(this.hooks, this.rs);
-    if (this.state !== undefined && this.chunker.disconnect !== undefined) {
-      this.chunker.disconnect({ state: this.state });
+    if (this.state !== undefined) {
+      this.chunker?.disconnect({ state: this.state });
     }
-    this.updateEffect("DISCONNECTED");
+
+    this.updateEffect(false, this.effect.mounted);
   }
 
   // CONTEXT API
@@ -212,33 +191,10 @@ class Chunk<N, A, P, S> implements ChunkBase<N> {
   }
 
   getReferences(): ReferenceMap<N> | undefined {
-    // interesting base case outside of contrucutor, might (not) exist
-    if (this.rs !== undefined) {
-      return this.rs.references;
-    }
+    return this.rs.references;
   }
 
   getEffect(): ChunkEffect {
-    return this.effect;
-  }
-
-  private remount(template: Template<N, A>): void {
-    // recent change, possibly uneccessary
-    // this.unmount();
-
-    this.rs = buildRenderStructure(this.hooks, template);
-    this.siblings = getUpdatedSiblings(this.rs);
-
-    this.mount(this.parentNode, this.leftNode);
-
-    this.effect = this.updateEffect("CONNECTED");
-  }
-
-  private updateEffect(quality: EffectQuality): ChunkEffect {
-    this.effect = {
-      timestamp: performance.now(),
-      quality,
-    };
     return this.effect;
   }
 
@@ -253,189 +209,15 @@ class Chunk<N, A, P, S> implements ChunkBase<N> {
       params: this.params,
     });
   }
-}
 
-const getUpdatedSiblings: GetUpdatedSiblings = (rs) => {
-  const siblings = [];
-
-  const originalSiblings = rs.siblings;
-  for (const siblingArrayID in originalSiblings) {
-    const siblingArray = originalSiblings[siblingArrayID];
-    for (const siblingID in siblingArray) {
-      const sibling = siblingArray[siblingID];
-      siblings.push(sibling);
-    }
-  }
-
-  return siblings;
-};
-
-const hasTemplateChanged: HasTemplateChanged = (rs, template) => {
-  const templateLength = template.templateArray.length;
-  if (rs.template.templateArray.length !== templateLength) {
-    return true;
-  }
-
-  let index = 0;
-  while (index < templateLength) {
-    const sourceStr = rs.template.templateArray[index];
-    const targetStr = template.templateArray[index];
-    if (sourceStr !== targetStr) {
-      return true;
-    }
-
-    index += 1;
-  }
-
-  return false;
-};
-
-// compare future template to current template (past injection)
-const updateAttributes: UpdateAttributesFunc = (hooks, rs, template) => {
-  for (const attributesID in rs.attributes) {
-    const pastInjection = rs.attributes[attributesID];
-    const attributeValue = template.injections[attributesID];
-
-    // check if attribute value has changed
-    if (attributeValue === pastInjection.params.value) {
-      continue;
-    }
-
-    // give yourself a chance to remove attribute
-    hooks.removeAttribute(pastInjection.params);
-    pastInjection.params.value = attributeValue;
-    hooks.setAttribute(pastInjection.params);
-  }
-};
-
-const updateDescendants: UpdateDescendantsFunc = ({
-  hooks,
-  rs,
-  template,
-  contextParentNode,
-}) => {
-  let siblingLevelUpdated = false;
-
-  // iterate through descendants
-  for (const descenantID in rs.descendants) {
-    const pastDescendant = rs.descendants[descenantID];
-    const descendant = template.injections[descenantID];
-
-    if (pastDescendant.kind === "TEXT" && !Array.isArray(descendant)) {
-      const text = String(descendant);
-      if (pastDescendant.params.text === text) {
-        continue;
-      }
-    }
-
-    // unmount previous contexts, they could be stale
-    if (pastDescendant.kind === "CHUNK_ARRAY") {
-      const chunkArray = pastDescendant.params.chunkArray;
-      for (const contextID in chunkArray) {
-        chunkArray[contextID].unmount();
-      }
-    }
-
-    // we assume siblings have changed from this point
-    const { leftNode, parentNode, siblingIndex } = pastDescendant.params;
-
-    if (!siblingLevelUpdated) {
-      siblingLevelUpdated = siblingIndex !== undefined;
-    }
-
-    // remove previous descendants
-    if (pastDescendant.kind === "TEXT") {
-      hooks.removeDescendant(pastDescendant.params.textNode);
-    }
-
-    // text descednant
-    if (!Array.isArray(descendant)) {
-      const text = String(descendant);
-
-      const textNode = hooks.createTextNode(text);
-      rs.descendants[descenantID] = {
-        kind: "TEXT",
-        params: {
-          textNode,
-          text,
-          leftNode,
-          parentNode, // save original parent, important
-          siblingIndex,
-        },
-      };
-
-      hooks.insertDescendant({
-        descendant: textNode,
-        leftNode,
-        parentNode: parentNode ?? contextParentNode, // append actual parent
-      });
-
-      // add sibling to render structure to get mounted later
-      if (siblingIndex !== undefined) {
-        rs.siblings[siblingIndex] = [textNode];
-      }
-
-      continue;
-    }
-
-    const chunkArray = descendant;
-    rs.descendants[descenantID] = {
-      kind: "CHUNK_ARRAY",
-      params: {
-        chunkArray,
-        leftNode,
-        parentNode, // save original parent, important
-        siblingIndex,
-      },
+  private updateEffect(connected: boolean, mounted: boolean): ChunkEffect {
+    this.effect = {
+      timestamp: performance.now(),
+      connected,
+      mounted,
     };
-
-    let currLeftNode = leftNode;
-    for (const contextID in descendant) {
-      const chunk = chunkArray[contextID];
-      currLeftNode = chunk.mount(parentNode ?? contextParentNode, currLeftNode);
-    }
-
-    // we could possibly create a new sibling set here
-    // however, its not realy necessary
-    // when a context is mounted
-
-    if (pastDescendant.kind === "CHUNK_ARRAY") {
-      const chunkArray = pastDescendant.params.chunkArray;
-      for (const contextID in chunkArray) {
-        const context = chunkArray[contextID];
-        const effect = context.getEffect();
-        if (effect.quality === "UNMOUNTED") {
-          context.disconnect();
-        }
-      }
-    }
+    return this.effect;
   }
-
-  // return if sibling level nodes were updated
-  return siblingLevelUpdated;
-};
-
-const disconnectDescendants: DisconnectDescendants = (hooks, rs) => {
-  const attributes = rs.attributes;
-  for (const attributeID in attributes) {
-    const attribute = attributes[attributeID];
-    hooks.removeAttribute(attribute.params);
-  }
-
-  for (const descendantID in rs.descendants) {
-    const descendant = rs.descendants[descendantID];
-    if (descendant.kind === "TEXT") {
-      hooks.removeDescendant(descendant.params.textNode);
-    }
-    if (descendant.kind === "CHUNK_ARRAY") {
-      const chunkArray = descendant.params.chunkArray;
-      for (const contextID in chunkArray) {
-        const context = chunkArray[contextID];
-        context.unmount();
-        context.disconnect();
-      }
-    }
-  }
-};
+}
 
 export { Banger, Chunk };

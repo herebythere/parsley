@@ -320,4 +320,3 @@ const buildIntegrals: BuildIntegrals = ({ template, skeleton }) => {
 export type { BuildIntegralsParams };
 
 export { buildIntegrals };
-

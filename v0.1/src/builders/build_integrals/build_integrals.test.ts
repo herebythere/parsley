@@ -229,8 +229,6 @@ const findParagraphWithInjectedAttribute = () => {
   const results = buildIntegrals(params);
 
   if (!samestuff(expectedResults, results)) {
-    
-    
     assertions.push("unexpected results found.");
   }
 
@@ -298,8 +296,6 @@ const findParagraphWithInjectedAndImplicitAttributes = () => {
   const results = buildIntegrals(params);
 
   if (!samestuff(expectedResults, results)) {
-    
-    
     assertions.push("unexpected results found.");
   }
 

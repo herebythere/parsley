@@ -8,17 +8,17 @@ import type { ReferenceMap } from "./render.ts";
 // CONNECTED      // descendants are attached to siblings
 // DISCONNECTED   // desendants are removed from siblings
 
-type EffectQuality = "CONNECTED" | "UNMOUNTED" | "MOUNTED" | "DISCONNECTED";
-
 type ChunkEffect = {
-  quality: EffectQuality;
+  connected: boolean;
+  mounted: boolean;
   timestamp: number;
 };
 
 interface ChunkBase<N> {
-  readonly parentNode?: N;
-  readonly leftNode?: N;
-  readonly siblings: N[];
+  parentNode?: N;
+  leftNode?: N;
+  siblings: N[];
+  effect: ChunkEffect;
 
   // attach siblings to parent
   // return leftmost node
@@ -62,5 +62,4 @@ export type {
   BangerBase,
   ChunkBase,
   ChunkEffect,
-  EffectQuality,
 };

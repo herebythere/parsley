@@ -2,7 +2,7 @@
 
 Dynamically maintain XML documents like [DOM](https://github.com/taylor-vann/parsley-dom).
 
-unminimized and uncompressed < 38kb
+unminimized and uncompressed < 40kb
 
 ## Abstract
 
