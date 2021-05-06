@@ -31,23 +31,16 @@ interface RequiredChunker<N, A, P, S> {
 }
 
 type Chunker<N, A, P, S> = RequiredChunker<N, A, P, S>;
-type ContextFactory<N, P> = (params: P) => ChunkBase<N>;
-
-type Compose<N, A> = <P = void, S = void>(
-  chunker: Chunker<N, A, P, S>
-) => ContextFactory<N, P>;
+type ChunkFactory<N, P> = (params: P) => ChunkBase<N>;
 
 type ChunkBaseArray<N> = ChunkBase<N>[];
-type Attach<N> = (parentNode: N, chunkArray: ChunkBaseArray<N>) => void;
 
 export type {
-  Attach,
   Chunker,
   ChunkBaseArray,
-  Compose,
   ConnectChunk,
   ConnectParams,
-  ContextFactory,
+  ChunkFactory,
   DisconnectChunk,
   UpdateChunk,
 };
