@@ -2,10 +2,10 @@
 // integral types
 
 import type {
-  ImplicitAttributeAction,
-  ExplicitAttributeAction,
-  InjectedAttributeAction,
   AttributeAction,
+  ExplicitAttributeAction,
+  ImplicitAttributeAction,
+  InjectedAttributeAction,
 } from "./attribute_crawl.ts";
 import type { Vector } from "./text_vector.ts";
 
@@ -47,8 +47,8 @@ type Integrals = IntegralAction[];
 
 export type {
   AttributeAction,
-  CloseNodeAction,
   ChunkArrayInjectionAction,
+  CloseNodeAction,
   ExplicitAttributeAction,
   ImplicitAttributeAction,
   InjectedAttributeAction,

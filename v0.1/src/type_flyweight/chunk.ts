@@ -52,14 +52,8 @@ interface ChunkBase<N> {
 }
 
 interface BangerBase<N> {
-  readonly chunk: ChunkBase<N>;
-
   bang(): void;
   getReferences(): ReferenceMap<N> | undefined;
 }
 
-export type {
-  BangerBase,
-  ChunkBase,
-  ChunkEffect,
-};
+export type { BangerBase, ChunkBase, ChunkEffect };

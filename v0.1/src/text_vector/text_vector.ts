@@ -6,34 +6,34 @@ import type { Position, Vector } from "../type_flyweight/text_vector.ts";
 
 import {
   copy as copyPosition,
-  increment,
   decrement,
+  increment,
 } from "../text_position/text_position.ts";
 
 type Create = (position?: Position) => Vector;
 
 type CreateFollowingVector = <N, A>(
   template: Template<N, A>,
-  vector: Vector
+  vector: Vector,
 ) => Vector | undefined;
 
 type Copy = (vector: Vector) => Vector;
 
 type GetTagetChar = <N, A>(
   template: Template<N, A>,
-  vector: Vector
+  vector: Vector,
 ) => string | undefined;
 
 type Increment = <N, A>(
   template: Template<N, A>,
-  vector: Vector
+  vector: Vector,
 ) => Vector | undefined;
 
 type HasOriginEclipsedTaraget = (vector: Vector) => boolean;
 
 type GetTextFromVector = <N, A>(
   template: Template<N, A>,
-  vector: Vector
+  vector: Vector,
 ) => string | undefined;
 
 const DEFAULT_POSITION: Position = {
@@ -128,11 +128,12 @@ const getText: GetTextFromVector = (template, vector) => {
   const texts: string[] = [];
 
   // get beginning text
-  let templateText = template.templateArray[vector.origin.arrayIndex];
+  const templateTextIndex = vector.origin.stringIndex;
+  let templateText = template.templateArray[templateTextIndex];
   if (templateText === undefined) {
     return;
   }
-  const templateTextIndex = vector.origin.stringIndex;
+
   let distance = templateText.length - templateTextIndex;
   let copiedText = templateText.substr(templateTextIndex, distance);
   texts.push(copiedText);

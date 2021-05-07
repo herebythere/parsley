@@ -9,9 +9,9 @@ import {
   copy,
   create,
   createFollowingVector,
-  incrementTarget,
-  hasOriginEclipsedTaraget,
   getText,
+  hasOriginEclipsedTaraget,
+  incrementTarget,
 } from "./text_vector.ts";
 
 type TextTextInterpolator = <N, A>(
@@ -270,7 +270,8 @@ const testGetTextOverTemplate = () => {
   const expectedResult = "how  you";
   const assertions = [];
 
-  const structureRender = testTextInterpolator`hey ${"world"}, how ${"are"} you?`;
+  const structureRender = testTextInterpolator
+    `hey ${"world"}, how ${"are"} you?`;
   const vector: Vector = {
     origin: {
       arrayIndex: 1,
@@ -295,7 +296,8 @@ const testGetTextOverChonkyTemplate = () => {
   const expectedResult = "how  you  buster";
   const assertions = [];
 
-  const structureRender = testTextInterpolator`hey ${"world"}, how ${"are"} you ${"doing"} buster?`;
+  const structureRender = testTextInterpolator
+    `hey ${"world"}, how ${"are"} you ${"doing"} buster?`;
   const vector: Vector = {
     origin: {
       arrayIndex: 1,

@@ -359,7 +359,8 @@ const findSelfClosingNodeWithAttributes = () => {
     },
   ];
 
-  const params = testTextInterpolator`<p message="${"hello, world!"}" checked/>`;
+  const params = testTextInterpolator
+    `<p message="${"hello, world!"}" checked/>`;
   const results = buildIntegrals(params);
 
   if (!samestuff(expectedResults, results)) {
@@ -584,7 +585,8 @@ const testFindContentWithInitialMultipleInjections = () => {
     },
   ];
 
-  const params = testTextInterpolator`${"heyyo"}hello world,${"you're awesome"}!`;
+  const params = testTextInterpolator
+    `${"heyyo"}hello world,${"you're awesome"}!`;
   const results = buildIntegrals(params);
 
   if (!samestuff(expectedResults, results)) {
@@ -684,7 +686,8 @@ const testFindContentWithEdgeCaseInjections = () => {
     },
   ];
 
-  const params = testTextInterpolator`${"heyyo"}<p>hello world,${"you're awesome"}</p><image src="${"hello_world"}">`;
+  const params = testTextInterpolator
+    `${"heyyo"}<p>hello world,${"you're awesome"}</p><image src="${"hello_world"}">`;
   const results = buildIntegrals(params);
 
   if (!samestuff(expectedResults, results)) {

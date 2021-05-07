@@ -2,8 +2,8 @@
 // chunk
 
 import type {
-  ChunkBase,
   BangerBase,
+  ChunkBase,
   ChunkEffect,
 } from "../type_flyweight/chunk.ts";
 import type { Chunker } from "../type_flyweight/chunker.ts";
@@ -16,11 +16,11 @@ import type { Template } from "../type_flyweight/template.ts";
 
 import { buildRenderStructure } from "../builders/builder.ts";
 import {
+  disconnectDescendants,
   getUpdatedSiblings,
   hasTemplateChanged,
   updateAttributes,
   updateDescendants,
-  disconnectDescendants,
 } from "./chunk_utils.ts";
 
 // Nodes
@@ -35,7 +35,7 @@ interface ContextParams<N, A, P, S> {
 }
 
 class Banger<N> implements BangerBase<N> {
-  chunk: ChunkBase<N>;
+  private chunk: ChunkBase<N>;
 
   constructor(chunk: ChunkBase<N>) {
     this.chunk = chunk;
@@ -71,17 +71,17 @@ class Chunk<N, A, P, S> implements ChunkBase<N> {
 
   // INIT
 
-  constructor(baseParams: ContextParams<N, A, P, S>) {
+  constructor(base: ContextParams<N, A, P, S>) {
     // REQUIRED EFFECTS
     this.banger = new Banger(this);
-    this.hooks = baseParams.hooks;
-    this.chunker = baseParams.chunker;
-    this.params = baseParams.params;
+    this.hooks = base.hooks;
+    this.chunker = base.chunker;
+    this.params = base.params;
 
     // GENERATED EFFECTS
     this.state = this.chunker.connect({
       banger: this.banger,
-      params: baseParams.params,
+      params: base.params,
     });
 
     const template = this.getTemplate();
@@ -98,12 +98,12 @@ class Chunk<N, A, P, S> implements ChunkBase<N> {
   //
   connect(params: P): S {
     this.setParams(params);
-    const template = this.getTemplate();
     this.state = this.chunker.connect({
       banger: this.banger,
       params,
     });
 
+    const template = this.getTemplate();
     this.rs = buildRenderStructure(this.hooks, template);
     this.siblings = getUpdatedSiblings(this.rs);
     this.updateEffect(true, false);

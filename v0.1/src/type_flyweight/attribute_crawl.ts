@@ -27,8 +27,8 @@ type AttributeAction =
   | InjectedAttributeAction;
 
 export type {
-  ImplicitAttributeAction,
-  ExplicitAttributeAction,
-  InjectedAttributeAction,
   AttributeAction,
+  ExplicitAttributeAction,
+  ImplicitAttributeAction,
+  InjectedAttributeAction,
 };

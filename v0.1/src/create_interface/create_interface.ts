@@ -6,12 +6,10 @@ import { Chunk } from "../chunk/chunk.ts";
 
 type ContextFactory<N, A, P, S> = (params: P) => Chunk<N, A, P, S>;
 
-// N, A are provided initially, P S are provided later
 type Compose<N, A> = <P = void, S = void>(
-  chunker: Chunker<N, A, P, S>
+  chunker: Chunker<N, A, P, S>,
 ) => ContextFactory<N, A, P, S>;
 
-// need a funciton that returns a attach, compose, draw
 interface CustomInterface<N, A> {
   attach: Attach<N>;
   compose: Compose<N, A>;
@@ -19,14 +17,15 @@ interface CustomInterface<N, A> {
 }
 
 type CreateCustomInterface = <N, A>(
-  hooks: Hooks<N, A>
+  hooks: Hooks<N, A>,
 ) => CustomInterface<N, A>;
 
-
-const createCustomInterface: CreateCustomInterface = <N, A>(hooks: Hooks<N, A>) => {
+const createCustomInterface: CreateCustomInterface = <N, A>(
+  hooks: Hooks<N, A>,
+) => {
   const attach: Attach<N> = (parentNode, chunkArray) => {
     let leftNode;
-  
+
     for (const chunkID in chunkArray) {
       const chunk = chunkArray[chunkID];
       leftNode = chunk.mount(parentNode, leftNode);
@@ -56,4 +55,3 @@ const createCustomInterface: CreateCustomInterface = <N, A>(hooks: Hooks<N, A>) 
 export type { CreateCustomInterface, CustomInterface };
 
 export { createCustomInterface };
-

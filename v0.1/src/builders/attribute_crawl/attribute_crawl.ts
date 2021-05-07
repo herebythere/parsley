@@ -15,13 +15,13 @@ import { getCharAtPosition } from "../../text_position/text_position.ts";
 
 type AttributeCrawl = <N, A>(
   template: Template<N, A>,
-  vectorBounds: Vector
+  vectorBounds: Vector,
 ) => AttributeAction | undefined;
 
 type AttributeValueCrawl = <N, A>(
   template: Template<N, A>,
   vectorBounds: Vector,
-  Attributekind: AttributeAction
+  Attributekind: AttributeAction,
 ) => AttributeAction | undefined;
 
 type BreakRunes = Record<string, boolean>;
@@ -114,7 +114,7 @@ const getAttributeName: AttributeCrawl = (template, vectorBounds) => {
 const getAttributeValue: AttributeValueCrawl = (
   template,
   vectorBounds,
-  attributeAction
+  attributeAction,
 ) => {
   let positionChar = getCharAtPosition(template, vectorBounds.origin);
   if (positionChar !== ASSIGN_RUNE) {
@@ -141,7 +141,7 @@ const getAttributeValue: AttributeValueCrawl = (
   positionChar = getCharAtPosition(template, vectorBounds.origin);
 
   let arrayIndexDistance = Math.abs(
-    arrayIndex - vectorBounds.origin.arrayIndex
+    arrayIndex - vectorBounds.origin.arrayIndex,
   );
 
   // check if quote rune?

@@ -178,7 +178,8 @@ const findOpenParagraphInTextWithArgs = () => {
     },
   };
 
-  const testTextWithArgs = testTextInterpolator`an ${"example"} <buster>${"!"}</buster>`;
+  const testTextWithArgs = testTextInterpolator
+    `an ${"example"} <buster>${"!"}</buster>`;
 
   const results = crawl(testTextWithArgs);
 
@@ -206,7 +207,8 @@ const notFoundInUgglyMessText = () => {
     },
   };
 
-  const testInvalidUgglyMess = testTextInterpolator`an <${"invalid"}p> example${"!"}`;
+  const testInvalidUgglyMess = testTextInterpolator
+    `an <${"invalid"}p> example${"!"}`;
 
   const results = crawl(testInvalidUgglyMess);
 
@@ -261,7 +263,8 @@ const invalidCloseNodeWithArgs = () => {
     },
   };
 
-  const testInvlaidCloseNodeWithArgs = testTextInterpolator`closed </${"example"}p>`;
+  const testInvlaidCloseNodeWithArgs = testTextInterpolator
+    `closed </${"example"}p>`;
 
   const results = crawl(testInvlaidCloseNodeWithArgs);
 
@@ -289,7 +292,8 @@ const validCloseNodeWithArgs = () => {
     },
   };
 
-  const testValidCloseNodeWithArgs = testTextInterpolator`closed </p ${"example"}>`;
+  const testValidCloseNodeWithArgs = testTextInterpolator
+    `closed </p ${"example"}>`;
 
   const results = crawl(testValidCloseNodeWithArgs);
 
@@ -317,7 +321,8 @@ const invalidIndependentNodeWithArgs = () => {
     },
   };
 
-  const testInvalidIndependentNode = testTextInterpolator`independent <${"example"}p/>`;
+  const testInvalidIndependentNode = testTextInterpolator
+    `independent <${"example"}p/>`;
 
   const results = crawl(testInvalidIndependentNode);
 
@@ -345,7 +350,8 @@ const validIndependentNodeWithArgs = () => {
     },
   };
 
-  const testValidIndependentNode = testTextInterpolator`independent <p ${"example"} / >`;
+  const testValidIndependentNode = testTextInterpolator
+    `independent <p ${"example"} / >`;
 
   const results = crawl(testValidIndependentNode);
 
@@ -429,7 +435,8 @@ const findNextCrawlWithPreviousCrawl = () => {
     },
   };
 
-  const testValidOpenNode = testTextInterpolator`<p ${"small"}/>${"example"}<p/>`;
+  const testValidOpenNode = testTextInterpolator
+    `<p ${"small"}/>${"example"}<p/>`;
 
   const previousCrawl = crawl(testValidOpenNode);
   const results = crawl(testValidOpenNode, previousCrawl);
@@ -458,7 +465,8 @@ const findOneCharacterDescendants = () => {
     },
   };
 
-  const testComplexNode = testTextInterpolator`<a href="https://superawesome.com" >world</a>`;
+  const testComplexNode = testTextInterpolator
+    `<a href="https://superawesome.com" >world</a>`;
   const results = crawl(testComplexNode);
 
   if (!samestuff(expectedResults, results)) {

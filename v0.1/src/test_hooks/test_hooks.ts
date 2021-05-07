@@ -113,4 +113,4 @@ const draw: Draw<TestNode, TestAttributes> = (templateArray, ...injections) => {
 
 export type { TestAttributes };
 
-export { hooks, draw };
+export { draw, hooks };

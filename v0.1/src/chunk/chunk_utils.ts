@@ -7,13 +7,13 @@ import type { Template } from "../type_flyweight/template.ts";
 
 type HasTemplateChanged = (
   rs: RenderStructure<unknown, unknown>,
-  template: Template<unknown, unknown>
+  template: Template<unknown, unknown>,
 ) => boolean;
 
 type UpdateAttributesFunc = <N, A>(
   hooks: Hooks<N, A>,
   rs: RenderStructure<N, A>,
-  template: Template<N, A>
+  template: Template<N, A>,
 ) => void;
 
 interface UpdateDescendantsFuncParams<N, A> {
@@ -25,12 +25,12 @@ interface UpdateDescendantsFuncParams<N, A> {
 }
 
 type UpdateDescendantsFunc = <N, A>(
-  params: UpdateDescendantsFuncParams<N, A>
+  params: UpdateDescendantsFuncParams<N, A>,
 ) => boolean;
 
 type DisconnectDescendants = <N, A>(
   hooks: Hooks<N, A>,
-  rs: RenderStructure<N, A>
+  rs: RenderStructure<N, A>,
 ) => void;
 
 type GetUpdatedSiblings = <N, A>(rs: RenderStructure<N, A>) => N[];
@@ -95,8 +95,6 @@ const updateDescendants: UpdateDescendantsFunc = ({
 }) => {
   let siblingLevelUpdated = false;
 
-  // we can split this up into "update text node" and "update chunks"
-
   // iterate through descendants
   for (const descenantID in rs.descendants) {
     const pastDescendant = rs.descendants[descenantID];
@@ -111,38 +109,14 @@ const updateDescendants: UpdateDescendantsFunc = ({
     }
 
     // both descendants are strings
-    if (pastDescendant.kind === "TEXT" && Array.isArray(descendant)) {
+    if (pastDescendant.kind === "TEXT") {
       hooks.removeDescendant(pastDescendant.params.textNode);
     }
 
-    // prev descendant is array, current is string
-    if (pastDescendant.kind === "CHUNK_ARRAY" && !Array.isArray(descendant)) {
+    if (pastDescendant.kind === "CHUNK_ARRAY") {
       const { chunkArray } = pastDescendant.params;
       for (const chunkID in chunkArray) {
         chunkArray[chunkID].unmount();
-      }
-    }
-
-    // both descendants are arrays
-    if (pastDescendant.kind === "CHUNK_ARRAY" && Array.isArray(descendant)) {
-      // walk down new array and remove old chunks
-      const { chunkArray } = pastDescendant.params;
-
-      let index = chunkArray.length;
-      let deltaIndex = descendant.length;
-      let hasChanged = false;
-      while (index > -1 && deltaIndex > -1) {
-        if (chunkArray[index] === descendant[deltaIndex]) {
-          index -= 1;
-        } else {
-          hasChanged = true;
-          chunkArray[index].unmount();
-        }
-
-        deltaIndex -= 1;
-      }
-      if (!hasChanged) {
-        continue;
       }
     }
 
@@ -166,12 +140,7 @@ const updateDescendants: UpdateDescendantsFunc = ({
 
       let currLeftNode = leftNode;
       for (const chunkID in descendant) {
-        const chunk = descendant[chunkID];
-        if (!chunk.effect.mounted) {
-          currLeftNode = chunk.mount(parentDefault, currLeftNode);
-        } else {
-          currLeftNode = chunk.leftNode;
-        }
+        currLeftNode = descendant[chunkID].mount(parentDefault, currLeftNode);
       }
     }
 
@@ -181,7 +150,7 @@ const updateDescendants: UpdateDescendantsFunc = ({
       rs.descendants[descenantID] = {
         kind: "TEXT",
         params: {
-          parentNode: parentDefault, // save original parent, important
+          parentNode: parentDefault,
           leftNode,
           siblingIndex,
           text,
@@ -206,7 +175,7 @@ const updateDescendants: UpdateDescendantsFunc = ({
       const { chunkArray } = pastDescendant.params;
       for (const chunkID in chunkArray) {
         const chunk = chunkArray[chunkID];
-        if (chunk.effect.mounted) {
+        if (!chunk.effect.mounted) {
           chunk.disconnect();
         }
       }
@@ -229,6 +198,7 @@ const disconnectDescendants: DisconnectDescendants = (hooks, rs) => {
     if (descendant.kind === "TEXT") {
       hooks.removeDescendant(descendant.params.textNode);
     }
+
     if (descendant.kind === "CHUNK_ARRAY") {
       const chunkArray = descendant.params.chunkArray;
       for (const chunkID in chunkArray) {
@@ -241,9 +211,9 @@ const disconnectDescendants: DisconnectDescendants = (hooks, rs) => {
 };
 
 export {
+  disconnectDescendants,
   getUpdatedSiblings,
   hasTemplateChanged,
   updateAttributes,
   updateDescendants,
-  disconnectDescendants,
 };
