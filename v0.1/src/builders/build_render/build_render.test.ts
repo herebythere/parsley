@@ -3,8 +3,8 @@
 
 import type { Integrals } from "../../type_flyweight/integrals.ts";
 import type {
-  Template,
   AttributeValue,
+  Template,
 } from "../../type_flyweight/template.ts";
 import type { TestNode } from "../../test_hooks/test_element.ts";
 import type { Chunker } from "../../type_flyweight/chunker.ts";
@@ -13,7 +13,7 @@ import { buildIntegrals } from "../build_integrals/build_integrals.ts";
 import { buildRender } from "./build_render.ts";
 import { buildSkeleton } from "../build_skeleton/build_skeleton.ts";
 import { Chunk } from "../../chunk/chunk.ts";
-import { hooks, draw, TestAttributes } from "../../test_hooks/test_hooks.ts";
+import { draw, hooks, TestAttributes } from "../../test_hooks/test_hooks.ts";
 
 interface InterpolatorResults<N, A> {
   template: Template<N, A>;

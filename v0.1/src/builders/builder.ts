@@ -14,7 +14,7 @@ type BuildCache = Record<string, Integrals>;
 
 type BuildRenderStructure = <N, A>(
   hooks: Hooks<N, A>,
-  template: Template<N, A>
+  template: Template<N, A>,
 ) => RenderStructure<N, A>;
 
 const builds: BuildCache = {};

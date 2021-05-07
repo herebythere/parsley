@@ -4,8 +4,8 @@
 import type { Template } from "../../type_flyweight/template.ts";
 
 import type {
-  SkeletonNodes,
   CrawlResults,
+  SkeletonNodes,
 } from "../../type_flyweight/skeleton_crawl.ts";
 
 import type { Integrals } from "../../type_flyweight/integrals.ts";
@@ -25,7 +25,7 @@ import { crawlForAttribute } from "../attribute_crawl/attribute_crawl.ts";
 
 type VectorCrawl = <N, A>(
   template: Template<N, A>,
-  innerXmlBounds: Vector
+  innerXmlBounds: Vector,
 ) => Vector | undefined;
 
 interface AppendNodeParams<N, A> {
@@ -34,7 +34,7 @@ interface AppendNodeParams<N, A> {
   chunk: CrawlResults;
 }
 type AppendNodeIntegrals = <N, A>(
-  params: AppendNodeParams<N, A>
+  params: AppendNodeParams<N, A>,
 ) => Integrals | undefined;
 
 interface AppendNodeKindParams<N, A> {
@@ -44,7 +44,7 @@ interface AppendNodeKindParams<N, A> {
   chunk: CrawlResults;
 }
 type AppendNodeKindIntegrals = <N, A>(
-  params: AppendNodeKindParams<N, A>
+  params: AppendNodeKindParams<N, A>,
 ) => Integrals | undefined;
 
 interface AppendNodeAttributeParams<N, A> {
@@ -53,7 +53,7 @@ interface AppendNodeAttributeParams<N, A> {
   chunk: Vector;
 }
 type AppendNodeAttributeIntegrals = <N, A>(
-  params: AppendNodeAttributeParams<N, A>
+  params: AppendNodeAttributeParams<N, A>,
 ) => Integrals | undefined;
 
 interface BuildIntegralsParams<N, A> {
@@ -67,7 +67,7 @@ const RECURSION_SAFETY = 256;
 // creates a side effect in innerXmlBounds
 const incrementOriginToNextSpaceRune: VectorCrawl = (
   template,
-  innerXmlBounds
+  innerXmlBounds,
 ) => {
   let positionChar = getCharAtPosition(template, innerXmlBounds.origin);
   if (positionChar === undefined) {
@@ -93,7 +93,7 @@ const incrementOriginToNextSpaceRune: VectorCrawl = (
 // creates a side effect in innerXmlBounds
 const incrementOriginToNextCharRune: VectorCrawl = (
   template,
-  innerXmlBounds
+  innerXmlBounds,
 ) => {
   let positionChar = getCharAtPosition(template, innerXmlBounds.origin);
   if (positionChar === undefined) {

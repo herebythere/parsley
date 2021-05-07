@@ -4,7 +4,7 @@
 // N Node
 // A Attributables
 
-import type { Template, AttributeValue } from "./template.ts";
+import type { AttributeValue, Template } from "./template.ts";
 import type { ChunkBaseArray } from "./chunker.ts";
 
 interface AttributeInjectionParams<N, A> {
@@ -75,4 +75,4 @@ interface RenderStructure<N, A> {
   template: Template<N, A>;
 }
 
-export type { RenderStructure, ReferenceMap, Injection, ElementNode, TextNode };
+export type { ElementNode, Injection, ReferenceMap, RenderStructure, TextNode };

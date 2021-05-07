@@ -458,7 +458,8 @@ const htmlAddressWithSpecialCharacters = () => {
     },
   };
 
-  const template = testTextInterpolator`href="http://supersalad.com/?=the-death-star-is-quite-operational"`;
+  const template = testTextInterpolator
+    `href="http://supersalad.com/?=the-death-star-is-quite-operational"`;
   const vector = create();
 
   let safety = 0;

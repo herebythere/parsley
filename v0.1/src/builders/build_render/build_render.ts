@@ -5,22 +5,22 @@ import type { Hooks } from "../../type_flyweight/hooks.ts";
 import type { Template } from "../../type_flyweight/template.ts";
 import type { RenderStructure } from "../../type_flyweight/render.ts";
 import type {
+  ChunkArrayInjectionAction,
   CloseNodeAction,
+  ExplicitAttributeAction,
+  ImplicitAttributeAction,
+  InjectedAttributeAction,
+  Integrals,
   NodeAction,
   SelfClosingNodeAction,
-  ExplicitAttributeAction,
-  InjectedAttributeAction,
-  ImplicitAttributeAction,
-  Integrals,
-  ChunkArrayInjectionAction,
   TextAction,
 } from "../../type_flyweight/integrals.ts";
 
 import {
+  copy,
   decrementTarget,
   getText,
   incrementOrigin,
-  copy,
 } from "../../text_vector/text_vector.ts";
 
 interface BuildRenderParams<N, A> {
@@ -29,7 +29,7 @@ interface BuildRenderParams<N, A> {
   integrals: Integrals;
 }
 type BuildRender = <N, A>(
-  params: BuildRenderParams<N, A>
+  params: BuildRenderParams<N, A>,
 ) => RenderStructure<N, A>;
 
 interface BuilderHelperParams<N, A, I> {

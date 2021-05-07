@@ -25,7 +25,7 @@ interface BuildMissingStringNodeParams<N, A> {
 }
 
 type BuildMissingStringNode = <N, A>(
-  params: BuildMissingStringNodeParams<N, A>
+  params: BuildMissingStringNodeParams<N, A>,
 ) => CrawlResults | void;
 
 type BuildSkeletonSieve = Record<string, NodeType>;
@@ -38,7 +38,7 @@ interface IsDistanceGreaterThanOneParams<N, A> {
   target: Position;
 }
 type IsDistanceGreaterThanOne = <N, A>(
-  params: IsDistanceGreaterThanOneParams<N, A>
+  params: IsDistanceGreaterThanOneParams<N, A>,
 ) => boolean;
 
 const MAX_DEPTH = 128;
@@ -88,10 +88,9 @@ const buildMissingStringNode: BuildMissingStringNode = ({
   currentCrawl,
 }) => {
   // get text vector
-  const originPos =
-    previousCrawl !== undefined
-      ? previousCrawl.vector.target
-      : DEFAULT_CRAWL_RESULTS.vector.target;
+  const originPos = previousCrawl !== undefined
+    ? previousCrawl.vector.target
+    : DEFAULT_CRAWL_RESULTS.vector.target;
 
   const targetPos = currentCrawl.vector.origin;
 
@@ -106,10 +105,9 @@ const buildMissingStringNode: BuildMissingStringNode = ({
   }
 
   // copy and correlate position values
-  const origin =
-    previousCrawl === undefined
-      ? copy(DEFAULT_CRAWL_RESULTS.vector.target)
-      : copy(previousCrawl.vector.target);
+  const origin = previousCrawl === undefined
+    ? copy(DEFAULT_CRAWL_RESULTS.vector.target)
+    : copy(previousCrawl.vector.target);
 
   const target = copy(currentCrawl.vector.origin);
 

@@ -9,12 +9,12 @@ type Copy = (position: Position) => Position;
 
 type Increment = <N, A>(
   template: Template<N, A>,
-  position: Position
+  position: Position,
 ) => Position | undefined;
 
 type GetCharAtPosition = <N, A>(
   template: Template<N, A>,
-  position: Position
+  position: Position,
 ) => string | undefined;
 
 const DEFAULT_POSITION: Position = {
@@ -84,9 +84,7 @@ const decrement: Increment = (template, position) => {
 };
 
 const getCharAtPosition: GetCharAtPosition = (template, position) => {
-  const templateArray = template.templateArray;
-
-  return templateArray[position.arrayIndex]?.[position.stringIndex];
+  return template.templateArray[position.arrayIndex]?.[position.stringIndex];
 };
 
-export { copy, create, decrement, increment, getCharAtPosition };
+export { copy, create, decrement, getCharAtPosition, increment };

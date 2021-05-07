@@ -279,7 +279,8 @@ const findMultipleInjectionFromPlainText = () => {
     },
   ];
 
-  const testComplexNode = testTextInterpolator`${"hello"}<h1>${"hello"}</h1>${"hello"}`;
+  const testComplexNode = testTextInterpolator
+    `${"hello"}<h1>${"hello"}</h1>${"hello"}`;
 
   const testSkeleton = buildSkeleton(testComplexNode);
   if (!samestuff(sourceSkeleton, testSkeleton)) {
@@ -330,7 +331,8 @@ const findBrokenFromPlainText = () => {
     },
   ];
 
-  const testComplexNode = testTextInterpolator`<${"hello"}h2>hey</h2><p>howdy</p>`;
+  const testComplexNode = testTextInterpolator
+    `<${"hello"}h2>hey</h2><p>howdy</p>`;
 
   const testSkeleton = buildSkeleton(testComplexNode);
 
@@ -550,20 +552,21 @@ const findOpenNodeWithInjected = () => {
   const assertions: string[] = [];
 
   const sourceSkeleton: SkeletonNodes = [{
-		"nodeType": "OPENED_FOUND",
-		"vector": {
-			"origin": {
-				"arrayIndex": 0,
-				"stringIndex": 0
-			},
-			"target": {
-				"arrayIndex": 1,
-				"stringIndex": 1
-			}
-		}
-	}];
+    "nodeType": "OPENED_FOUND",
+    "vector": {
+      "origin": {
+        "arrayIndex": 0,
+        "stringIndex": 0,
+      },
+      "target": {
+        "arrayIndex": 1,
+        "stringIndex": 1,
+      },
+    },
+  }];
 
-  const testComplexNode = testTextInterpolator`<p message="${"hello, world!"}">`;
+  const testComplexNode = testTextInterpolator
+    `<p message="${"hello, world!"}">`;
   const testSkeleton = buildSkeleton(testComplexNode);
 
   if (!samestuff(sourceSkeleton, testSkeleton)) {
@@ -585,7 +588,7 @@ const tests = [
   findMultipleInjectionFromPlainText,
   findSelfClosingNodesInOddPlainText,
   findOneCharacterDescendants,
-	findOpenNodeWithInjected
+  findOpenNodeWithInjected,
 ];
 
 const unitTestBuildSkeleton = {

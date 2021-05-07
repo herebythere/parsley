@@ -23,17 +23,17 @@ type Sieve = Partial<Record<CrawlStatus, CrawlStatus>>;
 
 type SetNodeType = <N, A>(
   template: Template<N, A>,
-  results: CrawlResults
+  results: CrawlResults,
 ) => void;
 
 type SetStartStateProperties = <N, A>(
   template: Template<N, A>,
-  previousCrawl?: CrawlResults
+  previousCrawl?: CrawlResults,
 ) => CrawlResults | undefined;
 
 type Crawl = <N, A>(
   template: Template<N, A>,
-  previousCrawl?: CrawlResults
+  previousCrawl?: CrawlResults,
 ) => CrawlResults | undefined;
 
 const validSieve: Sieve = {
@@ -50,7 +50,7 @@ const confirmedSieve: Sieve = {
 
 const setStartStateProperties: SetStartStateProperties = (
   template,
-  previousCrawl
+  previousCrawl,
 ) => {
   if (previousCrawl === undefined) {
     return {

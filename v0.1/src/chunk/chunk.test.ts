@@ -5,7 +5,7 @@ import type { Chunker } from "../type_flyweight/chunker.ts";
 import type { TestNode } from "../test_hooks/test_element.ts";
 
 import { Chunk } from "./chunk.ts";
-import { hooks, draw, TestAttributes } from "../test_hooks/test_hooks.ts";
+import { draw, hooks, TestAttributes } from "../test_hooks/test_hooks.ts";
 
 const title = "context";
 const runTestsAsynchronously = true;

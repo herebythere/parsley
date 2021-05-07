@@ -22,7 +22,7 @@ const BREAK_RUNES: BreakRunes = {
 
 const crawlForTagName = <N, A>(
   template: Template<N, A>,
-  innerXmlBounds: Vector
+  innerXmlBounds: Vector,
 ) => {
   let positionChar = getCharAtPosition(template, innerXmlBounds.origin);
   if (positionChar === undefined || BREAK_RUNES[positionChar]) {

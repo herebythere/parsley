@@ -1,8 +1,13 @@
 // brian taylor vann
 // chunker types
 
+// Nodes
+// Attributes
+// Parameters
+// State
+
 import type { Template } from "./template.ts";
-import type { ChunkBase, BangerBase } from "./chunk.ts";
+import type { BangerBase, ChunkBase } from "./chunk.ts";
 
 interface UpdateParams<N, P, S> {
   params: P;
@@ -10,7 +15,7 @@ interface UpdateParams<N, P, S> {
   banger: BangerBase<N>;
 }
 type UpdateChunk<N, A, P, S> = (
-  params: UpdateParams<N, P, S>
+  params: UpdateParams<N, P, S>,
 ) => Template<N, A>;
 
 interface ConnectParams<N, P> {
@@ -36,11 +41,11 @@ type ChunkFactory<N, P> = (params: P) => ChunkBase<N>;
 type ChunkBaseArray<N> = ChunkBase<N>[];
 
 export type {
-  Chunker,
   ChunkBaseArray,
+  Chunker,
+  ChunkFactory,
   ConnectChunk,
   ConnectParams,
-  ChunkFactory,
   DisconnectChunk,
   UpdateChunk,
 };

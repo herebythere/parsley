@@ -81,12 +81,11 @@ const attributeEscCharReducesCorrectState = () => {
   const assertions: string[] = [];
 
   if (routers["ATTRIBUTE_ESC_CHAR"]?.["DEFAULT"] !== "ATTRIBUTE") {
-    assertions.push('DEFAULT should return ATTRIBUTE');
+    assertions.push("DEFAULT should return ATTRIBUTE");
   }
 
   return assertions;
 };
-
 
 const independentNodeValidReducesCorrectState = () => {
   const assertions: string[] = [];

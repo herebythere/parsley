@@ -8,8 +8,8 @@ import {
   copy,
   create,
   decrement,
-  increment,
   getCharAtPosition,
+  increment,
 } from "./text_position.ts";
 import { samestuff } from "../test_deps.ts";
 
