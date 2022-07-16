@@ -5,10 +5,8 @@ import type { Position } from "../type_flyweight/text_vector.ts";
 import type { Template } from "../type_flyweight/template.ts";
 
 import {
-  copy,
   create,
-  decrement,
-  getCharAtPosition,
+  getChar,
   increment,
 } from "./text_position.ts";
 import { samestuff } from "../test_deps.ts";
@@ -32,8 +30,8 @@ const createTextPosition = () => {
   const assertions = [];
 
   const expectedResults = {
-    arrayIndex: 0,
-    stringIndex: 0,
+    x: 0,
+    y: 0,
   };
 
   const position = create();
@@ -49,28 +47,11 @@ const createTextPositionFromPosition = () => {
   const assertions = [];
 
   const expectedResults = {
-    arrayIndex: 3,
-    stringIndex: 4,
+    x: 3,
+    y: 4,
   };
 
   const position = create(expectedResults);
-
-  if (!samestuff(expectedResults, position)) {
-    assertions.push("unexpected results found.");
-  }
-
-  return assertions;
-};
-
-const copyTextPosition = () => {
-  const assertions = [];
-
-  const expectedResults = {
-    arrayIndex: 2,
-    stringIndex: 3,
-  };
-
-  const position = copy(expectedResults);
 
   if (!samestuff(expectedResults, position)) {
     assertions.push("unexpected results found.");
@@ -83,8 +64,8 @@ const incrementTextPosition = () => {
   const assertions = [];
 
   const expectedResults = {
-    arrayIndex: 0,
-    stringIndex: 1,
+    x: 0,
+    y: 1,
   };
 
   const structureRender = testTextInterpolator`hello`;
@@ -103,8 +84,8 @@ const incrementMultiTextPosition = () => {
   const assertions = [];
 
   const expectedResults = {
-    arrayIndex: 1,
-    stringIndex: 2,
+    x: 1,
+    y: 2,
   };
 
   const structureRender = testTextInterpolator`hey${"world"}, how are you?`;
@@ -127,8 +108,8 @@ const incrementEmptyTextPosition = () => {
   const assertions = [];
 
   const expectedResults = {
-    arrayIndex: 3,
-    stringIndex: 0,
+    x: 3,
+    y: 0,
   };
 
   const structureRender = testTextInterpolator`${"hey"}${"world"}${"!!"}`;
@@ -153,17 +134,17 @@ const incrementTextPositionTooFar = () => {
   const assertions = [];
 
   const expectedResults = {
-    arrayIndex: 1,
-    stringIndex: 13,
+    x: 1,
+    y: 13,
   };
 
   const structureRender = testTextInterpolator`hey${"world"}, how are you?`;
   const arrayLength = structureRender.templateArray.length - 1;
   const stringLength = structureRender.templateArray[arrayLength].length - 1;
-  const position: Position = copy({
-    arrayIndex: arrayLength,
-    stringIndex: stringLength,
-  });
+  const position: Position = {
+    x: arrayLength,
+    y: stringLength,
+  };
 
   const MAX_DEPTH = 20;
   let safety = 0;
@@ -179,120 +160,12 @@ const incrementTextPositionTooFar = () => {
   return assertions;
 };
 
-const decrementTextPosition = () => {
-  const assertions = [];
-
-  const expectedResults = {
-    arrayIndex: 0,
-    stringIndex: 3,
-  };
-
-  const structureRender = testTextInterpolator`hello`;
-  const arrayLength = structureRender.templateArray.length - 1;
-  const stringLength = structureRender.templateArray[arrayLength].length - 1;
-  const position: Position = copy({
-    arrayIndex: arrayLength,
-    stringIndex: stringLength,
-  });
-
-  decrement(structureRender, position);
-
-  if (!samestuff(expectedResults, position)) {
-    assertions.push("unexpected results found.");
-  }
-
-  return assertions;
-};
-
-const decrementMultiTextPosition = () => {
-  const assertions = [];
-
-  const expectedResults = {
-    arrayIndex: 0,
-    stringIndex: 1,
-  };
-
-  const structureRender = testTextInterpolator`hey${"hello"}bro!`;
-  const arrayLength = structureRender.templateArray.length - 1;
-  const stringLength = structureRender.templateArray[arrayLength].length - 1;
-  const position: Position = copy({
-    arrayIndex: arrayLength,
-    stringIndex: stringLength,
-  });
-  decrement(structureRender, position);
-  decrement(structureRender, position);
-  decrement(structureRender, position);
-  decrement(structureRender, position);
-  decrement(structureRender, position);
-
-  if (!samestuff(expectedResults, position)) {
-    assertions.push("unexpected results found.");
-  }
-
-  return assertions;
-};
-
-const decrementEmptyTextPosition = () => {
-  const assertions = [];
-
-  const expectedResults = {
-    arrayIndex: 0,
-    stringIndex: 0,
-  };
-
-  const structureRender = testTextInterpolator`${"hey"}${"world"}${"!!"}`;
-  const arrayLength = structureRender.templateArray.length - 1;
-  const stringLength = structureRender.templateArray[arrayLength].length - 1;
-  const position: Position = copy({
-    arrayIndex: arrayLength,
-    stringIndex: stringLength,
-  });
-
-  decrement(structureRender, position);
-  decrement(structureRender, position);
-  decrement(structureRender, position);
-
-  if (decrement(structureRender, position) !== undefined) {
-    assertions.push("should not return after traversed");
-  }
-
-  if (!samestuff(expectedResults, position)) {
-    assertions.push("unexpected results found.");
-  }
-
-  return assertions;
-};
-
-const decrementTextPositionTooFar = () => {
-  const assertions = [];
-
-  const expectedResults = {
-    arrayIndex: 0,
-    stringIndex: 0,
-  };
-
-  const structureRender = testTextInterpolator`hey${"world"}, how are you?`;
-  const position: Position = create();
-
-  const MAX_DEPTH = 20;
-  let safety = 0;
-  while (decrement(structureRender, position) && safety < MAX_DEPTH) {
-    // iterate across structure
-    safety += 1;
-  }
-
-  if (!samestuff(expectedResults, position)) {
-    assertions.push("unexpected results found.");
-  }
-
-  return assertions;
-};
 
 const getCharFromTemplate = () => {
   const assertions = [];
   const structureRender = testTextInterpolator`hello`;
-  const position: Position = { arrayIndex: 0, stringIndex: 2 };
-  const char = getCharAtPosition(structureRender, position);
+  const position: Position = { x: 0, y: 2 };
+  const char = getChar(structureRender, position);
 
   if (char !== "l") {
     assertions.push("textPosition target is not 'l'");
@@ -304,15 +177,10 @@ const getCharFromTemplate = () => {
 const tests = [
   createTextPosition,
   createTextPositionFromPosition,
-  copyTextPosition,
   incrementTextPosition,
   incrementMultiTextPosition,
   incrementEmptyTextPosition,
   incrementTextPositionTooFar,
-  decrementTextPosition,
-  decrementMultiTextPosition,
-  decrementEmptyTextPosition,
-  decrementTextPositionTooFar,
   getCharFromTemplate,
 ];
 

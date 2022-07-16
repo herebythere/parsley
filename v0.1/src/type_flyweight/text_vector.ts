@@ -2,8 +2,8 @@
 // text vector types
 
 interface Position {
-  arrayIndex: number;
-  stringIndex: number;
+  x: number; // chunk
+  y: number; // postition
 }
 
 interface Vector {
