@@ -7,7 +7,7 @@
 // import { unitTestBuildSkeleton } from "./builders/build_skeleton/build_skeleton.test.ts";
 // import { unitTestContext } from "./chunk/chunk.test.ts";
 // import { unitTestSkeletonCrawl } from "./builders/skeleton_crawl/skeleton_crawl.test.ts";
-// import { unitTestSkeletonRouters } from "./builders/skeleton_routers/skeleton_routers.test.ts";
+import { unitTestSkeletonRouters } from "./router/routers.test.ts";
 // import { unitTestTagNameCrawl } from "./builders/tag_name_crawl/tag_name_crawl.test.ts";
 // import { unitTestTestHooks } from "./test_hooks/test_hooks.test.ts";
 import { unitTestTextPosition } from "./text_position/text_position.test.ts";
@@ -20,11 +20,12 @@ const tests = [
   // unitTestBuildSkeleton,
   // unitTestContext,
   // unitTestSkeletonCrawl,
-  // unitTestSkeletonRouters,
+  unitTestSkeletonRouters,
   // unitTestTagNameCrawl,
   // unitTestTestHooks,
-  unitTestTextPosition,
-  unitTestTextVector,
+
+  // unitTestTextPosition,
+  // unitTestTextVector,
 ];
 
 export { tests };

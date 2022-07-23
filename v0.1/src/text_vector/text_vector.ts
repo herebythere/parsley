@@ -10,17 +10,7 @@ import {
 
 type Create = (position?: Position) => Vector;
 
-// type CreateFollowingVector = <N, A>(
-//   template: Template<N, A>,
-//   vector: Vector,
-// ) => Vector | undefined;
-
 type Copy = (vector: Vector) => Vector;
-
-type GetTagetChar = <N, A>(
-  template: Template<N, A>,
-  vector: Vector,
-) => string | undefined;
 
 type Increment = <N, A>(
   template: Template<N, A>,
@@ -44,7 +34,7 @@ const create: Create = (position = DEFAULT_POSITION) => ({
   target: { ...position },
 });
 
-const createFromVector = <N, A>(template: Template<N, A>) => {
+const createFromTemplate = <N, A>(template: Template<N, A>) => {
   const last = template.templateArray.length - 1;
   const lastChunk = template.templateArray[last].length - 1;
   return {
@@ -123,7 +113,7 @@ const getText: GetTextFromVector = (template, vector) => {
 export {
   copy,
   create,
-  createFromVector,
+  createFromTemplate,
   getText,
   hasOriginEclipsedTaraget,
   incrementOrigin,

@@ -1,41 +1,52 @@
 // brian taylor vann
 // integral types
 
-import type {
-  AttributeAction,
-  ExplicitAttributeAction,
-  ImplicitAttributeAction,
-  InjectedAttributeAction,
-} from "./attribute_crawl.ts";
 import type { Vector } from "./text_vector.ts";
 
 interface NodeAction {
-  kind: "NODE";
-  tagNameVector: Vector;
+  type: "NODE";
+  vector: Vector;
 }
 interface SelfClosingNodeAction {
-  kind: "SELF_CLOSING_NODE";
-  tagNameVector: Vector;
+  type: "INDEPENDENT_NODE";
+  vector: Vector;
 }
 interface CloseNodeAction {
-  kind: "CLOSE_NODE";
-  tagNameVector: Vector;
+  type: "CLOSE_NODE";
+  vector: Vector;
 }
 
 interface TextAction {
-  kind: "TEXT";
-  textVector: Vector;
+  type: "TEXT";
+  vector: Vector;
 }
 
+type ImplicitAttributeAction = {
+  type: "IMPLICIT_ATTRIBUTE";
+  vector: Vector;
+};
+
+type ExplicitAttributeAction = {
+  type: "EXPLICIT_ATTRIBUTE";
+  vector: Vector;
+  valueVector: Vector;
+};
+
+type InjectedAttributeAction = {
+  type: "INJECTED_ATTRIBUTE";
+  vector: Vector;
+  valueVector: Vector;
+  injectionID: number;
+};
+
 interface ChunkArrayInjectionAction {
-  kind: "CHUNK_ARRAY_INJECTION";
+  type: "INJECTION";
   injectionID: number;
 }
 
 type IntegralAction =
-  | AttributeAction
-  | CloseNodeAction
   | ChunkArrayInjectionAction
+  | CloseNodeAction
   | ExplicitAttributeAction
   | ImplicitAttributeAction
   | InjectedAttributeAction
@@ -46,7 +57,6 @@ type IntegralAction =
 type Integrals = IntegralAction[];
 
 export type {
-  AttributeAction,
   ChunkArrayInjectionAction,
   CloseNodeAction,
   ExplicitAttributeAction,
