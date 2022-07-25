@@ -29,9 +29,9 @@ const DEFAULT_POSITION: Position = {
   y: 0,
 };
 
-const create: Create = (position = DEFAULT_POSITION) => ({
-  origin: { ...position },
-  target: { ...position },
+const create: Create = (origin = DEFAULT_POSITION, target = DEFAULT_POSITION) => ({
+  origin: { ...origin },
+  target: { ...target },
 });
 
 const createFromTemplate = <N, A>(template: Template<N, A>) => {

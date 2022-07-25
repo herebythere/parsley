@@ -6,7 +6,7 @@ import type { Template } from "../../type_flyweight/template.ts";
 import type {
   CrawlResults,
   SkeletonNodes,
-} from "../../type_flyweight/skeleton_crawl.ts";
+} from "../../type_flyweight/crawl.ts";
 
 import type { Integrals } from "../../type_flyweight/integrals.ts";
 import type { Vector } from "../../type_flyweight/text_vector.ts";

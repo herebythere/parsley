@@ -1,7 +1,7 @@
 // brian taylor vann
 // skeleton crawl types
 
-import type { Position } from "./text_position.ts";
+import type { Position } from "./text_vector.ts";
 
 type CrawlStatus =
   | "TEXT"

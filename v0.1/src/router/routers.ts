@@ -1,7 +1,13 @@
 // brian taylor vann
 // routers
 
-const routers = {
+type  RouterMap = Record<string, string> & {
+  DEFAULT: string
+}
+
+type Routers = Record<string, RouterMap>;
+
+const routers: Routers = {
   INITIAL: {
     "<": "0_NODE",
     DEFAULT: "TEXT"
@@ -15,22 +21,31 @@ const routers = {
   "0_NODE": {
     " ": "TEXT",
     "\n": "TEXT",
-    "/": "TEXT",
+    "/": "0_NODE_CLOSE",
     ">": "TEXT",
     "<": "0_NODE",
     "-": "0_COMMENT",
     DEFAULT: "0_TAGNAME",
   },
+  "0_NODE_CLOSE": {
+    " ": "TEXT",
+    DEFAULT: "0_TAGNAME_CLOSE",
+  },
   "0_TAGNAME": {
     ">": "C_NODE",
-    " ": "SPACE_ATTRIBUTE",
+    " ": "SPACE_COMMENT",
     "/": "0_INDEPENDENT_NODE",
     DEFAULT: "0_TAGNAME",
   },
+  "0_TAGNAME_CLOSE": {
+    ">": "C_NODE_CLOSE",
+    " ": "SPACE_CLOSE_NODE",
+    DEFAULT: "0_TAGNAME_CLOSE",
+  },
   "0_INDEPENDENT_NODE": {
-    " ": "SPACE_ATTRIBUTE",
+    " ": "SPACE_COMMENT",
     ">": "C_INDEPENDENT_NODE",
-    DEFAULT: "SPACE_ATTRIBUTE" // incorrect for now
+    DEFAULT: "SPACE_COMMENT" // incorrect for now
   },
   C_NODE: {
     "<": "0_NODE",
@@ -40,10 +55,14 @@ const routers = {
     "<": "0_NODE",
     DEFAULT: "TEXT",
   },
+  C_NODE_CLOSE: {
+    "<": "0_NODE",
+    DEFAULT: "TEXT",
+  },
   // ATTRIBUTE
-  "SPACE_ATTRIBUTE": {
+  "SPACE_COMMENT": {
     ">": "C_NODE",
-    DEFAULT: "SPACE_ATTRIBUTE", // incorrect
+    DEFAULT: "SPACE_COMMENT", // incorrect
   },
   // comments
   "0_COMMENT": {
@@ -52,18 +71,19 @@ const routers = {
   },
   "1_COMMENT": {
     "-": "0_COMMENT_CLOSE",
-    DEFAULT: "TEXT_COMMENT"
+    DEFAULT: "TEXT_COMMENT",
   },
   TEXT_COMMENT: {
     "-": "0_COMMENT_CLOSE",
+    DEFAULT: "TEXT_COMMENT",
   },
   "0_COMMENT_CLOSE": {
     "-": "1_COMMENT_CLOSE",
-    DEFAULT: "TEXT_COMMENT"
+    DEFAULT: "TEXT_COMMENT",
   },
   "1_COMMENT_CLOSE": {
     ">": "C_COMMENT",
-    DEFAULT: "TEXT_COMMENT"
+    DEFAULT: "TEXT_COMMENT",
   },
   C_COMMENT: {
     "<": "0_NODE",
@@ -104,7 +124,7 @@ const routers = {
   //   ">": "INDEPENDENT_FOUND",
   //   DEFAULT: "INDEPENDENT_VALID",
   // },
-} as const;
+};
 
 export { routers };
 

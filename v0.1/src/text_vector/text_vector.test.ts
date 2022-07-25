@@ -11,7 +11,7 @@ import {
   getText,
   hasOriginEclipsedTaraget,
   incrementOrigin,
-  createFromVector,
+  createFromTemplate,
 } from "./text_vector.ts";
 
 type TextTextInterpolator = <N, A>(
@@ -91,7 +91,7 @@ const incrementTextVector = () => {
   };
 
   const structureRender = testTextInterpolator`hello`;
-  const vector: Vector = createFromVector(structureRender);
+  const vector: Vector = createFromTemplate(structureRender);
 
   incrementOrigin(structureRender, vector);
 
@@ -111,7 +111,7 @@ const incrementMultiTextVector = () => {
   };
 
   const structureRender = testTextInterpolator`hey${"world"}, how are you?`;
-  const vector: Vector = createFromVector(structureRender);
+  const vector: Vector = createFromTemplate(structureRender);
 
   incrementOrigin(structureRender, vector);
   incrementOrigin(structureRender, vector);
@@ -135,7 +135,7 @@ const incrementEmptyTextVector = () => {
   };
 
   const structureRender = testTextInterpolator`${"hey"}${"world"}${"!!"}`;
-  const vector: Vector = createFromVector(structureRender);
+  const vector: Vector = createFromTemplate(structureRender);
 
   incrementOrigin(structureRender, vector);
   incrementOrigin(structureRender, vector);
@@ -161,7 +161,7 @@ const incrementTextVectorTooFar = () => {
   };
 
   const structureRender = testTextInterpolator`hey${"world"}, how are you?`;
-  const results: Vector = createFromVector(structureRender);
+  const results: Vector = createFromTemplate(structureRender);
 
   const MAX_DEPTH = 20;
   let safety = 0;
@@ -193,7 +193,7 @@ const testHasOriginNotEclipsedTaraget = () => {
   const assertions = [];
 
   const structureRender = testTextInterpolator`hey${"world"}, how are you?`;
-  const vector: Vector = createFromVector(structureRender);
+  const vector: Vector = createFromTemplate(structureRender);
 
   incrementOrigin(structureRender, vector);
   incrementOrigin(structureRender, vector);

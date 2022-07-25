@@ -39,17 +39,25 @@ type InjectedAttributeAction = {
   injectionID: number;
 };
 
-interface ChunkArrayInjectionAction {
+type AttributeInjectionAction = {
+  type: "INJECTION_ATTRIBUTE";
+  vector: Vector;
+  valueVector: Vector;
+  injectionID: number;
+};
+
+interface InjectionAction {
   type: "INJECTION";
   injectionID: number;
 }
 
 type IntegralAction =
-  | ChunkArrayInjectionAction
+  | InjectionAction
   | CloseNodeAction
   | ExplicitAttributeAction
   | ImplicitAttributeAction
   | InjectedAttributeAction
+  | AttributeInjectionAction
   | NodeAction
   | SelfClosingNodeAction
   | TextAction;
@@ -57,7 +65,7 @@ type IntegralAction =
 type Integrals = IntegralAction[];
 
 export type {
-  ChunkArrayInjectionAction,
+  InjectionAction,
   CloseNodeAction,
   ExplicitAttributeAction,
   ImplicitAttributeAction,

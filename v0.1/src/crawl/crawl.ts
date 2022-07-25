@@ -1,63 +1,78 @@
 // crawl(graph, template, prevState) {}
 
 import { Template } from "../type_flyweight/template.ts";
-import {CrawlResults} from "../type_flyweight/crawl"
+import {CrawlResults} from "../type_flyweight/crawl.ts"
 
-import {routers} from "../crawl/crawl.ts";
-import {createFromTemplate} from "../text_vector/text_vector.ts";
+import {routers} from "../router/routers.ts";
+import {hasOriginEclipsedTaraget, createFromTemplate, create, incrementOrigin} from "../text_vector/text_vector.ts";
+import {getChar} from "../text_position/text_position.ts";
 
 
-// generative way could be somethinglike
-// load file
-// line / chunk
-// convert to segment
-// reference to last chunk
-// crawl
+const INITIAL = "INITIAL";
+
+// states for injuections
+//  attribute map
+//  explicit attributes
+//  children
+// states for attributes
+//  implicit
+//  explicit
+//  attribute map {...pop}
 //
-// write steps
-// carry onver
-
-// prev pos
-// curr pos
-
-// increment origin
-
-// have a push pop sieve
-
-// push starts with 0 || CONFIRMED
-
-// pop starts with CONFIRMED
-
-// lets see if theres some kind of pattern to find
 
 
-// somehting to "get text"
-
-// atom is created maybe
-
-// integral from atom
-
-// something to "record integrals"
-
-// 
-
-function crawl<N, A>(template: Template<N, A>, prevCrawl: CrawlResults) {
-    // start from previous crawl state
-    //
-    //
-
-
-
-    // [] integrals
+function crawl<N, A>(template: Template<N, A>) {
+    const templateVector = createFromTemplate(template);
     
-    // get text vector
+    let prevPosition = {...templateVector.origin};
+    let lastChangeOrigin = {...templateVector.origin};
+    let prevState = INITIAL;
+    let currState = INITIAL;
 
-    // while vector has not eclipsed
-    //   prev position
-    //   curr positoin
-    //
-    //   prev state !== new state
-    //     push to integrals
+    console.log("vector:", templateVector);
+    
+    while(!hasOriginEclipsedTaraget(templateVector)) {
+        if (template.templateArray[templateVector.origin.x] === ""){
+            console.log("skipping!");
+            incrementOrigin(template, templateVector);
+            continue;
+        };
+        const char = getChar(template, templateVector.origin);
+        if (char === undefined) return;
+        
+        prevState = currState;
+        currState = routers[prevState]?.[char];
+        if (currState === undefined) {
+            currState = routers[prevState]?.["DEFAULT"];
+        }
+
+        if (prevState !== currState) {
+            console.log("*** STATE_CHANGE ***", prevState, lastChangeOrigin, prevPosition);
+            lastChangeOrigin = {...templateVector.origin};
+        }
+ 
+        // incrememnt ++
+        prevPosition = {...templateVector.origin};
+        incrementOrigin(template, templateVector);
+    }
+
+    // REPEAT
+
+    const char = getChar(template, templateVector.origin);
+    if (char === undefined) return;
+
+    prevState = currState;
+    currState = routers[prevState]?.[char];
+    if (currState === undefined) {
+        currState = routers[prevState]?.["DEFAULT"];
+    }
+
+    if (prevState !== currState) {
+        console.log("*** STATE_CHANGE ***", prevState, lastChangeOrigin, prevPosition);
+        lastChangeOrigin = {...templateVector.origin};
+    }
+
+    console.log("*** FINAL STATE_CHANGE ***", currState, prevPosition, templateVector.origin);
 }
 
 export { crawl }

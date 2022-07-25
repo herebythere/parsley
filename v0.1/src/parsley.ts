@@ -29,3 +29,4 @@
 
 // export { Chunk } from "./chunk/chunk.ts";
 // export { createCustomInterface } from "./create_interface/create_interface.ts";
+export {crawl} from "./crawl/crawl.ts";

@@ -6,7 +6,7 @@ import type { Position } from "../../type_flyweight/text_vector.ts";
 import type {
   CrawlResults,
   SkeletonNodes,
-} from "../../type_flyweight/skeleton_crawl.ts";
+} from "../../type_flyweight/crawl.ts";
 
 import { crawl } from "../skeleton_crawl/skeleton_crawl.ts";
 import {
