@@ -20,6 +20,31 @@ const INITIAL = "INITIAL";
 //  attribute map {...pop}
 //
 
+// 
+// 
+//
+// node stack
+// open
+// tag name
+// attribute
+// attribute injection
+// attribute
+
+// Flush node queue
+//
+// C_NODE
+// C_INDEPENDENT_NODE
+//
+
+// TEXT
+
+// crawl returns
+// { template, last result } ?
+// 
+
+// or a kind of file load / file save
+
+// return 
 
 function crawl<N, A>(template: Template<N, A>) {
     const templateVector = createFromTemplate(template);

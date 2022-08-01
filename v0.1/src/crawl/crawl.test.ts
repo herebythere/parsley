@@ -34,6 +34,90 @@ const crawlTest = () => {
     return ["fail!"];
 }
 
+const crawlNodeTest = () => {
+  const testVector = testTextInterpolator`<hello>`;
+
+  console.log(testVector);
+
+  crawl(testVector);
+
+  return ["fail!"];
+}
+
+const crawlImplicitAttributeTest = () => {
+  const testVector = testTextInterpolator`<hello attribute>`;
+
+  console.log(testVector);
+
+  crawl(testVector);
+
+  return ["fail!"];
+}
+
+
+const crawlImplicitAttributeWithSpacesTest = () => {
+  const testVector = testTextInterpolator`<hello  attribute  >`;
+
+  console.log(testVector);
+
+  crawl(testVector);
+
+  return ["fail!"];
+}
+
+const crawlIndependentNodeTest = () => {
+  const testVector = testTextInterpolator`<hello/>`;
+
+  console.log(testVector);
+
+  crawl(testVector);
+
+  return ["fail!"];
+}
+
+const crawlIndependentNodeImplicitAttributeTest = () => {
+  const testVector = testTextInterpolator`<hello attribute/>`;
+
+  console.log(testVector);
+
+  crawl(testVector);
+
+  return ["fail!"];
+}
+
+
+const crawlIndependentNodeImplicitAttributeWithSpacesTest = () => {
+  const testVector = testTextInterpolator`<hello  attribute  />`;
+
+  console.log(testVector);
+
+  crawl(testVector);
+
+  return ["fail!"];
+}
+
+
+const crawlExplicitAttributeTest = () => {
+  const testVector = testTextInterpolator`<hello attribute="value"/>`;
+
+  console.log(testVector);
+
+  crawl(testVector);
+
+  return ["fail!"];
+}
+
+
+const crawlExplicitAttributeWithSpacesTest = () => {
+  const testVector = testTextInterpolator`<hello  attribute="value"  />`;
+
+  console.log(testVector);
+
+  crawl(testVector);
+
+  return ["fail!"];
+}
+
 const crawlerCommentTest = () => {
   const testVector = testTextInterpolator`<-- Hello world! -->`;
 
@@ -75,11 +159,22 @@ const crawlerTest2 = () => {
 }
 
 const tests = [
-    crawlTest,
-    crawlerTest,
-    crawlerTest1,
-    crawlerTest2,
-    crawlerCommentTest
+    // crawlTest,
+    // crawlerTest,
+    // crawlerTest1,
+    // crawlerTest2,
+    // crawlerCommentTest,
+
+    // crawlNodeTest,
+    // crawlImplicitAttributeTest,
+    // crawlImplicitAttributeWithSpacesTest,
+
+    // crawlIndependentNodeTest,
+    // crawlIndependentNodeImplicitAttributeTest,
+    // crawlIndependentNodeImplicitAttributeWithSpacesTest,
+
+    crawlExplicitAttributeTest,
+    crawlExplicitAttributeWithSpacesTest,
 ];
 
 const unitTestCrawl = {

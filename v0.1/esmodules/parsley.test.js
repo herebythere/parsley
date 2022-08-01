@@ -26,19 +26,20 @@ const routers = {
     },
     "0_TAGNAME": {
         ">": "C_NODE",
-        " ": "SPACE_COMMENT",
+        " ": "SPACE_NODE",
+        "\n": "SPACE_NODE",
         "/": "0_INDEPENDENT_NODE",
         DEFAULT: "0_TAGNAME"
     },
     "0_TAGNAME_CLOSE": {
         ">": "C_NODE_CLOSE",
         " ": "SPACE_CLOSE_NODE",
+        "\n": "SPACE_CLOSE_NODE",
         DEFAULT: "0_TAGNAME_CLOSE"
     },
     "0_INDEPENDENT_NODE": {
-        " ": "SPACE_COMMENT",
         ">": "C_INDEPENDENT_NODE",
-        DEFAULT: "SPACE_COMMENT"
+        DEFAULT: "TEXT"
     },
     C_NODE: {
         "<": "0_NODE",
@@ -52,9 +53,35 @@ const routers = {
         "<": "0_NODE",
         DEFAULT: "TEXT"
     },
-    "SPACE_COMMENT": {
+    "SPACE_NODE": {
         ">": "C_NODE",
-        DEFAULT: "SPACE_COMMENT"
+        " ": "SPACE_NODE",
+        "\n": "SPACE_NODE",
+        "/": "0_INDEPENDENT_NODE",
+        DEFAULT: "ATTRIBUTE"
+    },
+    "ATTRIBUTE": {
+        " ": "SPACE_NODE",
+        "\n": "SPACE_NODE",
+        "=": "ATTRIBUTE_SETTER",
+        DEFAULT: "ATTRIBUTE"
+    },
+    "ATTRIBUTE_SETTER": {
+        "\"": "ATTRIBUTE_DECLARATION",
+        "\n": "SPACE_NODE",
+        DEFAULT: "SPACE_NODE"
+    },
+    "ATTRIBUTE_DECLARATION": {
+        "\"": "C_ATTRIBUTE_VALUE",
+        DEFAULT: "0_ATTRIBUTE_VALUE"
+    },
+    "0_ATTRIBUTE_VALUE": {
+        "\"": "C_ATTRIBUTE_VALUE",
+        DEFAULT: "0_ATTRIBUTE_VALUE"
+    },
+    "C_ATTRIBUTE_VALUE": {
+        ">": "C_INDEPENDENT_NODE",
+        DEFAULT: "SPACE_NODE"
     },
     "0_COMMENT": {
         "-": "1_COMMENT",
@@ -101,16 +128,16 @@ const getChar = (template, position)=>{
     return template.templateArray[position.x]?.[position.y];
 };
 const createFromTemplate = (template)=>{
-    const last = template.templateArray.length - 1;
-    const lastChunk = template.templateArray[last].length - 1;
+    const x = template.templateArray.length - 1;
+    const y = template.templateArray[x].length - 1;
     return {
         origin: {
             x: 0,
             y: 0
         },
         target: {
-            x: last,
-            y: lastChunk
+            x,
+            y
         }
     };
 };
@@ -179,40 +206,16 @@ const testTextInterpolator = (templateArray, ...injections)=>{
         injections
     };
 };
-const crawlTest = ()=>{
-    const testVector = testTextInterpolator`<hello>hello ${"buster"}!</hello>`;
+const crawlExplicitAttributeTest = ()=>{
+    const testVector = testTextInterpolator`<hello attribute="value"/>`;
     console.log(testVector);
     crawl(testVector);
     return [
         "fail!"
     ];
 };
-const crawlerCommentTest = ()=>{
-    const testVector = testTextInterpolator`<-- Hello world! -->`;
-    console.log(testVector);
-    crawl(testVector);
-    return [
-        "fail!"
-    ];
-};
-const crawlerTest = ()=>{
-    const testVector = testTextInterpolator``;
-    console.log(testVector);
-    crawl(testVector);
-    return [
-        "fail!"
-    ];
-};
-const crawlerTest1 = ()=>{
-    const testVector = testTextInterpolator`${"buster"}`;
-    console.log(testVector);
-    crawl(testVector);
-    return [
-        "fail!"
-    ];
-};
-const crawlerTest2 = ()=>{
-    const testVector = testTextInterpolator`${"yo"}${"buddy"}${"boi"}`;
+const crawlExplicitAttributeWithSpacesTest = ()=>{
+    const testVector = testTextInterpolator`<hello  attribute="value"  />`;
     console.log(testVector);
     crawl(testVector);
     return [
@@ -220,11 +223,8 @@ const crawlerTest2 = ()=>{
     ];
 };
 const tests = [
-    crawlTest,
-    crawlerTest,
-    crawlerTest1,
-    crawlerTest2,
-    crawlerCommentTest
+    crawlExplicitAttributeTest,
+    crawlExplicitAttributeWithSpacesTest, 
 ];
 const unitTestCrawl = {
     title,

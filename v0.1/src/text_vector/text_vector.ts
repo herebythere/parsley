@@ -35,11 +35,12 @@ const create: Create = (origin = DEFAULT_POSITION, target = DEFAULT_POSITION) =>
 });
 
 const createFromTemplate = <N, A>(template: Template<N, A>) => {
-  const last = template.templateArray.length - 1;
-  const lastChunk = template.templateArray[last].length - 1;
+  const x = template.templateArray.length - 1;
+  const y = template.templateArray[x].length - 1;
+
   return {
     origin: {x: 0, y: 0},
-    target: {x: last, y: lastChunk},
+    target: {x, y},
   }
 }
 
@@ -71,9 +72,7 @@ const getText: GetTextFromVector = (template, vector) => {
   const targetX = vector.target.x;
   const originX = vector.origin.x;
   const xDistance = targetX - originX;
-  if (xDistance < 0) {
-    return;
-  }
+  if (xDistance < 0) return;
 
   if (xDistance === 0) {
     const yDistance = vector.target.y - vector.origin.y + 1;
@@ -90,9 +89,7 @@ const getText: GetTextFromVector = (template, vector) => {
   let index = originX + 1;
   while (depth < safety && index <= bookend) {
     const piece = template.templateArray[index];
-    if (piece === undefined) {
-      return;
-    }
+    if (piece === undefined) return;
 
     texts.push(piece);
     index += 1;
@@ -100,9 +97,7 @@ const getText: GetTextFromVector = (template, vector) => {
   }
 
   const lastTemplate = template.templateArray[targetX];
-  if (lastTemplate === undefined) {
-    return;
-  }
+  if (lastTemplate === undefined) return;
 
   let last = lastTemplate.substr(0, vector.target.y + 1);
   texts.push(last);

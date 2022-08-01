@@ -33,19 +33,20 @@ const routers: Routers = {
   },
   "0_TAGNAME": {
     ">": "C_NODE",
-    " ": "SPACE_COMMENT",
+    " ": "SPACE_NODE",
+    "\n": "SPACE_NODE",
     "/": "0_INDEPENDENT_NODE",
     DEFAULT: "0_TAGNAME",
   },
   "0_TAGNAME_CLOSE": {
     ">": "C_NODE_CLOSE",
     " ": "SPACE_CLOSE_NODE",
+    "\n": "SPACE_CLOSE_NODE",
     DEFAULT: "0_TAGNAME_CLOSE",
   },
   "0_INDEPENDENT_NODE": {
-    " ": "SPACE_COMMENT",
     ">": "C_INDEPENDENT_NODE",
-    DEFAULT: "SPACE_COMMENT" // incorrect for now
+    DEFAULT: "TEXT" // incorrect for now
   },
   C_NODE: {
     "<": "0_NODE",
@@ -60,9 +61,35 @@ const routers: Routers = {
     DEFAULT: "TEXT",
   },
   // ATTRIBUTE
-  "SPACE_COMMENT": {
+  "SPACE_NODE": {
     ">": "C_NODE",
-    DEFAULT: "SPACE_COMMENT", // incorrect
+    " ": "SPACE_NODE",
+    "\n": "SPACE_NODE",
+    "/": "0_INDEPENDENT_NODE",
+    DEFAULT: "ATTRIBUTE", // incorrect
+  },
+  "ATTRIBUTE": {
+    " ": "SPACE_NODE",
+    "\n": "SPACE_NODE",
+    "=": "ATTRIBUTE_SETTER",
+    DEFAULT: "ATTRIBUTE", // incorrect
+  },
+  "ATTRIBUTE_SETTER": {
+    "\"": "ATTRIBUTE_DECLARATION",
+    "\n": "SPACE_NODE",
+    DEFAULT: "SPACE_NODE",
+  },
+  "ATTRIBUTE_DECLARATION": {
+    "\"": "C_ATTRIBUTE_VALUE",
+    DEFAULT: "0_ATTRIBUTE_VALUE",
+  },
+  "0_ATTRIBUTE_VALUE": {
+    "\"": "C_ATTRIBUTE_VALUE",
+    DEFAULT: "0_ATTRIBUTE_VALUE",
+  },
+  "C_ATTRIBUTE_VALUE": {
+    ">": "C_INDEPENDENT_NODE",
+    DEFAULT: "SPACE_NODE",
   },
   // comments
   "0_COMMENT": {
