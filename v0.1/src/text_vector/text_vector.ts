@@ -8,8 +8,7 @@ import {
   increment,
 } from "../text_position/text_position.ts";
 
-type Create = (position?: Position) => Vector;
-
+type Create = (origin?: Position, target?: Position) => Vector;
 type Copy = (vector: Vector) => Vector;
 
 type Increment = <N, A>(
@@ -17,7 +16,7 @@ type Increment = <N, A>(
   vector: Vector,
 ) => Vector | undefined;
 
-type HasOriginEclipsedTaraget = (vector: Vector) => boolean;
+type TargetCrossedOrigin = (vector: Vector) => boolean;
 
 type GetTextFromVector = <N, A>(
   template: Template<N, A>,
@@ -59,7 +58,7 @@ const incrementOrigin: Increment = (template, vector) => {
   return;
 };
 
-const hasOriginEclipsedTaraget: HasOriginEclipsedTaraget = (vector) => 
+const targetCrossedOrigin: TargetCrossedOrigin = (vector) => 
     vector.origin.x >= vector.target.x &&
     vector.origin.y >= vector.target.y;
 
@@ -85,9 +84,9 @@ const getText: GetTextFromVector = (template, vector) => {
 
   const safety = 512;
   let depth = 0;
-  const bookend = targetX - 1;
+  const bookend = targetX - 2;
   let index = originX + 1;
-  while (depth < safety && index <= bookend) {
+  while (depth < safety && index < bookend) {
     const piece = template.templateArray[index];
     if (piece === undefined) return;
 
@@ -110,6 +109,6 @@ export {
   create,
   createFromTemplate,
   getText,
-  hasOriginEclipsedTaraget,
+  targetCrossedOrigin,
   incrementOrigin,
 };

@@ -118,6 +118,35 @@ const crawlExplicitAttributeWithSpacesTest = () => {
   return ["fail!"];
 }
 
+const crawlNodeWithAttributeMapInjectionsTest = () => {
+  const testVector = testTextInterpolator`<hello ${"world"}/>`;
+
+  console.log(testVector);
+
+  crawl(testVector);
+
+  return ["fail!"];
+}
+
+const crawlNodeWithAttributeInjectionsTest = () => {
+  const testVector = testTextInterpolator`<hello world="${"world"}"/>`;
+
+  console.log(testVector);
+
+  crawl(testVector);
+
+  return ["fail!"];
+}
+const crawlNodeInjectionsTest = () => {
+  const testVector = testTextInterpolator`<hello>${"hi"}</hello>`;
+
+  console.log(testVector);
+
+  crawl(testVector);
+
+  return ["fail!"];
+}
+
 const crawlerCommentTest = () => {
   const testVector = testTextInterpolator`<-- Hello world! -->`;
 
@@ -173,8 +202,12 @@ const tests = [
     // crawlIndependentNodeImplicitAttributeTest,
     // crawlIndependentNodeImplicitAttributeWithSpacesTest,
 
-    crawlExplicitAttributeTest,
-    crawlExplicitAttributeWithSpacesTest,
+    // crawlExplicitAttributeTest,
+    // crawlExplicitAttributeWithSpacesTest,
+
+    // crawlNodeWithAttributeMapInjectionsTest,
+    // crawlNodeWithAttributeInjectionsTest,
+    crawlNodeInjectionsTest,
 ];
 
 const unitTestCrawl = {

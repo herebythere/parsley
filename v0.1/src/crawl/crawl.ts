@@ -4,7 +4,7 @@ import { Template } from "../type_flyweight/template.ts";
 import {CrawlResults} from "../type_flyweight/crawl.ts"
 
 import {routers} from "../router/routers.ts";
-import {hasOriginEclipsedTaraget, createFromTemplate, create, incrementOrigin} from "../text_vector/text_vector.ts";
+import {targetCrossedOrigin, createFromTemplate, create, incrementOrigin} from "../text_vector/text_vector.ts";
 import {getChar} from "../text_position/text_position.ts";
 
 
@@ -56,12 +56,13 @@ function crawl<N, A>(template: Template<N, A>) {
 
     console.log("vector:", templateVector);
     
-    while(!hasOriginEclipsedTaraget(templateVector)) {
+    while(!targetCrossedOrigin(templateVector)) {
         if (template.templateArray[templateVector.origin.x] === ""){
             console.log("skipping!");
             incrementOrigin(template, templateVector);
             continue;
         };
+
         const char = getChar(template, templateVector.origin);
         if (char === undefined) return;
         
@@ -76,8 +77,27 @@ function crawl<N, A>(template: Template<N, A>) {
             lastChangeOrigin = {...templateVector.origin};
         }
  
+        if (prevPosition.x !== templateVector.origin.x) {
+            // injection map?
+            if (prevState === "SPACE_NODE") {
+                console.log("attribute map injection");
+            }
+
+            if (prevState === "ATTRIBUTE_DECLARATION") {
+                console.log("attribute injection");
+            }
+            if (prevState === "TEXT" || prevState === "INITIAL" || prevState === "C_NODE" || prevState === "C_INDEPENDENT_NODE") {
+                console.log("node array injection");
+            }
+
+
+
+            console.log("invalid injection!");
+        }
+
         // incrememnt ++
         prevPosition = {...templateVector.origin};
+
         incrementOrigin(template, templateVector);
     }
 

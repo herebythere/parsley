@@ -32,9 +32,7 @@ const increment: Increment = (template, position) => {
   if (chunk === undefined) return;
 
   const chunkLength = chunk.length - 1;
-  if (position.x >= templateLength && position.y >= chunkLength) {
-    return;
-  }
+  if (position.x >= templateLength && position.y >= chunkLength) return;
 
   position.y += 1;
   if (position.y > chunkLength) {
@@ -45,8 +43,7 @@ const increment: Increment = (template, position) => {
   return position;
 };
 
-const getChar: GetChar = (template, position) => {
-  return template.templateArray[position.x]?.[position.y];
-};
+const getChar: GetChar = (template, position) => 
+  template.templateArray[position.x]?.[position.y];
 
 export { create, getChar, increment };

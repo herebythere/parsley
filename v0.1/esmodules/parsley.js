@@ -114,9 +114,7 @@ const increment = (template, position)=>{
     const chunk = template.templateArray[position.x];
     if (chunk === undefined) return;
     const chunkLength = chunk.length - 1;
-    if (position.x >= templateLength && position.y >= chunkLength) {
-        return;
-    }
+    if (position.x >= templateLength && position.y >= chunkLength) return;
     position.y += 1;
     if (position.y > chunkLength) {
         position.x += 1;
@@ -124,9 +122,7 @@ const increment = (template, position)=>{
     }
     return position;
 };
-const getChar = (template, position)=>{
-    return template.templateArray[position.x]?.[position.y];
-};
+const getChar = (template, position)=>template.templateArray[position.x]?.[position.y];
 const createFromTemplate = (template)=>{
     const x = template.templateArray.length - 1;
     const y = template.templateArray[x].length - 1;
@@ -147,7 +143,7 @@ const incrementOrigin = (template, vector)=>{
     }
     return;
 };
-const hasOriginEclipsedTaraget = (vector)=>vector.origin.x >= vector.target.x && vector.origin.y >= vector.target.y;
+const targetCrossedOrigin = (vector)=>vector.origin.x >= vector.target.x && vector.origin.y >= vector.target.y;
 const INITIAL = "INITIAL";
 function crawl(template) {
     const templateVector = createFromTemplate(template);
@@ -160,7 +156,7 @@ function crawl(template) {
     let prevState = INITIAL;
     let currState = INITIAL;
     console.log("vector:", templateVector);
-    while(!hasOriginEclipsedTaraget(templateVector)){
+    while(!targetCrossedOrigin(templateVector)){
         if (template.templateArray[templateVector.origin.x] === "") {
             console.log("skipping!");
             incrementOrigin(template, templateVector);
@@ -178,6 +174,18 @@ function crawl(template) {
             lastChangeOrigin = {
                 ...templateVector.origin
             };
+        }
+        if (prevPosition.x !== templateVector.origin.x) {
+            if (prevState === "SPACE_NODE") {
+                console.log("attribute map injection");
+            }
+            if (prevState === "ATTRIBUTE_DECLARATION") {
+                console.log("attribute injection");
+            }
+            if (prevState === "TEXT" || prevState === "INITIAL" || prevState === "C_NODE" || prevState === "C_INDEPENDENT_NODE") {
+                console.log("node array injection");
+            }
+            console.log("injection!");
         }
         prevPosition = {
             ...templateVector.origin

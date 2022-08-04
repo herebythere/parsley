@@ -9,7 +9,7 @@ import {
   copy,
   create,
   getText,
-  hasOriginEclipsedTaraget,
+  targetCrossedOrigin,
   incrementOrigin,
   createFromTemplate,
 } from "./text_vector.ts";
@@ -176,11 +176,11 @@ const incrementTextVectorTooFar = () => {
   return assertions;
 };
 
-const testHasOriginEclipsedTaraget = () => {
+const testTargetCrossedOrigin = () => {
   const assertions = [];
 
   const vector: Vector = create();
-  const results = hasOriginEclipsedTaraget(vector);
+  const results = targetCrossedOrigin(vector);
 
   if (results !== true) {
     assertions.push("orign eclipsed target");
@@ -200,7 +200,7 @@ const testHasOriginNotEclipsedTaraget = () => {
   incrementOrigin(structureRender, vector);
   incrementOrigin(structureRender, vector);
 
-  const results = hasOriginEclipsedTaraget(vector);
+  const results = targetCrossedOrigin(vector);
 
   if (results !== false) {
     assertions.push("orign has not eclipsed target");
@@ -292,7 +292,7 @@ const tests = [
   incrementMultiTextVector,
   incrementEmptyTextVector,
   incrementTextVectorTooFar,
-  testHasOriginEclipsedTaraget,
+  testTargetCrossedOrigin,
   testHasOriginNotEclipsedTaraget,
   testGetTextReturnsActualText,
   testGetTextOverTemplate,
