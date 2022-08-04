@@ -46,7 +46,7 @@ const routers: Routers = {
   },
   "0_INDEPENDENT_NODE": {
     ">": "C_INDEPENDENT_NODE",
-    DEFAULT: "TEXT" // incorrect for now
+    DEFAULT: "TEXT"
   },
   C_NODE: {
     "<": "0_NODE",
@@ -115,44 +115,7 @@ const routers: Routers = {
   C_COMMENT: {
     "<": "0_NODE",
     DEFAULT: "TEXT"
-  }
-  // NODE_PENDING: {
-  //   "-": "COMMENT",
-  //   " ": "TEXT",
-  //   "\n": "TEXT",
-  //   "<": "NODE_PENDING",
-  //   "/": "CLOSED",
-  //   DEFAULT: "NODE_VALID",
-  // },
-  // ATTRIBUTE: {
-  //   '"': "OPENED_VALID",
-  //   DEFAULT: "ATTRIBUTE",
-  // },
-  // OPENED_VALID: {
-  //   "<": "OPENED",
-  //   "/": "INDEPENDENT_VALID",
-  //   ">": "OPENED_FOUND",
-  //   '"': "ATTRIBUTE",
-  //   DEFAULT: "OPENED_VALID",
-  // },
-  // CLOSED: {
-  //   " ": "CONTENT",
-  //   "\n": "CONTENT",
-  //   "<": "OPENED",
-  //   DEFAULT: "CLOSED_VALID",
-  // },
-  // CLOSED_VALID: {
-  //   "<": "OPENED",
-  //   ">": "CLOSED_FOUND",
-  //   DEFAULT: "CLOSED_VALID",
-  // },
-  // INDEPENDENT_VALID: {
-  //   "<": "OPENED",
-  //   ">": "INDEPENDENT_FOUND",
-  //   DEFAULT: "INDEPENDENT_VALID",
-  // },
+  },
 };
 
 export { routers };
-
-// export type { CrawlStatus };

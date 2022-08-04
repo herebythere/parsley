@@ -205,8 +205,8 @@ const tests = [
     // crawlExplicitAttributeTest,
     // crawlExplicitAttributeWithSpacesTest,
 
-    // crawlNodeWithAttributeMapInjectionsTest,
-    // crawlNodeWithAttributeInjectionsTest,
+    crawlNodeWithAttributeMapInjectionsTest,
+    crawlNodeWithAttributeInjectionsTest, 
     crawlNodeInjectionsTest,
 ];
 

@@ -90,8 +90,6 @@ function crawl<N, A>(template: Template<N, A>) {
                 console.log("node array injection");
             }
 
-
-
             console.log("invalid injection!");
         }
 

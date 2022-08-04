@@ -185,7 +185,7 @@ function crawl(template) {
             if (prevState === "TEXT" || prevState === "INITIAL" || prevState === "C_NODE" || prevState === "C_INDEPENDENT_NODE") {
                 console.log("node array injection");
             }
-            console.log("injection!");
+            console.log("invalid injection!");
         }
         prevPosition = {
             ...templateVector.origin
@@ -214,6 +214,22 @@ const testTextInterpolator = (templateArray, ...injections)=>{
         injections
     };
 };
+const crawlNodeWithAttributeMapInjectionsTest = ()=>{
+    const testVector = testTextInterpolator`<hello ${"world"}/>`;
+    console.log(testVector);
+    crawl(testVector);
+    return [
+        "fail!"
+    ];
+};
+const crawlNodeWithAttributeInjectionsTest = ()=>{
+    const testVector = testTextInterpolator`<hello world="${"world"}"/>`;
+    console.log(testVector);
+    crawl(testVector);
+    return [
+        "fail!"
+    ];
+};
 const crawlNodeInjectionsTest = ()=>{
     const testVector = testTextInterpolator`<hello>${"hi"}</hello>`;
     console.log(testVector);
@@ -223,6 +239,8 @@ const crawlNodeInjectionsTest = ()=>{
     ];
 };
 const tests = [
+    crawlNodeWithAttributeMapInjectionsTest,
+    crawlNodeWithAttributeInjectionsTest,
     crawlNodeInjectionsTest, 
 ];
 const unitTestCrawl = {

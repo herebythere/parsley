@@ -185,7 +185,7 @@ function crawl(template) {
             if (prevState === "TEXT" || prevState === "INITIAL" || prevState === "C_NODE" || prevState === "C_INDEPENDENT_NODE") {
                 console.log("node array injection");
             }
-            console.log("injection!");
+            console.log("invalid injection!");
         }
         prevPosition = {
             ...templateVector.origin
