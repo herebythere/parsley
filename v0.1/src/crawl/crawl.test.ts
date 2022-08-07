@@ -7,7 +7,7 @@ import type {DeltaCrawl} from "./crawl.ts";
 
 import {crawl, ResultsBuilder} from "./crawl.ts";
 
-import { targetCrossedOrigin, createFromTemplate, create, incrementOrigin } from "../text_vector/text_vector.ts";
+import { createFromTemplate, create, incrementOrigin } from "../text_vector/text_vector.ts";
 
 const INITIAL = "INITIAL";
 

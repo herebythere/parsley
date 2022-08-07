@@ -9,7 +9,7 @@ import {
   copy,
   create,
   getText,
-  targetCrossedOrigin,
+  // targetCrossedOrigin,
   incrementOrigin,
   createFromTemplate,
 } from "./text_vector.ts";
@@ -176,38 +176,38 @@ const incrementTextVectorTooFar = () => {
   return assertions;
 };
 
-const testTargetCrossedOrigin = () => {
-  const assertions = [];
+// const testTargetCrossedOrigin = () => {
+//   const assertions = [];
 
-  const vector: Vector = create();
-  const results = targetCrossedOrigin(vector);
+//   const vector: Vector = create();
+//   const results = targetCrossedOrigin(vector);
 
-  if (results !== true) {
-    assertions.push("orign eclipsed target");
-  }
+//   if (results !== true) {
+//     assertions.push("orign eclipsed target");
+//   }
 
-  return assertions;
-};
+//   return assertions;
+// };
 
-const testHasOriginNotEclipsedTaraget = () => {
-  const assertions = [];
+// const testHasOriginNotEclipsedTaraget = () => {
+//   const assertions = [];
 
-  const structureRender = testTextInterpolator`hey${"world"}, how are you?`;
-  const vector: Vector = createFromTemplate(structureRender);
+//   const structureRender = testTextInterpolator`hey${"world"}, how are you?`;
+//   const vector: Vector = createFromTemplate(structureRender);
 
-  incrementOrigin(structureRender, vector);
-  incrementOrigin(structureRender, vector);
-  incrementOrigin(structureRender, vector);
-  incrementOrigin(structureRender, vector);
+//   incrementOrigin(structureRender, vector);
+//   incrementOrigin(structureRender, vector);
+//   incrementOrigin(structureRender, vector);
+//   incrementOrigin(structureRender, vector);
 
-  const results = targetCrossedOrigin(vector);
+//   const results = targetCrossedOrigin(vector);
 
-  if (results !== false) {
-    assertions.push("orign has not eclipsed target");
-  }
+//   if (results !== false) {
+//     assertions.push("orign has not eclipsed target");
+//   }
 
-  return assertions;
-};
+//   return assertions;
+// };
 
 const testGetTextReturnsActualText = () => {
   const expectedResult = "world";
@@ -292,8 +292,8 @@ const tests = [
   incrementMultiTextVector,
   incrementEmptyTextVector,
   incrementTextVectorTooFar,
-  testTargetCrossedOrigin,
-  testHasOriginNotEclipsedTaraget,
+  // testTargetCrossedOrigin,
+  // testHasOriginNotEclipsedTaraget,
   testGetTextReturnsActualText,
   testGetTextOverTemplate,
   testGetTextOverChonkyTemplate,

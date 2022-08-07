@@ -10,17 +10,17 @@ type Compose<N, A> = <P = void, S = void>(
   chunker: Chunker<N, A, P, S>,
 ) => ContextFactory<N, A, P, S>;
 
-interface CustomInterface<N, A> {
+interface ParsleyInterface<N, A> {
   attach: Attach<N>;
   compose: Compose<N, A>;
   draw: Draw<N, A>;
 }
 
-type CreateCustomInterface = <N, A>(
+type CreateInterface = <N, A>(
   hooks: Hooks<N, A>,
-) => CustomInterface<N, A>;
+) => ParsleyInterface<N, A>;
 
-const createCustomInterface: CreateCustomInterface = <N, A>(
+const createInterface: ParsleyInterface = <N, A>(
   hooks: Hooks<N, A>,
 ) => {
   const attach: Attach<N> = (parentNode, chunkArray) => {
@@ -52,6 +52,6 @@ const createCustomInterface: CreateCustomInterface = <N, A>(
   };
 };
 
-export type { CreateCustomInterface, CustomInterface };
+export type { CreateInterface, Interface };
 
-export { createCustomInterface };
+export { createInterface };

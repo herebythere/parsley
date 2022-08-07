@@ -182,7 +182,8 @@ const injectionMap = new Map([
     ]
 ]);
 function deltaCrawl(template, builder, delta) {
-    const __char = getChar(template, delta.vector.origin);
+    const vec = delta.vector;
+    const __char = getChar(template, vec.origin);
     if (__char === undefined) return;
     delta.prevState = delta.state;
     delta.state = routers[delta.prevState]?.[__char];
@@ -190,7 +191,6 @@ function deltaCrawl(template, builder, delta) {
         delta.state = routers[delta.prevState]?.["DEFAULT"];
     }
     const state = partMap.get(delta.prevState);
-    console.log(delta.prevState, state, delta.origin, delta.prevState);
     if (delta.prevState !== delta.state) {
         const origin = {
             ...delta.origin
@@ -206,14 +206,12 @@ function deltaCrawl(template, builder, delta) {
                 target
             }
         });
-        delta.origin.x = delta.vector.origin.x;
-        delta.origin.y = delta.vector.origin.y;
+        delta.origin.x = vec.origin.x;
+        delta.origin.y = vec.origin.y;
     }
-    if (delta.prevPos.x < delta.vector.origin.x) {
+    if (delta.prevPos.x < vec.origin.x) {
         const injection = injectionMap.get(delta.prevState);
-        console.log("injection:", state);
         if (state === "TEXT") {
-            console.log("text injecition!");
             builder.push({
                 type: 'build',
                 state: "TEXT",
@@ -227,10 +225,8 @@ function deltaCrawl(template, builder, delta) {
                 }
             });
             delta.prevState = delta.state;
-            delta.origin.x = delta.vector.origin.x;
-            delta.origin.y = delta.vector.origin.y;
-            delta.prevPos.x = delta.vector.origin.x;
-            delta.prevPos.y = delta.vector.origin.y;
+            delta.origin.x = vec.origin.x;
+            delta.origin.y = vec.origin.y;
         }
         if (injection) {
             builder.push({
@@ -240,13 +236,12 @@ function deltaCrawl(template, builder, delta) {
             });
         }
     }
-    delta.prevPos.x = delta.vector.origin.x;
-    delta.prevPos.y = delta.vector.origin.y;
+    delta.prevPos.x = vec.origin.x;
+    delta.prevPos.y = vec.origin.y;
 }
 function crawl(template, builder, delta) {
-    deltaCrawl(template, builder, delta);
-    while(incrementOrigin(template, delta.vector)){
+    do {
         deltaCrawl(template, builder, delta);
-    }
+    }while (incrementOrigin(template, delta.vector))
 }
 export { crawl as crawl };

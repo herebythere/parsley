@@ -1,7 +1,7 @@
 // brian taylor vann
 // routers
 
-type  RouterMap = Record<string, string> & {
+type RouterMap = Record<string, string> & {
   DEFAULT: string
 }
 
@@ -61,7 +61,7 @@ const routers: Routers = {
     " ": "SPACE_NODE",
     "\n": "SPACE_NODE",
     "/": "0_INDEPENDENT_NODE",
-    DEFAULT: "ATTRIBUTE", // incorrect
+    DEFAULT: "ATTRIBUTE",
   },
   "ATTRIBUTE": {
     " ": "SPACE_NODE",

@@ -3,14 +3,11 @@
 import { Template } from "../type_flyweight/template.ts";
 import { CrawlResults, Atom } from "../type_flyweight/crawl.ts";
 
-import { routers } from "../router/routers.ts";
-import { targetCrossedOrigin, createFromTemplate, create, incrementOrigin, copy } from "../text_vector/text_vector.ts";
-import { getChar, create as copyPos } from "../text_position/text_position.ts";
+import { routers } from "../router/router.ts";
+import { createFromTemplate, create, incrementOrigin, copy, getChar, create as copyPos } from "../text_vector/text_vector.ts";
+// import {  } from "../text_position/text_position.ts";
 import { Vector } from "../type_flyweight/text_vector.ts";
 import { Position } from "../type_flyweight/text_vector.ts";
-
-
-const INITIAL = "INITIAL";
 
 const partMap = new Map([
     ["TEXT_COMMENT", "COMMENT"],
@@ -73,7 +70,8 @@ function deltaCrawl<N, A>(
     builder: ResultsBuilderInterface,
     delta: DeltaCrawl,
 ) {
-    const char = getChar(template, delta.vector.origin);
+    const vec = delta.vector;
+    const char = getChar(template, vec.origin);
     if (char === undefined) return;
 
     delta.prevState = delta.state;
@@ -91,22 +89,19 @@ function deltaCrawl<N, A>(
 
         builder.push({ type: 'build', state: delta.prevState, vector: { origin, target } });
 
-        delta.origin.x = delta.vector.origin.x;
-        delta.origin.y = delta.vector.origin.y;
+        delta.origin.x = vec.origin.x;
+        delta.origin.y = vec.origin.y;
     };
+
     // injections
-    if (delta.prevPos.x < delta.vector.origin.x) {
+    if (delta.prevPos.x < vec.origin.x) {
         const injection = injectionMap.get(delta.prevState);
-        console.log("injection:", state);
         if (state === "TEXT") {
-            console.log("text injecition!")
             builder.push({type: 'build', state: "TEXT", vector: {origin: {...delta.origin}, target: {...delta.prevPos}}});
 
             delta.prevState = delta.state;
-            delta.origin.x = delta.vector.origin.x;
-            delta.origin.y = delta.vector.origin.y;
-            delta.prevPos.x = delta.vector.origin.x;
-            delta.prevPos.y = delta.vector.origin.y;
+            delta.origin.x = vec.origin.x;
+            delta.origin.y = vec.origin.y;
         }
 
         if (injection) {
@@ -114,8 +109,8 @@ function deltaCrawl<N, A>(
         }
     }
 
-    delta.prevPos.x = delta.vector.origin.x;
-    delta.prevPos.y = delta.vector.origin.y;
+    delta.prevPos.x = vec.origin.x;
+    delta.prevPos.y = vec.origin.y;
 }
 
 function crawl<N, A>(
@@ -123,10 +118,8 @@ function crawl<N, A>(
     builder: ResultsBuilderInterface,
     delta: DeltaCrawl,
 ) {
-    deltaCrawl(template, builder, delta);
-    while (incrementOrigin(template, delta.vector)) {
-        deltaCrawl(template, builder, delta);
-    }
+    do {deltaCrawl(template, builder, delta);}
+    while (incrementOrigin(template, delta.vector));
 };
 
 export type { DeltaCrawl }
