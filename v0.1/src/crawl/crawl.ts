@@ -1,13 +1,14 @@
 // crawl(graph, template, prevState) {}
 
 import { Template } from "../type_flyweight/template.ts";
-import { CrawlResults, Atom } from "../type_flyweight/crawl.ts";
+import { DeltaCrawl, BuildStep, ResultsBuilderInterface } from "../type_flyweight/crawl.ts";
 
 import { routers } from "../router/router.ts";
-import { createFromTemplate, create, incrementOrigin, copy, getChar, create as copyPos } from "../text_vector/text_vector.ts";
+import { createFromTemplate, incrementOrigin, copy, getChar, create } from "../text_vector/text_vector.ts";
 // import {  } from "../text_position/text_position.ts";
 import { Vector } from "../type_flyweight/text_vector.ts";
 import { Position } from "../type_flyweight/text_vector.ts";
+
 
 const partMap = new Map([
     ["TEXT_COMMENT", "COMMENT"],
@@ -29,33 +30,6 @@ const injectionMap = new Map([
 
 ]);
 
-interface NodeStep {
-    type: 'build';
-    state: string;
-    vector: Vector;
-}
-
-interface InjectionStep {
-    type: 'injection';
-    state: string;
-    index: number;
-}
-
-type BuildStep = NodeStep | InjectionStep;
-
-interface ResultsBuilderInterface {
-    push(buildStep: BuildStep): void;
-    // done(): void;
-}
-
-interface DeltaCrawl {
-    prevPos: Position;
-    origin: Position;
-    prevState: string;
-    state: string;
-    vector: Vector;
-}
-
 class ResultsBuilder implements ResultsBuilderInterface {
     builderStack: BuildStep[] = [];
 
@@ -74,20 +48,20 @@ function deltaCrawl<N, A>(
     const char = getChar(template, vec.origin);
     if (char === undefined) return;
 
+    // state swap, could be cleaner
     delta.prevState = delta.state;
     delta.state = routers[delta.prevState]?.[char];
     if (delta.state === undefined) {
         delta.state = routers[delta.prevState]?.["DEFAULT"];
     }
 
+    // get actual state
     const state = partMap.get(delta.prevState);
 
     // build
     if (delta.prevState !== delta.state) {
-        const origin = { ...delta.origin };
-        const target = { ...delta.prevPos };
-
-        builder.push({ type: 'build', state: delta.prevState, vector: { origin, target } });
+        const vector = { origin: { ...delta.origin }, target: { ...delta.prevPos } };
+        builder.push({ type: 'build', state: delta.prevState, vector });
 
         delta.origin.x = vec.origin.x;
         delta.origin.y = vec.origin.y;
@@ -97,7 +71,8 @@ function deltaCrawl<N, A>(
     if (delta.prevPos.x < vec.origin.x) {
         const injection = injectionMap.get(delta.prevState);
         if (state === "TEXT") {
-            builder.push({type: 'build', state: "TEXT", vector: {origin: {...delta.origin}, target: {...delta.prevPos}}});
+            const vector = { origin: { ...delta.origin }, target: { ...delta.prevPos } };
+            builder.push({ type: 'build', state: "TEXT", vector });
 
             delta.prevState = delta.state;
             delta.origin.x = vec.origin.x;
@@ -105,7 +80,7 @@ function deltaCrawl<N, A>(
         }
 
         if (injection) {
-            builder.push({type: 'injection', state: injection, index: delta.prevPos.x});
+            builder.push({ type: 'injection', state: injection, index: delta.prevPos.x });
         }
     }
 
@@ -118,7 +93,7 @@ function crawl<N, A>(
     builder: ResultsBuilderInterface,
     delta: DeltaCrawl,
 ) {
-    do {deltaCrawl(template, builder, delta);}
+    do { deltaCrawl(template, builder, delta); }
     while (incrementOrigin(template, delta.vector));
 };
 

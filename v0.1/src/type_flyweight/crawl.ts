@@ -1,28 +1,34 @@
 // brian taylor vann
 // skeleton crawl types
 
-import type { Position } from "./text_vector.ts";
+import type { Vector, Position } from "./text_vector.ts";
 
-type Status =
-  | "TEXT"
-  | "0_NODE"
-  | "1_NODE"
-  | "0_INEPENDENT_NODE"
-  | "C_INDEPENDENT_NODE"
-  | "0_TAGNAME"
-  | "0_COMMENT"
-  | "1_COMMENT"
-  | "0_COMMENT_CLOSE"
-  | "1_COMMENT_CLOSE"
-  | "C_COMMENT"
-  | "TEXT_COMMENT"
-  | "SPACE_ATTRIBUTE";
 
-interface Atom {
-  type: Status;
-  pos: Position;
+interface NodeStep {
+  type: 'build';
+  state: string;
+  vector: Vector;
 }
 
-type CrawlResults = Atom[];
+interface InjectionStep {
+  type: 'injection';
+  state: string;
+  index: number;
+}
 
-export type { Atom, Status, CrawlResults };
+type BuildStep = NodeStep | InjectionStep;
+
+interface ResultsBuilderInterface {
+  push(buildStep: BuildStep): void;
+  // done(): void;
+}
+
+interface DeltaCrawl {
+  prevPos: Position;
+  origin: Position;
+  prevState: string;
+  state: string;
+  vector: Vector;
+}
+
+export type { DeltaCrawl, BuildStep, ResultsBuilderInterface };

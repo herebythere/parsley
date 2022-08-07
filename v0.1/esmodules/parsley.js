@@ -192,19 +192,18 @@ function deltaCrawl(template, builder, delta) {
     }
     const state = partMap.get(delta.prevState);
     if (delta.prevState !== delta.state) {
-        const origin = {
-            ...delta.origin
-        };
-        const target = {
-            ...delta.prevPos
+        const vector = {
+            origin: {
+                ...delta.origin
+            },
+            target: {
+                ...delta.prevPos
+            }
         };
         builder.push({
             type: 'build',
             state: delta.prevState,
-            vector: {
-                origin,
-                target
-            }
+            vector
         });
         delta.origin.x = vec.origin.x;
         delta.origin.y = vec.origin.y;
@@ -212,17 +211,18 @@ function deltaCrawl(template, builder, delta) {
     if (delta.prevPos.x < vec.origin.x) {
         const injection = injectionMap.get(delta.prevState);
         if (state === "TEXT") {
+            const vector1 = {
+                origin: {
+                    ...delta.origin
+                },
+                target: {
+                    ...delta.prevPos
+                }
+            };
             builder.push({
                 type: 'build',
                 state: "TEXT",
-                vector: {
-                    origin: {
-                        ...delta.origin
-                    },
-                    target: {
-                        ...delta.prevPos
-                    }
-                }
+                vector: vector1
             });
             delta.prevState = delta.state;
             delta.origin.x = vec.origin.x;

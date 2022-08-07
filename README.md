@@ -7,10 +7,11 @@ unminimized and uncompressed < 39kb
 
 ## Abstract
 
-Parsley is a portable library that generates libraries to create documents!
+Parsley is a portable meta-library that generates libraries to create different kinds of documents!
 
-It's an XML factory that will, provided an interface, generate an API to
-maintain custom document structures.
+## About
+
+Parsley is an XML factory that generates APIs to create custom document structures.
 
 Parsley can build interfaces to represent:
 

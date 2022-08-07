@@ -26,11 +26,6 @@ const testTextInterpolator: TextTextInterpolator = (
   return { templateArray, injections };
 };
 
-
-// test no spaces ``
-//  `${}`
-//  `${}${}${}`
-
 function createDelta (vector: Vector): DeltaCrawl {
   return {
     prevPos: { x: 0, y: 0 },
