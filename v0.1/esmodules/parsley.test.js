@@ -16,7 +16,6 @@ const routers = {
         "\n": "TEXT",
         "/": "0_NODE_CLOSE",
         ">": "TEXT",
-        "<": "0_NODE",
         "-": "0_COMMENT",
         DEFAULT: "0_TAGNAME"
     },
@@ -32,7 +31,7 @@ const routers = {
         DEFAULT: "0_TAGNAME"
     },
     "0_TAGNAME_CLOSE": {
-        ">": "C_NODE_CLOSE",
+        ">": "C_NODE",
         " ": "SPACE_CLOSE_NODE",
         "\n": "SPACE_CLOSE_NODE",
         DEFAULT: "0_TAGNAME_CLOSE"
@@ -49,10 +48,6 @@ const routers = {
         "<": "0_NODE",
         DEFAULT: "TEXT"
     },
-    C_NODE_CLOSE: {
-        "<": "0_NODE",
-        DEFAULT: "TEXT"
-    },
     "SPACE_NODE": {
         ">": "C_NODE",
         " ": "SPACE_NODE",
@@ -64,6 +59,7 @@ const routers = {
         " ": "SPACE_NODE",
         "\n": "SPACE_NODE",
         "=": "ATTRIBUTE_SETTER",
+        ">": "C_NODE",
         DEFAULT: "ATTRIBUTE"
     },
     "ATTRIBUTE_SETTER": {
@@ -143,70 +139,137 @@ const incrementOrigin = (template, vector)=>{
     }
     return;
 };
-const targetCrossedOrigin = (vector)=>vector.origin.x >= vector.target.x && vector.origin.y >= vector.target.y;
-const INITIAL = "INITIAL";
-function crawl(template) {
-    const templateVector = createFromTemplate(template);
-    let prevPosition = {
-        ...templateVector.origin
-    };
-    let lastChangeOrigin = {
-        ...templateVector.origin
-    };
-    let prevState = INITIAL;
-    let currState = INITIAL;
-    console.log("vector:", templateVector);
-    while(!targetCrossedOrigin(templateVector)){
-        if (template.templateArray[templateVector.origin.x] === "") {
-            console.log("skipping!");
-            incrementOrigin(template, templateVector);
-            continue;
-        }
-        const __char = getChar(template, templateVector.origin);
-        if (__char === undefined) return;
-        prevState = currState;
-        currState = routers[prevState]?.[__char];
-        if (currState === undefined) {
-            currState = routers[prevState]?.["DEFAULT"];
-        }
-        if (prevState !== currState) {
-            console.log("*** STATE_CHANGE ***", prevState, lastChangeOrigin, prevPosition);
-            lastChangeOrigin = {
-                ...templateVector.origin
-            };
-        }
-        if (prevPosition.x !== templateVector.origin.x) {
-            if (prevState === "SPACE_NODE") {
-                console.log("attribute map injection");
-            }
-            if (prevState === "ATTRIBUTE_DECLARATION") {
-                console.log("attribute injection");
-            }
-            if (prevState === "TEXT" || prevState === "INITIAL" || prevState === "C_NODE" || prevState === "C_INDEPENDENT_NODE") {
-                console.log("node array injection");
-            }
-            console.log("invalid injection!");
-        }
-        prevPosition = {
-            ...templateVector.origin
-        };
-        incrementOrigin(template, templateVector);
+const partMap = new Map([
+    [
+        "TEXT_COMMENT",
+        "COMMENT"
+    ],
+    [
+        "TEXT",
+        "TEXT"
+    ],
+    [
+        "0_TAGNAME",
+        "NODE"
+    ],
+    [
+        "ATTRIBUTE",
+        "ATTRIBUTE"
+    ],
+    [
+        "0_ATTRIBUTE_VALUE",
+        "ATTRIBUTE_VALUE"
+    ],
+    [
+        "0_TAGNAME_CLOSE",
+        "POP_NODE_NAMED"
+    ],
+    [
+        "C_INDEPENDENT_NODE",
+        "POP_NODE"
+    ], 
+]);
+const injectionMap = new Map([
+    [
+        "0_TAGNAME",
+        "ATTRIBUTE_INJECTION_MAP"
+    ],
+    [
+        "SPACE_NODE",
+        "ATTRIBUTE_INJECTION_MAP"
+    ],
+    [
+        "ATTRIBUTE_DECLARATION",
+        "ATTRIBUTE_INJECTION"
+    ],
+    [
+        "C_NODE",
+        "DESCENDANT_INJECTION"
+    ],
+    [
+        "C_INDEPENDENT_NODE",
+        "DESCENDANT_INJECTION"
+    ],
+    [
+        "TEXT",
+        "DESCENDANT_INJECTION"
+    ]
+]);
+class ResultsBuilder {
+    builderStack = [];
+    push(buildStep) {
+        this.builderStack.push(buildStep);
     }
-    const char1 = getChar(template, templateVector.origin);
-    if (char1 === undefined) return;
-    prevState = currState;
-    currState = routers[prevState]?.[char1];
-    if (currState === undefined) {
-        currState = routers[prevState]?.["DEFAULT"];
-    }
-    if (prevState !== currState) {
-        console.log("*** STATE_CHANGE ***", prevState, lastChangeOrigin, prevPosition);
-        lastChangeOrigin = {
-            ...templateVector.origin
-        };
-    }
-    console.log("*** FINAL STATE_CHANGE ***", currState, prevPosition, templateVector.origin);
 }
+function deltaCrawl(template, builder, delta) {
+    const __char = getChar(template, delta.vector.origin);
+    if (__char === undefined) return;
+    delta.prevState = delta.state;
+    delta.state = routers[delta.prevState]?.[__char];
+    if (delta.state === undefined) {
+        delta.state = routers[delta.prevState]?.["DEFAULT"];
+    }
+    const state = partMap.get(delta.prevState);
+    console.log(delta.prevState, state, delta.origin, delta.prevState);
+    if (delta.prevState !== delta.state) {
+        const origin = {
+            ...delta.origin
+        };
+        const target = {
+            ...delta.prevPos
+        };
+        builder.push({
+            type: 'build',
+            state: delta.prevState,
+            vector: {
+                origin,
+                target
+            }
+        });
+        delta.origin.x = delta.vector.origin.x;
+        delta.origin.y = delta.vector.origin.y;
+    }
+    if (delta.prevPos.x < delta.vector.origin.x) {
+        const injection = injectionMap.get(delta.prevState);
+        console.log("injection:", state);
+        if (state === "TEXT") {
+            console.log("text injecition!");
+            builder.push({
+                type: 'build',
+                state: "TEXT",
+                vector: {
+                    origin: {
+                        ...delta.origin
+                    },
+                    target: {
+                        ...delta.prevPos
+                    }
+                }
+            });
+            delta.prevState = delta.state;
+            delta.origin.x = delta.vector.origin.x;
+            delta.origin.y = delta.vector.origin.y;
+            delta.prevPos.x = delta.vector.origin.x;
+            delta.prevPos.y = delta.vector.origin.y;
+        }
+        if (injection) {
+            builder.push({
+                type: 'injection',
+                state: injection,
+                index: delta.prevPos.x
+            });
+        }
+    }
+    delta.prevPos.x = delta.vector.origin.x;
+    delta.prevPos.y = delta.vector.origin.y;
+}
+function crawl(template, builder, delta) {
+    deltaCrawl(template, builder, delta);
+    while(incrementOrigin(template, delta.vector)){
+        deltaCrawl(template, builder, delta);
+    }
+}
+const INITIAL = "INITIAL";
 const title = "** crawl tests **";
 const testTextInterpolator = (templateArray, ...injections)=>{
     return {
@@ -214,34 +277,33 @@ const testTextInterpolator = (templateArray, ...injections)=>{
         injections
     };
 };
-const crawlNodeWithAttributeMapInjectionsTest = ()=>{
-    const testVector = testTextInterpolator`<hello ${"world"}/>`;
+function createDelta(vector) {
+    return {
+        prevPos: {
+            x: 0,
+            y: 0
+        },
+        origin: {
+            x: 0,
+            y: 0
+        },
+        vector,
+        prevState: INITIAL,
+        state: INITIAL
+    };
+}
+const crawlNodeWithInjectionsTest = ()=>{
+    const testVector = testTextInterpolator`<hello ${"world"}/>${"uwu"}</hello>`;
     console.log(testVector);
-    crawl(testVector);
-    return [
-        "fail!"
-    ];
-};
-const crawlNodeWithAttributeInjectionsTest = ()=>{
-    const testVector = testTextInterpolator`<hello world="${"world"}"/>`;
-    console.log(testVector);
-    crawl(testVector);
-    return [
-        "fail!"
-    ];
-};
-const crawlNodeInjectionsTest = ()=>{
-    const testVector = testTextInterpolator`<hello>${"hi"}</hello>`;
-    console.log(testVector);
-    crawl(testVector);
+    const rb = new ResultsBuilder();
+    crawl(testVector, rb, createDelta(createFromTemplate(testVector)));
+    console.log(rb.builderStack);
     return [
         "fail!"
     ];
 };
 const tests = [
-    crawlNodeWithAttributeMapInjectionsTest,
-    crawlNodeWithAttributeInjectionsTest,
-    crawlNodeInjectionsTest, 
+    crawlNodeWithInjectionsTest, 
 ];
 const unitTestCrawl = {
     title,

@@ -3,7 +3,7 @@
 
 import type { Position } from "./text_vector.ts";
 
-type CrawlStatus =
+type Status =
   | "TEXT"
   | "0_NODE"
   | "1_NODE"
@@ -17,23 +17,12 @@ type CrawlStatus =
   | "C_COMMENT"
   | "TEXT_COMMENT"
   | "SPACE_ATTRIBUTE";
-  // | "OPENED"
-  // | "OPENED_VALID"
-  // | "OPENED_FOUND"
-  // | "CLOSED"
-  // | "CLOSED_VALID"
-  // | "CLOSED_FOUND"
-  // | "INDEPENDENT"
-  // | "INDEPENDENT_VALID"
-  // | "INDEPENDENT_FOUND"
-  // | "ATTRIBUTE"
-  // | "ATTRIBUTE_ESC_CHAR";
 
-interface CrawlResults {
-  type: CrawlStatus;
+interface Atom {
+  type: Status;
   pos: Position;
 }
 
-type SkeletonNodes = CrawlResults[];
+type CrawlResults = Atom[];
 
-export type { CrawlResults, CrawlStatus, SkeletonNodes };
+export type { Atom, Status, CrawlResults };

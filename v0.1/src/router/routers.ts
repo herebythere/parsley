@@ -23,7 +23,6 @@ const routers: Routers = {
     "\n": "TEXT",
     "/": "0_NODE_CLOSE",
     ">": "TEXT",
-    "<": "0_NODE",
     "-": "0_COMMENT",
     DEFAULT: "0_TAGNAME",
   },
@@ -39,7 +38,7 @@ const routers: Routers = {
     DEFAULT: "0_TAGNAME",
   },
   "0_TAGNAME_CLOSE": {
-    ">": "C_NODE_CLOSE",
+    ">": "C_NODE",
     " ": "SPACE_CLOSE_NODE",
     "\n": "SPACE_CLOSE_NODE",
     DEFAULT: "0_TAGNAME_CLOSE",
@@ -56,10 +55,6 @@ const routers: Routers = {
     "<": "0_NODE",
     DEFAULT: "TEXT",
   },
-  C_NODE_CLOSE: {
-    "<": "0_NODE",
-    DEFAULT: "TEXT",
-  },
   // ATTRIBUTE
   "SPACE_NODE": {
     ">": "C_NODE",
@@ -72,6 +67,7 @@ const routers: Routers = {
     " ": "SPACE_NODE",
     "\n": "SPACE_NODE",
     "=": "ATTRIBUTE_SETTER",
+    ">": "C_NODE",
     DEFAULT: "ATTRIBUTE", // incorrect
   },
   "ATTRIBUTE_SETTER": {
