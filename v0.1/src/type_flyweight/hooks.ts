@@ -2,33 +2,29 @@
 // hook types
 
 import type { AttributeValue } from "./template.ts";
-import type { ReferenceMap } from "./render.ts";
 
-interface SetAttributeParams<N, A> {
-  references: ReferenceMap<N>;
-  attribute: string;
-  node: N;
-  value: AttributeValue<N, A>;
-}
+type SetAttribute<N, A> = (
+  node: N,
+  attribute: string,
+  value: AttributeValue<N, A>,
+) => void;
 
-type SetAttribute<N, A> = (params: SetAttributeParams<N, A>) => void;
 type CreateNode<N> = (tag: string) => N;
 type CreateTextNode<N> = (content: string) => N;
 
-interface InsertDescendantParams<N> {
-  descendant: N;
-  leftNode?: N;
-  parentNode?: N;
-}
+type InsertDescendant<N> = (
+  descendant: N,
+  parentNode?: N,
+  leftNode?: N,
+) => void;
 
-type InsertDescendant<N> = (params: InsertDescendantParams<N>) => void;
 type RemoveDescendant<N> = (descendant: N) => N | undefined;
-type GetSibling<N> = (descendant: N) => N | undefined;
+type GetSibling<N> = (descendant: N) => (N | undefined)[];
 
 interface Hooks<N, A> {
   createNode: CreateNode<N>;
   createTextNode: CreateTextNode<N>;
-  getSibling: GetSibling<N>;
+  getSiblings: GetSibling<N>;
   insertDescendant: InsertDescendant<N>;
   removeAttribute: SetAttribute<N, A>;
   removeDescendant: RemoveDescendant<N>;
@@ -43,5 +39,4 @@ export type {
   InsertDescendant,
   RemoveDescendant,
   SetAttribute,
-  SetAttributeParams,
 };

@@ -6,11 +6,14 @@
 // Parameters
 // State
 
-import type { ChunkBaseArray, Chunker, ChunkFactory } from "./chunker.ts";
+
+interface Chunk<N> {
+  children: N[];
+}
 
 type AttributeValue<N, A> =
   | A
-  | ChunkBaseArray<N>
+  | Chunk<N>
   | string
   | boolean
   | undefined;
@@ -20,15 +23,15 @@ interface Template<N, A> {
   injections: AttributeValue<N, A>[];
 }
 
-type Attach<N> = (parentNode: N, chunkArray: ChunkBaseArray<N>) => void;
+type Attach<N> = (parentNode: N, chunk: Chunk<N>) => void;
 
-type Compose<N, A> = <P = void, S = void>(
-  chunker: Chunker<N, A, P, S>,
-) => ChunkFactory<N, P>;
+// type Compose<N, A> = <P = void, S = void>(
+//   chunker: Chunker<N, A, P, S>,
+// ) => ChunkFactory<N, P>;
 
 type Draw<N, A> = (
   templateArray: TemplateStringsArray,
   ...injections: AttributeValue<N, A>[]
 ) => Template<N, A>;
 
-export type { Attach, AttributeValue, Compose, Draw, Template };
+export type { Attach, AttributeValue, Draw, Template };

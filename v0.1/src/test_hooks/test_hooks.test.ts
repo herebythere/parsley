@@ -43,12 +43,11 @@ const testSetAttribute = () => {
   const assertions = [];
 
   const node = hooks.createNode("basic");
-  hooks.setAttribute({
-    references: {},
+  hooks.setAttribute(
     node,
-    attribute: "checked",
-    value: true,
-  });
+    "checked",
+    true,
+  );
 
   if (node.kind !== "ELEMENT") {
     assertions.push("node should be an ELEMENT");
@@ -67,12 +66,12 @@ const testInsertDescendant = () => {
   const moonbeam = hooks.createNode("moonbeam");
   const starlight = hooks.createNode("starlight");
 
-  hooks.insertDescendant({ parentNode: sunshine, descendant: starlight });
-  hooks.insertDescendant({
-    leftNode: starlight,
-    parentNode: sunshine,
-    descendant: moonbeam,
-  });
+  hooks.insertDescendant(starlight, sunshine);
+  hooks.insertDescendant(
+    moonbeam,
+    sunshine,
+    starlight,
+  );
 
   if (starlight.kind === "ELEMENT" && starlight.left !== undefined) {
     assertions.push("starlight should have no left sibling");
@@ -103,12 +102,12 @@ const testRemoveDescendant = () => {
   const moonbeam = hooks.createNode("moonbeam");
   const starlight = hooks.createNode("starlight");
 
-  hooks.insertDescendant({ parentNode: sunshine, descendant: starlight });
-  hooks.insertDescendant({
-    leftNode: starlight,
-    parentNode: sunshine,
-    descendant: moonbeam,
-  });
+  hooks.insertDescendant(starlight, sunshine);
+  hooks.insertDescendant(
+    moonbeam,
+    sunshine,
+    starlight,
+  );
   hooks.removeDescendant(starlight);
 
   // starlight should not have left or right
@@ -149,12 +148,12 @@ const testRemoveAllDescendants = () => {
   const moonbeam = hooks.createNode("moonbeam");
   const starlight = hooks.createNode("starlight");
 
-  hooks.insertDescendant({ parentNode: sunshine, descendant: starlight });
-  hooks.insertDescendant({
-    leftNode: starlight,
-    parentNode: sunshine,
-    descendant: moonbeam,
-  });
+  hooks.insertDescendant(starlight, sunshine);
+  hooks.insertDescendant(
+    moonbeam,
+    sunshine,
+    starlight,
+  );
   hooks.removeDescendant(starlight);
   hooks.removeDescendant(moonbeam);
 

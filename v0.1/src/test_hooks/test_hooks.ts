@@ -5,8 +5,6 @@ import type { Hooks } from "../type_flyweight/hooks.ts";
 import type { Draw } from "../type_flyweight/template.ts";
 import type { TestNode } from "./test_element.ts";
 
-import { Chunk } from "../chunk/chunk.ts";
-
 type TestAttributes = string | number;
 
 const hooks: Hooks<TestNode, TestAttributes> = {
@@ -16,34 +14,20 @@ const hooks: Hooks<TestNode, TestAttributes> = {
   createTextNode: (text) => {
     return { kind: "TEXT", text };
   },
-  setAttribute: (params) => {
-    const { node, attribute, value } = params;
-    if (value instanceof Chunk) {
-      return;
-    }
-
+  setAttribute: (node, attribute, value) => {
     if (node.kind === "ELEMENT") {
       node.attributes[attribute] = value;
     }
   },
-  removeAttribute: (params) => {
-    const { node, attribute, value } = params;
-    if (value instanceof Chunk) {
-      return;
-    }
-
+  removeAttribute: (node, attribute) => {
     if (node.kind === "ELEMENT") {
       node.attributes[attribute] = undefined;
     }
   },
-  getSibling: (sibling) => {
-    return sibling.right;
+  getSiblings: (sibling) => {
+    return [sibling.left, sibling.right];
   },
-  insertDescendant: ({ leftNode, parentNode, descendant }) => {
-    if (parentNode === undefined) {
-      return;
-    }
-
+  insertDescendant: (descendant, parentNode, leftNode) => {
     // set descendant
     if (leftNode !== undefined) {
       const leftRightDescendant = leftNode.right;

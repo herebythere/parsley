@@ -1,52 +1,35 @@
 // brian taylor vann
 // build render
 
-import type { Hooks } from "../../type_flyweight/hooks.ts";
-import type { Template } from "../../type_flyweight/template.ts";
-import type { RenderStructure } from "../../type_flyweight/render.ts";
-import type {
-  ChunkArrayInjectionAction,
-  CloseNodeAction,
-  ExplicitAttributeAction,
-  ImplicitAttributeAction,
-  InjectedAttributeAction,
-  Integrals,
-  NodeAction,
-  SelfClosingNodeAction,
-  TextAction,
-} from "../../type_flyweight/integrals.ts";
+import type { Hooks } from "../type_flyweight/hooks.ts";
+import type { Template } from "../type_flyweight/template.ts";
+import type { RenderStructure } from "../type_flyweight/render.ts";
+// import type {
+//   ChunkArrayInjectionAction,
+//   CloseNodeAction,
+//   ExplicitAttributeAction,
+//   ImplicitAttributeAction,
+//   InjectedAttributeAction,
+//   Integrals,
+//   NodeAction,
+//   SelfClosingNodeAction,
+//   TextAction,
+// } from "../type_flyweight/integrals.ts";
 
-import {
-  copy,
-  decrementTarget,
-  getText,
-  incrementOrigin,
-} from "../../text_vector/text_vector.ts";
+import { getText } from "../text_vector/text_vector.ts";
+import { BuildStep } from "../type_flyweight/crawl.ts";
 
-interface BuildRenderParams<N, A> {
-  hooks: Hooks<N, A>;
-  template: Template<N, A>;
-  integrals: Integrals;
-}
 type BuildRender = <N, A>(
-  params: BuildRenderParams<N, A>,
+  hooks: Hooks<N, A>,
+  rs: RenderStructure,
+  step: BuildStep,
 ) => RenderStructure<N, A>;
 
-interface BuilderHelperParams<N, A, I> {
-  rs: RenderStructure<N, A>;
-  integral: I;
-  hooks: Hooks<N, A>;
-}
-
-type BuildHelper<I> = <N, A>(params: BuilderHelperParams<N, A, I>) => void;
-
-type RenderNode = BuildHelper<NodeAction | SelfClosingNodeAction>;
-type RenderTextNode = BuildHelper<TextAction>;
-type RenderCloseNode = BuildHelper<CloseNodeAction>;
-type CreateChunkArrayInjection = BuildHelper<ChunkArrayInjectionAction>;
-type RenderAppendExplicitAttribute = BuildHelper<ExplicitAttributeAction>;
-type RenderInjectedAttribute = BuildHelper<InjectedAttributeAction>;
-type RenderImplicitAttribute = BuildHelper<ImplicitAttributeAction>;
+type BuildHelper = <N, A>(
+  hooks: Hooks<N, A>,
+  rs: RenderStructure<N, A>,
+  step: BuildStep,
+) => void;
 
 type popSelfClosingNode = <N, A>(rs: RenderStructure<N, A>) => void;
 
@@ -63,7 +46,7 @@ const popSelfClosingNode: popSelfClosingNode = (rs) => {
   }
 };
 
-const createTextNode: RenderTextNode = ({ hooks, rs, integral }) => {
+const createTextNode: BuildHelper = (hooks, rs, integral) => {
   // bounce through stack for self closing nodes
   popSelfClosingNode(rs);
 
@@ -86,7 +69,7 @@ const createTextNode: RenderTextNode = ({ hooks, rs, integral }) => {
   rs.lastNodes[lastNodeIndex] = descendant;
 };
 
-const createNode: RenderNode = ({ hooks, rs, integral }) => {
+const createNode: BuildHelper = (hooks, rs, integral) => {
   popSelfClosingNode(rs);
 
   const tagName = getText(rs.template, integral.tagNameVector);
@@ -126,7 +109,7 @@ const createNode: RenderNode = ({ hooks, rs, integral }) => {
   });
 };
 
-const closeNode: RenderCloseNode = ({ hooks, rs, integral }) => {
+const closeNode: BuildHelper = ({ rs, integral }) => {
   if (rs.stack.length === 0) {
     return;
   }
@@ -145,11 +128,11 @@ const closeNode: RenderCloseNode = ({ hooks, rs, integral }) => {
   }
 };
 
-const createChunkArrayInjection: CreateChunkArrayInjection = ({
+const createChunkArrayInjection: BuildHelper = (
   hooks,
   rs,
   integral,
-}) => {
+) => {
   popSelfClosingNode(rs);
 
   // attach injection as Context
@@ -224,70 +207,48 @@ const createChunkArrayInjection: CreateChunkArrayInjection = ({
   rs.lastNodes[lastNodeIndex] = prevSibling;
 };
 
-const appendExplicitAttribute: RenderAppendExplicitAttribute = ({
+
+// *******************
+
+const createRenderStructure = (template: Template) => {
+  return {
+    template,
+    attributes: {},
+    references: {},
+    descendants: {},
+    siblings: [],
+    lastNodes: [undefined],
+    stack: [],
+  };
+}
+
+const appendImplicitAttribute: BuildHelper = (
   hooks,
   rs,
   integral,
-}) => {
-  const node = rs.stack[rs.stack.length - 1].node;
-  const attribute = getText(rs.template, integral.attributeVector);
-  if (attribute === undefined) {
-    return;
-  }
-
-  // get copy of text
-  // then decrement
-  const valueVector = copy(integral.valueVector);
-  incrementOrigin(rs.template, valueVector);
-  decrementTarget(rs.template, valueVector);
-
-  const value = getText(rs.template, valueVector);
-  if (value === undefined) {
-    return;
-  }
-
-  hooks.setAttribute({ references: rs.references, node, attribute, value });
-};
-
-const appendImplicitAttribute: RenderImplicitAttribute = ({
-  hooks,
-  rs,
-  integral,
-}) => {
-  if (rs.stack.length === 0) {
-    return;
-  }
+) => {
+  if (rs.stack.length === 0) return;
 
   const { node } = rs.stack[rs.stack.length - 1];
-
   const attribute = getText(rs.template, integral.attributeVector);
-  if (attribute === undefined) {
-    return;
-  }
 
-  hooks.setAttribute({
-    value: true,
-    references: rs.references,
+  hooks.setAttribute(
     node,
     attribute,
-  });
+    true,
+    rs.references,
+  );
 };
 
-const appendInjectedAttribute: RenderInjectedAttribute = ({
+const appendInjectedAttribute: BuildHelper = (
   hooks,
   rs,
   integral,
-}) => {
-  if (rs.stack.length === 0) {
-    return;
-  }
+) => {
+  if (rs.stack.length === 0) return;
 
   const { node } = rs.stack[rs.stack.length - 1];
-
   const attribute = getText(rs.template, integral.attributeVector);
-  if (attribute === undefined) {
-    return;
-  }
 
   const { injectionID } = integral;
   const value = rs.template.injections[injectionID];
@@ -301,51 +262,71 @@ const appendInjectedAttribute: RenderInjectedAttribute = ({
   hooks.setAttribute({ references: rs.references, node, attribute, value });
 };
 
-const buildRender: BuildRender = ({ hooks, template, integrals }) => {
-  const rs = {
-    template,
-    attributes: {},
-    references: {},
-    descendants: {},
-    siblings: [],
-    lastNodes: [undefined],
-    stack: [],
-  };
+const appendExplicitAttribute: BuildHelper = (
+  hooks,
+  rs,
+  integral,
+) => {
+  if (rs.stack.length === 0) return;
 
-  for (const integral of integrals) {
-    if (integral.kind === "NODE" || integral.kind === "SELF_CLOSING_NODE") {
-      createNode({ hooks, rs, integral });
-    }
-    if (integral.kind === "CLOSE_NODE") {
-      closeNode({ hooks, rs, integral });
-    }
-    if (integral.kind === "TEXT") {
-      createTextNode({ hooks, rs, integral });
-    }
-    if (integral.kind === "CHUNK_ARRAY_INJECTION") {
-      createChunkArrayInjection({ hooks, rs, integral });
-    }
-    if (integral.kind === "EXPLICIT_ATTRIBUTE") {
-      appendExplicitAttribute({ hooks, rs, integral });
-    }
-    if (integral.kind === "IMPLICIT_ATTRIBUTE") {
-      appendImplicitAttribute({ hooks, rs, integral });
-    }
-    if (integral.kind === "INJECTED_ATTRIBUTE") {
-      appendInjectedAttribute({ hooks, rs, integral });
-    }
+  const {node} = rs.stack[rs.stack.length - 1];
+  const attribute = getText(rs.template, integral.attributeVector);
+
+  const value = getText(rs.template, integral.valueVector);
+
+  hooks.setAttribute({ references: rs.references, node, attribute, value });
+};
+
+const buildRender: BuildRender = (hooks, rs, step) => {
+  if (step.kind === "NODE") {
+    createNode(hooks, rs, step);
   }
+  // if (step.kind === "C_NODE" || step.kind === "C_INDEPENDENT_NODE") {
+  //   closeNode(hooks, rs, step);
+  // }
+  // if (step.kind === "TEXT") {
+  //   createTextNode(hooks, rs, step);
+  // }
+  // if (step.kind === "CHUNK_ARRAY_INJECTION") {
+  //   createChunkArrayInjection(hooks, rs, step);
+  // }
+  // if (step.kind === "EXPLICIT_ATTRIBUTE") {
+  //   appendExplicitAttribute(hooks, rs, step);
+  // }
+  // if (step.kind === "IMPLICIT_ATTRIBUTE") {
+  //   appendImplicitAttribute(hooks, rs, step);
+  // }
+  // if (step.kind === "ATTRIBUTE_INJECTION") {
+  //   appendInjectedAttribute(hooks, rs, step);
+  // }
 
   return rs;
 };
 
+class RenderBuilder<N> {
+  hooks: Hooks;
+  rs: RenderStructure;
+  stack: N[];
+
+  constructor(hooks: Hooks, template: Template) {
+    this.hooks = hooks;
+    this.rs = createRenderStructure(template);
+    this.stack = [];
+  }
+
+  push(step: BuildStep) {
+    buildRender(this.hooks, this.rs, step)
+  }
+}
+
 export {
-  appendExplicitAttribute,
-  appendImplicitAttribute,
-  appendInjectedAttribute,
-  buildRender,
-  closeNode,
-  createChunkArrayInjection,
-  createNode,
-  createTextNode,
+  RenderBuilder,
+  // appendExplicitAttribute,
+  // appendImplicitAttribute,
+  // appendInjectedAttribute,
+  // buildRender,
+  // closeNode,
+  // createChunkArrayInjection,
+  // createNode,
+  // createTextNode,
 };

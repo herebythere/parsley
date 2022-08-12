@@ -3,7 +3,6 @@
 
 import type { Vector, Position } from "./text_vector.ts";
 
-
 interface NodeStep {
   type: 'build';
   state: string;
@@ -18,9 +17,8 @@ interface InjectionStep {
 
 type BuildStep = NodeStep | InjectionStep;
 
-interface ResultsBuilderInterface {
+interface BuilderInterface {
   push(buildStep: BuildStep): void;
-  // done(): void;
 }
 
 interface DeltaCrawl {
@@ -31,4 +29,4 @@ interface DeltaCrawl {
   vector: Vector;
 }
 
-export type { DeltaCrawl, BuildStep, ResultsBuilderInterface };
+export type { DeltaCrawl, BuildStep, BuilderInterface };

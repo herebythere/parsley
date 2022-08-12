@@ -5,6 +5,16 @@ Dynamically maintain XML documents like
 
 unminimized and uncompressed < 39kb
 
+## TODO
+
+** Make Template independent of render strucutre or other structures
+
+user supplies hooks
+
+BUILDER TO
+HOOKS
+VECTOR TO TEXT WRITER
+
 ## Abstract
 
 Parsley is a portable meta-library that generates libraries to create different kinds of documents!

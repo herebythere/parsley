@@ -2,12 +2,22 @@ import type { Template } from "../type_flyweight/template.ts";
 import type { Vector } from "../type_flyweight/text_vector.ts";
 
 import { samestuff } from "../test_deps.ts";
+import { BuildStep, BuilderInterface } from "../type_flyweight/crawl.ts";
 
 import type {DeltaCrawl} from "./crawl.ts";
 
-import {crawl, ResultsBuilder} from "./crawl.ts";
+import {crawl} from "./crawl.ts";
 
 import { createFromTemplate, create, incrementOrigin } from "../text_vector/text_vector.ts";
+
+class TestBuilder implements BuilderInterface {
+  builderStack: BuildStep[] = [];
+
+  push(buildStep: BuildStep) {
+      // console.log("state:", state);
+      this.builderStack.push(buildStep);
+  }
+}
 
 const INITIAL = "INITIAL";
 
@@ -41,9 +51,9 @@ const crawlTest = () => {
 
     console.log(testVector);
 
-    const rb = new ResultsBuilder();
+    const rb = new TestBuilder();
     crawl(testVector, rb, createDelta(createFromTemplate(testVector)));
-    console.log(rb.builderStack)
+    console.log(rb.builderStack);
 
     return ["fail!"];
 }
@@ -53,9 +63,9 @@ const crawlNodeTest = () => {
 
   console.log(testVector);
 
-  const rb = new ResultsBuilder();
+  const rb = new TestBuilder();
   crawl(testVector, rb, createDelta(createFromTemplate(testVector)));
-  console.log(rb.builderStack)
+  console.log(rb.builderStack);
   return ["fail!"];
 }
 
@@ -64,9 +74,9 @@ const crawlImplicitAttributeTest = () => {
 
   console.log(testVector);
 
-  const rb = new ResultsBuilder();
+  const rb = new TestBuilder();
   crawl(testVector, rb, createDelta(createFromTemplate(testVector)));
-  console.log(rb.builderStack)
+  console.log(rb.builderStack);
   return ["fail!"];
 }
 
@@ -76,9 +86,9 @@ const crawlImplicitAttributeWithSpacesTest = () => {
 
   console.log(testVector);
 
-  const rb = new ResultsBuilder();
+  const rb = new TestBuilder();
   crawl(testVector, rb, createDelta(createFromTemplate(testVector)));
-  console.log(rb.builderStack)
+  console.log(rb.builderStack);
   return ["fail!"];
 }
 
@@ -87,9 +97,9 @@ const crawlIndependentNodeTest = () => {
 
   console.log(testVector);
 
-  const rb = new ResultsBuilder();
+  const rb = new TestBuilder();
   crawl(testVector, rb, createDelta(createFromTemplate(testVector)));
-  console.log(rb.builderStack)
+  console.log(rb.builderStack);
   return ["fail!"];
 }
 
@@ -98,9 +108,9 @@ const crawlIndependentNodeImplicitAttributeTest = () => {
 
   console.log(testVector);
 
-  const rb = new ResultsBuilder();
+  const rb = new TestBuilder();
   crawl(testVector, rb, createDelta(createFromTemplate(testVector)));
-  console.log(rb.builderStack)
+  console.log(rb.builderStack);
   return ["fail!"];
 }
 
@@ -110,9 +120,9 @@ const crawlIndependentNodeImplicitAttributeWithSpacesTest = () => {
 
   console.log(testVector);
 
-  const rb = new ResultsBuilder();
+  const rb = new TestBuilder();
   crawl(testVector, rb, createDelta(createFromTemplate(testVector)));
-  console.log(rb.builderStack)
+  console.log(rb.builderStack);
   return ["fail!"];
 }
 
@@ -122,9 +132,9 @@ const crawlExplicitAttributeTest = () => {
 
   console.log(testVector);
 
-  const rb = new ResultsBuilder();
+  const rb = new TestBuilder();
   crawl(testVector, rb, createDelta(createFromTemplate(testVector)));
-  console.log(rb.builderStack)
+  console.log(rb.builderStack);
   return ["fail!"];
 }
 
@@ -133,9 +143,9 @@ const crawlExplicitAttributeWithSpacesTest = () => {
 
   console.log(testVector);
 
-  const rb = new ResultsBuilder();
+  const rb = new TestBuilder();
   crawl(testVector, rb, createDelta(createFromTemplate(testVector)));
-  console.log(rb.builderStack)
+  console.log(rb.builderStack);
   return ["fail!"];
 }
 
@@ -144,9 +154,9 @@ const crawlExplicitAttributeWithSpacesTest = () => {
 
 //   console.log(testVector);
 
-//   const rb = new ResultsBuilder();
+//   const rb = new TestBuilder();
 //   crawl(testVector, rb, createDelta(createFromTemplate(testVector)));
-//   console.log(rb.builderStack);
+//   console.log(rb.builderStack);;
 //   return ["fail!"];
 // }
 
@@ -155,9 +165,9 @@ const crawlNodeWithInjectionsTest = () => {
 
   console.log(testVector);
 
-  const rb = new ResultsBuilder();
+  const rb = new TestBuilder();
   crawl(testVector, rb, createDelta(createFromTemplate(testVector)));
-  console.log(rb.builderStack);
+  console.log(rb.builderStack);;
   return ["fail!"];
 }
 
@@ -166,9 +176,9 @@ const crawlNodeWithAttributeInjectionsTest = () => {
 
   console.log(testVector);
 
-  const rb = new ResultsBuilder();
+  const rb = new TestBuilder();
   crawl(testVector, rb, createDelta(createFromTemplate(testVector)));
-  console.log(rb.builderStack)
+  console.log(rb.builderStack);
   return ["fail!"];
 }
 
@@ -177,9 +187,9 @@ const crawlNodeInjectionsTest = () => {
 
   console.log(testVector);
 
-  const rb = new ResultsBuilder();
+  const rb = new TestBuilder();
   crawl(testVector, rb, createDelta(createFromTemplate(testVector)));
-  console.log(rb.builderStack)
+  console.log(rb.builderStack);
   return ["fail!"];
 }
 
@@ -188,9 +198,9 @@ const crawlerCommentTest = () => {
 
   console.log(testVector);
 
-  const rb = new ResultsBuilder();
+  const rb = new TestBuilder();
   crawl(testVector, rb, createDelta(createFromTemplate(testVector)));
-  console.log(rb.builderStack)
+  console.log(rb.builderStack);
   return ["fail!"];
 }
 
@@ -199,7 +209,7 @@ const crawlerTextThenNodeTest = () => {
 
   console.log(testVector);
 
-  const rb = new ResultsBuilder();
+  const rb = new TestBuilder();
   crawl(testVector, rb, createDelta(createFromTemplate(testVector)));
   console.log(rb)
   return ["fail!"];
@@ -210,9 +220,9 @@ const crawlerTextThenNodeClosedTest = () => {
 
   console.log(testVector);
 
-  const rb = new ResultsBuilder();
+  const rb = new TestBuilder();
   crawl(testVector, rb, createDelta(createFromTemplate(testVector)));
-  console.log(rb.builderStack)
+  console.log(rb.builderStack);
   return ["fail!"];
 }
 
@@ -221,9 +231,9 @@ const crawlerTest = () => {
 
   console.log(testVector);
 
-  const rb = new ResultsBuilder();
+  const rb = new TestBuilder();
   crawl(testVector, rb, createDelta(createFromTemplate(testVector)));
-  console.log(rb.builderStack)
+  console.log(rb.builderStack);
   return ["fail!"];
 }
 
@@ -232,9 +242,9 @@ const crawlerTest1 = () => {
 
   console.log(testVector);
 
-  const rb = new ResultsBuilder();
+  const rb = new TestBuilder();
   crawl(testVector, rb, createDelta(createFromTemplate(testVector)));
-  console.log(rb.builderStack)
+  console.log(rb.builderStack);
   return ["fail!"];
 }
 
@@ -243,9 +253,9 @@ const crawlerTest2 = () => {
 
   console.log(testVector);
 
-  const rb = new ResultsBuilder();
+  const rb = new TestBuilder();
   crawl(testVector, rb, createDelta(createFromTemplate(testVector)));
-  console.log(rb.builderStack)
+  console.log(rb.builderStack);
   return ["fail!"];
 }
 

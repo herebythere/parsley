@@ -4,8 +4,6 @@
 import type { Template } from "../type_flyweight/template.ts";
 import type { Position, Vector } from "../type_flyweight/text_vector.ts";
 
-type CreatePos = (position?: Position) => Position;
-
 type IncrementPos = <N, A>(
   template: Template<N, A>,
   position: Position,
@@ -16,12 +14,23 @@ type GetChar = <N, A>(
   position: Position,
 ) => string | undefined;
 
+type Create = (origin?: Position, target?: Position) => Vector;
+type Copy = (vector: Vector) => Vector;
+
+type Increment = <N, A>(
+  template: Template<N, A>,
+  vector: Vector,
+) => Vector | undefined;
+
+type GetTextFromVector = <N, A>(
+  template: Template<N, A>,
+  vector: Vector,
+) => string | undefined;
+
 const DEFAULT_POSITION: Position = {
   x: 0,
   y: 0,
 };
-
-// const create: Create = (position = DEFAULT_POSITION) => ({ ...position });
 
 const increment: IncrementPos = (template, position) => {
   // template boundaries
@@ -45,23 +54,6 @@ const increment: IncrementPos = (template, position) => {
 
 const getChar: GetChar = (template, position) => 
   template.templateArray[position.x]?.[position.y];
-
-
-type Create = (origin?: Position, target?: Position) => Vector;
-type Copy = (vector: Vector) => Vector;
-
-type Increment = <N, A>(
-  template: Template<N, A>,
-  vector: Vector,
-) => Vector | undefined;
-
-type TargetCrossedOrigin = (vector: Vector) => boolean;
-
-type GetTextFromVector = <N, A>(
-  template: Template<N, A>,
-  vector: Vector,
-) => string | undefined;
-
 
 const create: Create = (origin = DEFAULT_POSITION, target = DEFAULT_POSITION) => ({
   origin: { ...origin },
@@ -93,10 +85,6 @@ const incrementOrigin: Increment = (template, vector) => {
   return;
 };
 
-// const targetCrossedOrigin: TargetCrossedOrigin = (vector) => 
-//     vector.origin.x >= vector.target.x &&
-//     vector.origin.y >= vector.target.y;
-
 const getText: GetTextFromVector = (template, vector) => {
   let templateText = template.templateArray[vector.origin.x];
   if (templateText === undefined) return;
@@ -117,17 +105,14 @@ const getText: GetTextFromVector = (template, vector) => {
   const first = templateText.substr(vector.origin.y, firstDistance);
   texts.push(first);
 
-  const safety = 512;
-  let depth = 0;
   const bookend = targetX - 2;
   let index = originX + 1;
-  while (depth < safety && index < bookend) {
+  while (index < bookend) {
     const piece = template.templateArray[index];
     if (piece === undefined) return;
 
     texts.push(piece);
     index += 1;
-    depth += 1;
   }
 
   const lastTemplate = template.templateArray[targetX];
@@ -144,7 +129,6 @@ export {
   create,
   createFromTemplate,
   getText,
-  // targetCrossedOrigin,
   incrementOrigin,
   getChar,
 };

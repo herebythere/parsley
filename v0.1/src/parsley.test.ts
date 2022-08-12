@@ -9,8 +9,9 @@
 // import { unitTestSkeletonCrawl } from "./builders/skeleton_crawl/skeleton_crawl.test.ts";
 import { unitTestCrawl } from "./crawl/crawl.test.ts";
 // import { unitTestTagNameCrawl } from "./builders/tag_name_crawl/tag_name_crawl.test.ts";
-// import { unitTestTestHooks } from "./test_hooks/test_hooks.test.ts";
+import { unitTestTestHooks } from "./test_hooks/test_hooks.test.ts";
 import { unitTestTextVector } from "./text_vector/text_vector.test.ts";
+// import { unitTestStructureBuilder } from "./structure_builder/structure_builder.test.ts";
 
 const tests = [
   // unitTestAttributeCrawl,
@@ -19,10 +20,10 @@ const tests = [
   // unitTestBuildSkeleton,
   // unitTestContext,
   // unitTestSkeletonCrawl,
-  unitTestCrawl,
+  // unitTestCrawl,
   // unitTestTagNameCrawl,
-  // unitTestTestHooks,
-
+  unitTestTestHooks,
+  // unitTestStructureBuilder,
   // unitTestTextPosition,
   // unitTestTextVector,
 ];
