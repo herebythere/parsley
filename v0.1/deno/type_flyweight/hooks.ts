@@ -1,12 +1,10 @@
 // brian taylor vann
 // hook types
 
-import type { AttributeValue } from "./template.ts";
-
 type SetAttribute<N, A> = (
   node: N,
   attribute: string,
-  value: AttributeValue<N, A>,
+  value: A,
 ) => void;
 
 type CreateNode<N> = (tag: string) => N;

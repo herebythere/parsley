@@ -2,229 +2,311 @@
 // deno-lint-ignore-file
 // This code was bundled using `deno bundle` and it's not recommended to edit it manually
 
-const hooks = {
-    createNode: (tagname)=>{
-        return {
-            kind: "ELEMENT",
-            attributes: {},
-            tagname
-        };
+const routers = {
+    INITIAL: {
+        "<": "NODE",
+        DEFAULT: "TEXT"
     },
-    createTextNode: (text)=>{
-        return {
-            kind: "TEXT",
-            text
-        };
+    TEXT: {
+        "<": "NODE",
+        DEFAULT: "TEXT"
     },
-    setAttribute: (node, attribute, value)=>{
-        if (node.kind === "ELEMENT") {
-            node.attributes[attribute] = value;
+    NODE: {
+        " ": "NODE",
+        "\n": "NODE",
+        "/": "NODE_CLOSE",
+        ">": "ERROR",
+        "-": "COMMENT_0",
+        DEFAULT: "TAGNAME"
+    },
+    NODE_CLOSE: {
+        " ": "NODE_CLOSE",
+        DEFAULT: "TAGNAME_CLOSE"
+    },
+    TAGNAME: {
+        ">": "CLOSE_NODE",
+        " ": "SPACE_NODE",
+        "\n": "SPACE_NODE",
+        "/": "INDEPENDENT_NODE",
+        DEFAULT: "TAGNAME"
+    },
+    TAGNAME_CLOSE: {
+        ">": "CLOSE_NODE",
+        " ": "SPACE_CLOSE_NODE",
+        "\n": "SPACE_CLOSE_NODE",
+        DEFAULT: "TAGNAME_CLOSE"
+    },
+    INDEPENDENT_NODE: {
+        ">": "CLOSE_INDEPENDENT_NODE",
+        DEFAULT: "INDEPENDENT_NODE"
+    },
+    CLOSE_NODE: {
+        "<": "NODE",
+        DEFAULT: "TEXT"
+    },
+    CLOSE_INDEPENDENT_NODE: {
+        "<": "NODE",
+        DEFAULT: "TEXT"
+    },
+    SPACE_NODE: {
+        ">": "CLOSE_NODE",
+        " ": "SPACE_NODE",
+        "\n": "SPACE_NODE",
+        "/": "INDEPENDENT_NODE",
+        DEFAULT: "ATTRIBUTE"
+    },
+    ATTRIBUTE: {
+        " ": "SPACE_NODE",
+        "\n": "SPACE_NODE",
+        "=": "ATTRIBUTE_SETTER",
+        ">": "CLOSE_NODE",
+        DEFAULT: "ATTRIBUTE"
+    },
+    ATTRIBUTE_SETTER: {
+        "\"": "ATTRIBUTE_DECLARATION",
+        "\n": "SPACE_NODE",
+        DEFAULT: "SPACE_NODE"
+    },
+    ATTRIBUTE_DECLARATION: {
+        "\"": "CLOSE_ATTRIBUTE_DECLARATION",
+        DEFAULT: "ATTRIBUTE_VALUE"
+    },
+    ATTRIBUTE_VALUE: {
+        "\"": "CLOSE_ATTRIBUTE_DECLARATION",
+        DEFAULT: "ATTRIBUTE_VALUE"
+    },
+    CLOSE_ATTRIBUTE_DECLARATION: {
+        ">": "CLOSE_INDEPENDENT_NODE",
+        DEFAULT: "SPACE_NODE"
+    },
+    COMMENT_0: {
+        "-": "COMMENT_1",
+        DEFAULT: "ERROR"
+    },
+    COMMENT_1: {
+        "-": "COMMENT_CLOSE",
+        DEFAULT: "COMMENT"
+    },
+    COMMENT: {
+        "-": "COMMENT_CLOSE",
+        DEFAULT: "COMMENT"
+    },
+    COMMENT_CLOSE: {
+        "-": "COMMENT_CLOSE_1",
+        DEFAULT: "ERROR"
+    },
+    COMMENT_CLOSE_1: {
+        ">": "CLOSE_NODE",
+        DEFAULT: "COMMENT"
+    }
+};
+const DEFAULT_POSITION = {
+    x: 0,
+    y: 0
+};
+const increment = (template, position)=>{
+    const templateLength = template.templateArray.length - 1;
+    if (position.x > templateLength) return;
+    const chunk = template.templateArray[position.x];
+    if (chunk === undefined) return;
+    const chunkLength = chunk.length - 1;
+    if (position.x >= templateLength && position.y >= chunkLength) return;
+    position.y += 1;
+    if (position.y > chunkLength) {
+        position.x += 1;
+        position.y = 0;
+    }
+    return position;
+};
+const getChar = (template, position)=>template.templateArray[position.x]?.[position.y];
+const create = (origin = DEFAULT_POSITION, target = DEFAULT_POSITION)=>({
+        origin: {
+            ...origin
+        },
+        target: {
+            ...target
         }
-    },
-    removeAttribute: (node, attribute)=>{
-        if (node.kind === "ELEMENT") {
-            node.attributes[attribute] = undefined;
+    });
+const createFromTemplate = (template)=>{
+    const x = template.templateArray.length - 1;
+    const y = template.templateArray[x].length - 1;
+    return {
+        origin: {
+            x: 0,
+            y: 0
+        },
+        target: {
+            x,
+            y
         }
-    },
-    getSiblings: (sibling)=>{
-        return [
-            sibling.left,
-            sibling.right
-        ];
-    },
-    insertDescendant: (descendant, parentNode, leftNode)=>{
-        if (leftNode !== undefined) {
-            const leftRightDescendant = leftNode.right;
-            descendant.right = leftRightDescendant;
-            if (leftRightDescendant !== undefined) {
-                leftRightDescendant.left = descendant;
+    };
+};
+const incrementOrigin = (template, vector)=>{
+    if (increment(template, vector.origin)) {
+        return vector;
+    }
+    return;
+};
+const getText = (template, vector)=>{
+    let templateText = template.templateArray[vector.origin.x];
+    if (templateText === undefined) return;
+    const texts = [];
+    const targetX = vector.target.x;
+    const originX = vector.origin.x;
+    const xDistance = targetX - originX;
+    if (xDistance < 0) return;
+    if (xDistance === 0) {
+        const yDistance = vector.target.y - vector.origin.y + 1;
+        return templateText.substr(vector.origin.y, yDistance);
+    }
+    const firstDistance = templateText.length - vector.origin.y;
+    const first = templateText.substr(vector.origin.y, firstDistance);
+    texts.push(first);
+    const bookend = targetX - 2;
+    let index = originX + 1;
+    while(index < bookend){
+        const piece = template.templateArray[index];
+        if (piece === undefined) return;
+        texts.push(piece);
+        index += 1;
+    }
+    const lastTemplate = template.templateArray[targetX];
+    if (lastTemplate === undefined) return;
+    let last = lastTemplate.substr(0, vector.target.y + 1);
+    texts.push(last);
+    return texts.join("");
+};
+const injectionMap = new Map([
+    [
+        "TAGNAME",
+        "ATTRIBUTE_INJECTION_MAP"
+    ],
+    [
+        "SPACE_NODE",
+        "ATTRIBUTE_INJECTION_MAP"
+    ],
+    [
+        "ATTRIBUTE_DECLARATION",
+        "ATTRIBUTE_INJECTION"
+    ],
+    [
+        "CLOSE_NODE",
+        "DESCENDANT_INJECTION"
+    ],
+    [
+        "CLOSE_INDEPENDENT_NODE",
+        "DESCENDANT_INJECTION"
+    ],
+    [
+        "TEXT",
+        "DESCENDANT_INJECTION"
+    ], 
+]);
+function crawl(template, builder, delta) {
+    do {
+        const __char = getChar(template, delta.vector.origin);
+        if (__char === undefined) return;
+        delta.prevState = delta.state;
+        delta.state = routers[delta.prevState]?.[__char];
+        if (delta.state === undefined) {
+            delta.state = routers[delta.prevState]?.["DEFAULT"] ?? "ERROR";
+        }
+        if (delta.prevState !== delta.state) {
+            const vector = create(delta.origin, delta.prevPos);
+            const value = getText(template, vector);
+            builder.push({
+                type: 'build',
+                state: delta.prevState,
+                value,
+                vector
+            });
+            delta.origin.x = delta.vector.origin.x;
+            delta.origin.y = delta.vector.origin.y;
+        }
+        if (delta.prevPos.x < delta.vector.origin.x) {
+            if (delta.prevState === "TEXT") {
+                const vector1 = create(delta.origin, delta.prevPos);
+                const value1 = getText(template, vector1);
+                builder.push({
+                    type: 'build',
+                    state: "TEXT",
+                    value: value1,
+                    vector: vector1
+                });
+                delta.prevState = delta.state;
+                delta.origin.x = delta.vector.origin.x;
+                delta.origin.y = delta.vector.origin.y;
             }
-            descendant.left = leftNode;
-            leftNode.right = descendant;
-        }
-        if (parentNode?.kind === "ELEMENT") {
-            descendant.parent = parentNode;
-            if (parentNode.leftChild === undefined) {
-                parentNode.leftChild = descendant;
-            }
-            if (parentNode.rightChild === leftNode) {
-                parentNode.rightChild = descendant;
+            const state = injectionMap.get(delta.prevState);
+            if (state) {
+                builder.push({
+                    type: 'inject',
+                    index: delta.prevPos.x,
+                    state
+                });
             }
         }
-    },
-    removeDescendant: (descendant)=>{
-        const parent = descendant.parent;
-        const leftNode = descendant.left;
-        const rightNode = descendant.right;
-        descendant.parent = undefined;
-        descendant.right = undefined;
-        descendant.left = undefined;
-        if (leftNode !== undefined) {
-            leftNode.right = rightNode;
-        }
-        if (rightNode !== undefined) {
-            rightNode.left = leftNode;
-        }
-        if (parent === undefined) {
-            return;
-        }
-        if (descendant === parent.leftChild) {
-            parent.leftChild = rightNode;
-        }
-        if (descendant === parent.rightChild) {
-            parent.rightChild = leftNode;
-        }
-        return parent;
+        delta.prevPos.x = delta.vector.origin.x;
+        delta.prevPos.y = delta.vector.origin.y;
+    }while (delta.state !== "ERROR" && incrementOrigin(template, delta.vector))
+    if (delta.state === "ERROR" || delta.prevState === delta.state) return;
+    const vector2 = create(delta.origin, delta.origin);
+    const value2 = getText(template, vector2);
+    builder.push({
+        type: 'build',
+        state: delta.state,
+        value: value2,
+        vector: vector2
+    });
+}
+class TestBuilder {
+    builderStack = [];
+    push(buildStep) {
+        this.builderStack.push(buildStep);
     }
+}
+const INITIAL = "INITIAL";
+const title = "** crawl tests **";
+const testTextInterpolator = (templateArray, ...injections)=>{
+    return {
+        templateArray,
+        injections
+    };
 };
-const title = "test_hooks";
-const testCreateNode = ()=>{
-    const assertions = [];
-    const node = hooks.createNode("hello");
-    if (node === undefined) {
-        assertions.push("node should not be undefined.");
-    }
-    if (node.kind !== "ELEMENT") {
-        assertions.push("should create an ELEMENT");
-    }
-    if (node.kind === "ELEMENT" && node.tagname !== "hello") {
-        assertions.push("tagname should be 'hello'");
-    }
-    return assertions;
-};
-const testCreateTextNode = ()=>{
-    const assertions = [];
-    const node = hooks.createTextNode("hello!");
-    if (node === undefined) {
-        assertions.push("text node should not be undefined.");
-    }
-    if (node.kind === "TEXT" && node.text !== "hello!") {
-        assertions.push("text node should have 'hello!'");
-    }
-    return assertions;
-};
-const testSetAttribute = ()=>{
-    const assertions = [];
-    const node = hooks.createNode("basic");
-    hooks.setAttribute(node, "checked", true);
-    if (node.kind !== "ELEMENT") {
-        assertions.push("node should be an ELEMENT");
-    }
-    if (node.kind === "ELEMENT" && node.attributes["checked"] !== true) {
-        assertions.push("checked should be true.");
-    }
-    return assertions;
-};
-const testInsertDescendant = ()=>{
-    const assertions = [];
-    const sunshine = hooks.createNode("sunshine");
-    const moonbeam = hooks.createNode("moonbeam");
-    const starlight = hooks.createNode("starlight");
-    hooks.insertDescendant(starlight, sunshine);
-    hooks.insertDescendant(moonbeam, sunshine, starlight);
-    if (starlight.kind === "ELEMENT" && starlight.left !== undefined) {
-        assertions.push("starlight should have no left sibling");
-    }
-    if (starlight.kind === "ELEMENT" && starlight.right !== moonbeam) {
-        assertions.push("starlight should have moonbeam as a sibling");
-    }
-    if (moonbeam.kind === "ELEMENT" && starlight.parent !== sunshine) {
-        assertions.push("starlight should have sunshin as a parent");
-    }
-    if (moonbeam.kind === "ELEMENT" && moonbeam.left !== starlight) {
-        assertions.push("moonbeam should have starlight for left sibling");
-    }
-    if (moonbeam.kind === "ELEMENT" && moonbeam.right !== undefined) {
-        assertions.push("moonbeam should have no right sibling");
-    }
-    if (moonbeam.kind === "ELEMENT" && moonbeam.parent !== sunshine) {
-        assertions.push("moonbean should have sunshin as a parent");
-    }
-    return assertions;
-};
-const testRemoveDescendant = ()=>{
-    const assertions = [];
-    const sunshine = hooks.createNode("sunshine");
-    const moonbeam = hooks.createNode("moonbeam");
-    const starlight = hooks.createNode("starlight");
-    hooks.insertDescendant(starlight, sunshine);
-    hooks.insertDescendant(moonbeam, sunshine, starlight);
-    hooks.removeDescendant(starlight);
-    if (starlight.left !== undefined) {
-        assertions.push("starlight should not have a left sibling.");
-    }
-    if (starlight.right !== undefined) {
-        assertions.push("starlight should not have a right sibling.");
-    }
-    if (starlight.parent !== undefined) {
-        assertions.push("starlight should not have a parent.");
-    }
-    if (moonbeam.left !== undefined) {
-        assertions.push("moonbeam should not have a left sibling.");
-    }
-    if (moonbeam.right !== undefined) {
-        assertions.push("moonbeam should not have a right sibling.");
-    }
-    if (moonbeam.parent !== sunshine) {
-        assertions.push("moonbeam should have sunshine as a parent.");
-    }
-    if (sunshine.kind === "ELEMENT" && sunshine.leftChild !== moonbeam) {
-        assertions.push("sunshine should have moonbeam as a left child.");
-    }
-    if (sunshine.kind === "ELEMENT" && sunshine.rightChild !== moonbeam) {
-        assertions.push("sunshine should have moonbeam as a right child.");
-    }
-    return assertions;
-};
-const testRemoveAllDescendants = ()=>{
-    const assertions = [];
-    const sunshine = hooks.createNode("sunshine");
-    const moonbeam = hooks.createNode("moonbeam");
-    const starlight = hooks.createNode("starlight");
-    hooks.insertDescendant(starlight, sunshine);
-    hooks.insertDescendant(moonbeam, sunshine, starlight);
-    hooks.removeDescendant(starlight);
-    hooks.removeDescendant(moonbeam);
-    if (starlight.left !== undefined) {
-        assertions.push("starlight should not have a left sibling.");
-    }
-    if (starlight.right !== undefined) {
-        assertions.push("starlight should not have a right sibling.");
-    }
-    if (starlight.parent !== undefined) {
-        assertions.push("starlight should not have a parent.");
-    }
-    if (moonbeam.left !== undefined) {
-        assertions.push("moonbeam should not have a left sibling.");
-    }
-    if (moonbeam.right !== undefined) {
-        assertions.push("moonbeam should not have a right sibling.");
-    }
-    if (moonbeam.parent !== undefined) {
-        assertions.push("moonbeam should not have a parent.");
-    }
-    if (sunshine.kind === "ELEMENT" && sunshine.leftChild !== undefined) {
-        assertions.push("sunshine should not have a left child.");
-    }
-    if (sunshine.kind === "ELEMENT" && sunshine.rightChild !== undefined) {
-        assertions.push("sunshine should not have a right child.");
-    }
-    return assertions;
+function createDelta(vector) {
+    return {
+        prevPos: {
+            x: 0,
+            y: 0
+        },
+        origin: {
+            x: 0,
+            y: 0
+        },
+        vector,
+        prevState: INITIAL,
+        state: INITIAL
+    };
+}
+const crawlNodeWithInjectionsTest = ()=>{
+    const testVector = testTextInterpolator`<hello ${"world"}/>${"uwu"}</hello>`;
+    console.log(testVector);
+    const rb = new TestBuilder();
+    crawl(testVector, rb, createDelta(createFromTemplate(testVector)));
+    console.log(rb.builderStack);
+    return [
+        "fail!"
+    ];
 };
 const tests = [
-    testCreateNode,
-    testCreateTextNode,
-    testSetAttribute,
-    testInsertDescendant,
-    testRemoveDescendant,
-    testRemoveAllDescendants, 
+    crawlNodeWithInjectionsTest, 
 ];
-const unitTestTestHooks = {
+const unitTestCrawl = {
     title,
     tests,
     runTestsAsynchronously: true
 };
 const tests1 = [
-    unitTestTestHooks, 
+    unitTestCrawl, 
 ];
 export { tests1 as tests };

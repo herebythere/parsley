@@ -6,21 +6,13 @@
 // Parameters
 // State
 
-
 interface Chunk<N> {
   children: N[];
 }
 
-type AttributeValue<N, A> =
-  | A
-  | Chunk<N>
-  | string
-  | boolean
-  | undefined;
-
 interface Template<N, A> {
   templateArray: TemplateStringsArray;
-  injections: AttributeValue<N, A>[];
+  injections: A[];
 }
 
 type Attach<N> = (parentNode: N, chunk: Chunk<N>) => void;
@@ -31,7 +23,7 @@ type Attach<N> = (parentNode: N, chunk: Chunk<N>) => void;
 
 type Draw<N, A> = (
   templateArray: TemplateStringsArray,
-  ...injections: AttributeValue<N, A>[]
+  ...injections: A[]
 ) => Template<N, A>;
 
-export type { Attach, AttributeValue, Draw, Template };
+export type { Attach, Draw, Template };

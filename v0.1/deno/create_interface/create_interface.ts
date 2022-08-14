@@ -6,6 +6,49 @@ import { Chunk } from "../chunk/chunk.ts";
 
 type ContextFactory<N, A, P, S> = (params: P) => Chunk<N, A, P, S>;
 
+
+const buildSet = new Set([
+  "TEXT",
+  "TEXT_COMMENT",
+  "TAGNAME",
+  "ATTRIBUTE",
+  "ATTRIBUTE_VALUE",
+  "CLOSE_NODE",
+  "CLOSE_TAGNAME",
+  "CLOSE_INDEPENDENT_NODE",
+  "NODE_CLOSE",
+  "CLOSE_NODE",
+]);
+
+class Builder implements BuilderInterface {
+  private steps: BuildStep = [];
+
+  push(step: BuildStep): void {
+    if (buildMap.has(step)) {
+      this.steps.push(step)
+    }
+  }
+
+  getSteps() {
+    return this.steps;
+  }
+}
+
+class Reader implements ReaderInterface {
+  private steps: BuildStep = [];
+
+  next(): BuildStep {
+    if (buildMap.has(step)) {
+      this.steps.push(step)
+    }
+  }
+}
+
+  reset() {
+    this.steps = [];
+  }
+}
+
 type Compose<N, A> = <P = void, S = void>(
   chunker: Chunker<N, A, P, S>,
 ) => ContextFactory<N, A, P, S>;

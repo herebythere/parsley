@@ -3,9 +3,8 @@
 
 import type { Hooks } from "../type_flyweight/hooks.ts";
 import type { Draw } from "../type_flyweight/template.ts";
-import type { TestNode } from "./test_element.ts";
+import type { TestNode, TestAttributes } from "./test_element.ts";
 
-type TestAttributes = string | number;
 
 const hooks: Hooks<TestNode, TestAttributes> = {
   createNode: (tagname) => {

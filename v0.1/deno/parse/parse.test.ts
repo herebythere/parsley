@@ -1,14 +1,13 @@
 import type { Template } from "../type_flyweight/template.ts";
 import type { Vector } from "../type_flyweight/text_vector.ts";
 
-import { samestuff } from "../test_deps.ts";
 import { BuildStep, BuilderInterface } from "../type_flyweight/crawl.ts";
 
-import type {DeltaCrawl} from "./crawl.ts";
+import type {Delta} from "./parse.ts";
 
-import {crawl} from "./crawl.ts";
+import {crawl} from "./parse.ts";
 
-import { createFromTemplate, create, incrementOrigin } from "../text_vector/text_vector.ts";
+import { createFromTemplate } from "../text_vector/text_vector.ts";
 
 class TestBuilder implements BuilderInterface {
   builderStack: BuildStep[] = [];
@@ -36,7 +35,7 @@ const testTextInterpolator: TextTextInterpolator = (
   return { templateArray, injections };
 };
 
-function createDelta (vector: Vector): DeltaCrawl {
+function createDelta (vector: Vector): Delta {
   return {
     prevPos: { x: 0, y: 0 },
     origin: { x: 0, y: 0 },

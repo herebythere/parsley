@@ -19,45 +19,45 @@ const routers: Routers = {
   },
   // NODE
   NODE: {
-    " ": "TEXT",
-    "\n": "TEXT",
+    " ": "NODE",
+    "\n": "NODE",
     "/": "NODE_CLOSE",
-    ">": "TEXT",
-    "-": "COMMENT",
+    ">": "ERROR",
+    "-": "COMMENT_0",
     DEFAULT: "TAGNAME",
   },
   NODE_CLOSE: {
-    " ": "TEXT",
+    " ": "NODE_CLOSE",
     DEFAULT: "TAGNAME_CLOSE",
   },
   TAGNAME: {
-    ">": "C_NODE",
+    ">": "CLOSE_NODE",
     " ": "SPACE_NODE",
     "\n": "SPACE_NODE",
     "/": "INDEPENDENT_NODE",
     DEFAULT: "TAGNAME",
   },
   TAGNAME_CLOSE: {
-    ">": "C_NODE",
+    ">": "CLOSE_NODE",
     " ": "SPACE_CLOSE_NODE",
     "\n": "SPACE_CLOSE_NODE",
     DEFAULT: "TAGNAME_CLOSE",
   },
   INDEPENDENT_NODE: {
-    ">": "C_INDEPENDENT_NODE",
+    ">": "CLOSE_INDEPENDENT_NODE",
     DEFAULT: "INDEPENDENT_NODE"
   },
-  C_NODE: {
+  CLOSE_NODE: {
     "<": "NODE",
     DEFAULT: "TEXT",
   },
-  C_INDEPENDENT_NODE: {
+  CLOSE_INDEPENDENT_NODE: {
     "<": "NODE",
     DEFAULT: "TEXT",
   },
   // ATTRIBUTE
   SPACE_NODE: {
-    ">": "C_NODE",
+    ">": "CLOSE_NODE",
     " ": "SPACE_NODE",
     "\n": "SPACE_NODE",
     "/": "INDEPENDENT_NODE",
@@ -67,7 +67,7 @@ const routers: Routers = {
     " ": "SPACE_NODE",
     "\n": "SPACE_NODE",
     "=": "ATTRIBUTE_SETTER",
-    ">": "C_NODE",
+    ">": "CLOSE_NODE",
     DEFAULT: "ATTRIBUTE", // incorrect
   },
   ATTRIBUTE_SETTER: {
@@ -76,41 +76,37 @@ const routers: Routers = {
     DEFAULT: "SPACE_NODE",
   },
   ATTRIBUTE_DECLARATION: {
-    "\"": "C_ATTRIBUTE_VALUE",
+    "\"": "CLOSE_ATTRIBUTE_DECLARATION",
     DEFAULT: "ATTRIBUTE_VALUE",
   },
   ATTRIBUTE_VALUE: {
-    "\"": "C_ATTRIBUTE_VALUE",
+    "\"": "CLOSE_ATTRIBUTE_DECLARATION",
     DEFAULT: "ATTRIBUTE_VALUE",
   },
-  C_ATTRIBUTE_VALUE: {
-    ">": "C_INDEPENDENT_NODE",
+  CLOSE_ATTRIBUTE_DECLARATION: {
+    ">": "CLOSE_INDEPENDENT_NODE",
     DEFAULT: "SPACE_NODE",
   },
   // comments
-  COMMENT: {
+  COMMENT_0: {
     "-": "COMMENT_1",
-    DEFAULT: "TEXT"
+    DEFAULT: "ERROR"
   },
   COMMENT_1: {
     "-": "COMMENT_CLOSE",
-    DEFAULT: "TEXT_COMMENT",
+    DEFAULT: "COMMENT",
   },
-  TEXT_COMMENT: {
+  COMMENT: {
     "-": "COMMENT_CLOSE",
-    DEFAULT: "TEXT_COMMENT",
+    DEFAULT: "COMMENT",
   },
   COMMENT_CLOSE: {
     "-": "COMMENT_CLOSE_1",
-    DEFAULT: "TEXT_COMMENT",
+    DEFAULT: "ERROR",
   },
   COMMENT_CLOSE_1: {
-    ">": "C_COMMENT",
-    DEFAULT: "TEXT_COMMENT",
-  },
-  C_COMMENT: {
-    "<": "NODE",
-    DEFAULT: "TEXT"
+    ">": "CLOSE_NODE",
+    DEFAULT: "COMMENT",
   },
 };
 

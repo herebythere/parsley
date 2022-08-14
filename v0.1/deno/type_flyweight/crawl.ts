@@ -7,10 +7,11 @@ interface NodeStep {
   type: 'build';
   state: string;
   vector: Vector;
+  value?: string;
 }
 
 interface InjectionStep {
-  type: 'injection';
+  type: 'inject';
   state: string;
   index: number;
 }
@@ -21,7 +22,7 @@ interface BuilderInterface {
   push(buildStep: BuildStep): void;
 }
 
-interface DeltaCrawl {
+interface Delta {
   prevPos: Position;
   origin: Position;
   prevState: string;
@@ -29,4 +30,4 @@ interface DeltaCrawl {
   vector: Vector;
 }
 
-export type { DeltaCrawl, BuildStep, BuilderInterface };
+export type { Delta, NodeStep, InjectionStep, BuildStep, BuilderInterface };

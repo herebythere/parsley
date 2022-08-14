@@ -1,10 +1,7 @@
 // brian taylor vann
 // test element
 
-import type { AttributeValue } from "../type_flyweight/template.ts";
-
-// boolean, string, and undefined are included in Attributes by default
-type TestAttributes = AttributeValue<TestNode, string | number>;
+type TestAttributes = string | number | boolean | undefined;
 
 interface TestElement {
   kind: "ELEMENT";
@@ -27,4 +24,4 @@ interface TestText {
 
 type TestNode = TestElement | TestText;
 
-export type { TestAttributes, TestNode };
+export type { TestNode, TestAttributes };
