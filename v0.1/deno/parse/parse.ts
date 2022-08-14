@@ -1,4 +1,4 @@
-import type { Delta, BuilderInterface } from "../type_flyweight/crawl.ts";
+import type { Delta, BuilderInterface } from "../type_flyweight/parse.ts";
 import type { Template } from "../type_flyweight/template.ts";
 
 import { routers } from "./router.ts";
@@ -34,7 +34,11 @@ function crawl<N, A>(
         if (delta.prevState !== delta.state) {
             const vector = create(delta.origin, delta.prevPos);
             const value = getText(template, vector);
-            builder.push({ type: 'build', state: delta.prevState, value, vector });
+            if (value === undefined) {
+                delta.state = "ERROR";
+                return;
+            }
+            builder.push({ type: "BUILD", state: delta.prevState, value, vector });
 
             delta.origin.x = delta.vector.origin.x;
             delta.origin.y = delta.vector.origin.y;
@@ -45,7 +49,12 @@ function crawl<N, A>(
             if (delta.prevState === "TEXT") {
                 const vector = create(delta.origin, delta.prevPos);
                 const value = getText(template, vector);
-                builder.push({ type: 'build', state: "TEXT", value, vector });
+                if (value === undefined) {
+                    delta.state = "ERROR";
+                    return;
+                }
+
+                builder.push({ type: "BUILD", state: "TEXT", value, vector });
 
                 delta.prevState = delta.state;
                 delta.origin.x = delta.vector.origin.x;
@@ -54,7 +63,7 @@ function crawl<N, A>(
 
             const state = injectionMap.get(delta.prevState);
             if (state) {
-                builder.push({ type: 'inject', index: delta.prevPos.x, state });
+                builder.push({ type: "INJECT", index: delta.prevPos.x, state });
             }
         }
 
@@ -69,8 +78,12 @@ function crawl<N, A>(
 
     const vector = create(delta.origin, delta.origin);
     const value = getText(template, vector);
+    if (value === undefined) {
+        delta.state = "ERROR";
+        return;
+    }
     builder.push({
-        type: 'build',
+        type: "BUILD",
         state: delta.state,
         value,
         vector,

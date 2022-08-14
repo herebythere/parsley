@@ -4,46 +4,45 @@
 // N Node
 // A Attributables
 
-import type { BuildStep } from "./crawl.ts";
-
 interface Chunk { };
 
-interface AttributeInjection<N, A> {
-  kind: "ATTRIBUTE";
+interface AttributeInjection<N> {
+  type: "ATTRIBUTE";
   node: N;
   attribute: string;
   value: string;
 }
 
 interface AttributeMapInjection<N, A> {
-  kind: "ATTRIBUTE_MAP";
+  type: "ATTRIBUTE_MAP";
   node: N;
   attributeMap: Map<string, A>;
 }
 
 interface ChunkDescendant<N> {
-  kind: "CHUNK";
+  type: "CHUNK";
   chunkArray: Chunk[];
   parentNode?: N;
   leftNode?: N;
 }
 
 type Injection<N, A> =
-  AttributeInjection<N, A> |
+  AttributeInjection<N> |
   ChunkDescendant<N> |
   AttributeMapInjection<N, A>;
 
-type ReferenceMap<N> = Record<string, N>;
+type ReferenceMap<N> = Map<string, N>;
 
 interface RenderStructure<N, A> {
   injections: Injection<N, A>[];
   references: ReferenceMap<N>;
-  siblings: N[];
+  siblings: N[][];
 }
 
-type RenderStack<N, A> {
-  templates: Template<N, A>[],
-  steps: BuildStep[]
+interface Stack<N> {
+  nodes: N[][];
+  node?: N;
+  attributeStep?: BuildStep;
 }
 
-export type { RenderStack, ReferenceMap, RenderStructure };
+export type { ReferenceMap, RenderStructure, Stack };

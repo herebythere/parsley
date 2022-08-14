@@ -1,7 +1,7 @@
 import type { Template } from "../type_flyweight/template.ts";
 import type { Vector } from "../type_flyweight/text_vector.ts";
 
-import { BuildStep, BuilderInterface } from "../type_flyweight/crawl.ts";
+import { BuildStep, BuilderInterface } from "../type_flyweight/parse.ts";
 
 import type {Delta} from "./parse.ts";
 

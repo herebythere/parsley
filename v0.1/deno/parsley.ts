@@ -29,5 +29,18 @@
 
 // export { Chunk } from "./chunk/chunk.ts";
 // export { createCustomInterface } from "./create_interface/create_interface.ts";
-// export {crawl} from "./crawl/crawl.ts";
-export {hooks, draw} from "./test_hooks/test_hooks.ts"
+export {crawl} from "./parse/parse.ts";
+// export {hooks, draw} from "./test_hooks/test_hooks.ts"
+
+export {
+
+    // appendExplicitAttribute,
+    // appendImplicitAttribute,
+    // appendInjectedAttribute,
+    buildFragment,
+    createFragment,
+    // closeNode,
+    // createChunkArrayInjection,
+    // createNode,
+    // createTextNode,
+} from "./fragment/fragment.ts"

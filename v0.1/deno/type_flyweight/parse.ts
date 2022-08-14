@@ -4,14 +4,14 @@
 import type { Vector, Position } from "./text_vector.ts";
 
 interface NodeStep {
-  type: 'build';
+  type: 'BUILD';
   state: string;
   vector: Vector;
-  value?: string;
+  value: string;
 }
 
 interface InjectionStep {
-  type: 'inject';
+  type: 'INJECT';
   state: string;
   index: number;
 }
