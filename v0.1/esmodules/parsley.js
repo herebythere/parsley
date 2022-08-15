@@ -257,6 +257,16 @@ function crawl(template, builder, delta) {
         vector: vector2
     });
 }
+new Set([
+    "TAGNAME",
+    "ATTRIBUTE_VALUE",
+    "ATTRIBUTE",
+    "NODE_CLOSE",
+    "CLOSE_INDEPENDENT_NODE",
+    "CLOSE_NODE",
+    "CLOSE_TAGNAME",
+    "TEXT"
+]);
 const createFragment = ()=>{
     return {
         injections: [],
@@ -266,60 +276,38 @@ const createFragment = ()=>{
 };
 const createNode = (hooks, rs, stack, step)=>{
     if (step.type !== "BUILD") return;
-    console.log("createNode:", step);
-    const tagName = step.value;
-    const parentNodes = stack[stack.length - 2];
-    const parentNode = parentNodes?.[(parentNodes?.length - 1) ?? 0];
-    const rowNodes = stack[stack.length - 1];
-    const leftNode = rowNodes?.[(rowNodes?.length - 1) ?? 0];
-    const descendant = hooks.createNode(tagName);
-    if (stack.length < 1) {
+    console.log("createNode:");
+    const parentNodes = stack.nodes[stack.nodes.length - 2];
+    const parentNode = parentNodes?.[(parentNodes.length ?? 1) - 1];
+    const rowNodes = stack.nodes[stack.nodes.length - 1];
+    const leftNode = rowNodes?.[(rowNodes.length ?? 1) - 1];
+    const descendant = hooks.createNode(step.value);
+    console.log(parentNodes);
+    console.log(rowNodes);
+    console.log(parentNode, leftNode, descendant);
+    hooks.insertDescendant(descendant, parentNode, leftNode);
+    const length = stack.nodes[stack.nodes.length - 1]?.push(descendant);
+    if (length === undefined) {
+        stack.nodes.push([
+            descendant
+        ]);
+    }
+    if (stack.nodes.length === 1) {
         rs.siblings.push(descendant);
     }
-    stack.push([
-        descendant
-    ]);
-    hooks.insertDescendant(descendant, parentNode, leftNode);
 };
-const closeNode = (rs, stack, step)=>{
-    if (step.type !== "BUILD") return;
-    const rowNodes = stack[stack.length - 1];
-    if (!rowNodes?.pop()) {
-        stack.pop();
-    }
-};
-const createTextNode = (hooks, rs, stack, step)=>{
-    if (step.type !== "BUILD") return;
-    const text = step.value;
-    if (text === undefined) return;
-    const parentNodes = stack[stack.length - 2];
-    const parentNode = parentNodes?.[(parentNodes?.length ?? 1) - 1];
-    const rowNodes = stack[stack.length - 1];
-    const leftNode = rowNodes?.[(rowNodes?.length ?? 1) - 1];
-    const descendant = hooks.createTextNode(text);
-    rowNodes?.push(descendant);
-    hooks.insertDescendant(descendant, parentNode, leftNode);
-};
-const buildFragment = (hooks, reader, rs = createFragment(), stack = [])=>{
+const buildFragment = (hooks, reader, rs, stack)=>{
     reader.reset();
-    let prevStep = reader.next();
     let step = reader.next();
-    while(prevStep && step){
-        console.log("step:", prevStep);
-        if (prevStep.type === "BUILD") {
-            if (prevStep.state === "NODE") {
+    while(step){
+        console.log("step:", step);
+        if (step.type === "BUILD") {
+            if (step.state === "TAGNAME") {
                 console.log("build node:");
-                createNode(hooks, rs, stack, prevStep);
-            }
-            if (prevStep.state === "CLOSE_NODE" || prevStep.state === "CLOSE_INDEPENDENT_NODE") {
-                closeNode(rs, stack, prevStep);
-            }
-            if (prevStep.state === "TEXT") {
-                createTextNode(hooks, rs, stack, prevStep);
+                createNode(hooks, rs, stack, step);
             }
         }
-        if (prevStep.type === "INJECT") {}
-        prevStep = step;
+        if (step.type === "INJECT") {}
         step = reader.next();
     }
 };

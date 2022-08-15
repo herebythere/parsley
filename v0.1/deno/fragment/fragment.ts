@@ -31,20 +31,20 @@ interface ReaderInterface {
 type BuildFragment = <N, A>(
     hooks: Hooks<N, A>,
     reader: ReaderInterface,
-    renderStructure?: RenderStructure<N, A>,
-    stack?: Stack<N, A>,
+    renderStructure: RenderStructure<N, A>,
+    stack: Stack<N>,
 ) => void;
 
 type BuildHelper = <N, A>(
     hooks: Hooks<N, A>,
     rs: RenderStructure<N, A>,
-    stack: Stack<N, A>,
+    stack: Stack<N>,
     step: BuildStep,
 ) => void;
 
 type BuildHelperNoHooks = <N, A>(
     rs: RenderStructure<N, A>,
-    stack: Stack<N, A>,
+    stack: Stack<N>,
     step: BuildStep,
 ) => void;
 
@@ -83,82 +83,37 @@ const createFragment = <N, A>(): RenderStructure<N, A> => {
     };
 }
 
-const createStack = <N, A>(): Stack<N, A> => {
+const createStack = <N>(): Stack<N> => {
     return {
         nodes: [],
         node: undefined,
-        attribute: undefined,
+        attributeStep: undefined,
     };
 }
-
-//
-// stack is
-// current siblins
-// current node
-// current attribute
-// 
-//
-
-// const createStack = <N, A>() => {
-//     return {
-//         stack:
-//     }
-// }
-
-const pushNode: BuildHelper = (hooks, rs, stack, step) => {
-    if (step.type !== "BUILD") return;
-    console.log("pushNode:");
-
-    // if undefined
-    const node = stack.node;
-    if (node === undefined) return;
-
-    // if node exists
-
-    const parentNodes = stack[stack.length - 2];
-    const parentNode = parentNodes?.[parentNodes?.length - 1 ?? 0];
-
-    const rowNodes = stack[stack.length - 1];
-    const leftNode = rowNodes?.[rowNodes?.length - 1 ?? 0];
-    const descendant = hooks.createNode(step.value);
-
-    hooks.insertDescendant(descendant, parentNode, leftNode);
-
-    if (stack.nodes.length === 0) {
-        stack.nodes.push(descendant);
-    }
-    if (stack.length < 1) {
-        rs.siblings.push(descendant);
-    }
-    stack.push([descendant]);
-};
-
 
 const createNode: BuildHelper = (hooks, rs, stack, step) => {
     if (step.type !== "BUILD") return;
     console.log("createNode:");
 
-    // if undefined
-    const node = stack.node;
-    if (node === undefined) return;
+    const parentNodes = stack.nodes[stack.nodes.length - 2];
+    const parentNode = parentNodes?.[(parentNodes.length ?? 1) - 1];
 
-    // if node exists, add it to stack
+    const rowNodes = stack.nodes[stack.nodes.length - 1];
+    const leftNode = rowNodes?.[(rowNodes.length ?? 1) - 1];
+    const descendant = hooks.createNode(step.value);
 
-    const parentNodes = stack[stack.length - 2];
-    const parentNode = parentNodes?.[parentNodes?.length - 1 ?? 0];
+    console.log(parentNodes);
+    console.log(rowNodes);
+    console.log(parentNode, leftNode, descendant);
+    hooks.insertDescendant(descendant, parentNode, leftNode);
 
-    const rowNodes = stack[stack.length - 1];
-    const leftNode = rowNodes?.[rowNodes?.length - 1 ?? 0];
-
-    hooks.insertDescendant(node, parentNode, leftNode);
-
-    if (stack.nodes.length === 0) {
-        stack.nodes.push(node);
+    const length = stack.nodes[stack.nodes.length - 1]?.push(descendant)
+    if (length === undefined) {
+        stack.nodes.push([descendant]);
     }
-    if (stack.length < 1) {
-        rs.siblings.push(node);
+    if (stack.nodes.length === 1) {
+        rs.siblings.push(descendant);
     }
-    stack.push([node]);
 };
 
 // const closeNode: BuildHelperNoHooks = (rs, stack, step) => {
@@ -188,7 +143,7 @@ const createNode: BuildHelper = (hooks, rs, stack, step) => {
 
 // only need parent[][]
 
-const buildFragment: BuildFragment = <N, A>(hooks, reader, rs = createFragment(), stack = []) => {
+const buildFragment: BuildFragment = (hooks, reader, rs, stack) => {
     // also go by two stepping and deltas
     reader.reset();
 

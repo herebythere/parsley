@@ -4,7 +4,15 @@
 // N Node
 // A Attributables
 
-interface Chunk { };
+import type { BuildStep } from "./parse.ts"
+
+interface Chunk<N> {
+  mount(parent?: N, left?: N): void; // add 
+  getDescendants(): void;
+};
+// what is a chunk?
+// has props, parent, left, descendants
+// update, connected, 
 
 interface AttributeInjection<N> {
   type: "ATTRIBUTE";
@@ -21,7 +29,7 @@ interface AttributeMapInjection<N, A> {
 
 interface ChunkDescendant<N> {
   type: "CHUNK";
-  chunkArray: Chunk[];
+  chunk: Chunk<N>;
   parentNode?: N;
   leftNode?: N;
 }
@@ -36,7 +44,7 @@ type ReferenceMap<N> = Map<string, N>;
 interface RenderStructure<N, A> {
   injections: Injection<N, A>[];
   references: ReferenceMap<N>;
-  siblings: N[][];
+  siblings: N[];
 }
 
 interface Stack<N> {

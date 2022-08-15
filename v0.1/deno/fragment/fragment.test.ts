@@ -92,7 +92,8 @@ const testCreateNode = () => {
     ]);
 
     const fragment = createFragment<TestNode, string>();
-    const stack = createStack<TestNode, string>();
+    const stack = createStack<TestNode>();
+
     buildFragment<TestNode, string>(
         hooks,
         reader,
@@ -100,7 +101,8 @@ const testCreateNode = () => {
         stack,
     );
 
-    console.log(fragment);
+    console.log("fragment:", fragment);
+    console.log("stack:", stack);
 
     return assertions;
 };
