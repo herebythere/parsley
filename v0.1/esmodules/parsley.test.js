@@ -33,15 +33,15 @@ const hooks = {
         ];
     },
     insertDescendant: (descendant, parentNode, leftNode)=>{
-        if (leftNode !== undefined) {
-            const leftRightDescendant = leftNode.right;
-            descendant.right = leftRightDescendant;
-            if (leftRightDescendant !== undefined) {
-                leftRightDescendant.left = descendant;
-            }
-            descendant.left = leftNode;
+        const rightNode = leftNode?.right;
+        if (parentNode?.kind === "ELEMENT") {
+            descendant.parent = parentNode;
+        }
+        descendant.left = leftNode;
+        if (leftNode) {
             leftNode.right = descendant;
         }
+        descendant.right = rightNode;
         if (parentNode?.kind === "ELEMENT") {
             descendant.parent = parentNode;
             if (parentNode.leftChild === undefined) {
@@ -81,7 +81,7 @@ new Set([
     "TAGNAME",
     "ATTRIBUTE_VALUE",
     "ATTRIBUTE",
-    "NODE_CLOSE",
+    "CLOSE_NODE",
     "CLOSE_INDEPENDENT_NODE",
     "CLOSE_NODE",
     "CLOSE_TAGNAME",
@@ -91,7 +91,8 @@ const createFragment = ()=>{
     return {
         injections: [],
         references: new Map(),
-        siblings: []
+        siblings: [],
+        error: undefined
     };
 };
 const createStack = ()=>{
@@ -101,40 +102,83 @@ const createStack = ()=>{
         attributeStep: undefined
     };
 };
-const createNode = (hooks, rs, stack, step)=>{
-    if (step.type !== "BUILD") return;
-    console.log("createNode:");
+const pushNode = (hooks, rs, stack, step)=>{
+    if (step.type !== "BUILD" || stack.node === undefined) return;
     const parentNodes = stack.nodes[stack.nodes.length - 2];
     const parentNode = parentNodes?.[(parentNodes.length ?? 1) - 1];
     const rowNodes = stack.nodes[stack.nodes.length - 1];
     const leftNode = rowNodes?.[(rowNodes.length ?? 1) - 1];
-    const descendant = hooks.createNode(step.value);
-    console.log(parentNodes);
-    console.log(rowNodes);
-    console.log(parentNode, leftNode, descendant);
-    hooks.insertDescendant(descendant, parentNode, leftNode);
-    const length = stack.nodes[stack.nodes.length - 1]?.push(descendant);
+    hooks.insertDescendant(stack.node, parentNode, leftNode);
+    const length = stack.nodes[stack.nodes.length - 1]?.push(stack.node);
     if (length === undefined) {
         stack.nodes.push([
-            descendant
+            stack.node
         ]);
     }
     if (stack.nodes.length === 1) {
+        rs.siblings.push(stack.node);
+    }
+    stack.node = undefined;
+};
+const createTextNode = (hooks, rs, stack, step)=>{
+    if (step.type !== "BUILD") return;
+    const parentNodes = stack.nodes[stack.nodes.length - 2];
+    const parentNode = parentNodes?.[(parentNodes.length ?? 1) - 1];
+    const rowNodes = stack.nodes[stack.nodes.length - 1];
+    const leftNode = rowNodes?.[(rowNodes.length ?? 1) - 1];
+    const descendant = hooks.createTextNode(step.value);
+    hooks.insertDescendant(descendant, parentNode, leftNode);
+    if (stack.nodes.length === 1) {
         rs.siblings.push(descendant);
+    }
+};
+const setAttribute = (hooks, rs, stack, step)=>{
+    if (stack?.node === undefined || stack?.attributeStep?.type !== "BUILD" || step?.type !== "BUILD") return;
+    if (step.state === "SPACE_NODE" || step.state === "CLOSE_NODE") {
+        console.log("setting attribute without value");
+        hooks.setAttribute(stack.node, stack?.attributeStep?.value);
+    }
+    if (step.state === "ATTRIBUTE_VALUE") {
+        hooks.setAttribute(stack.node, stack?.attributeStep.value, step.value);
+    }
+};
+const popNode = (hooks, rs, stack, step)=>{
+    const node = stack.nodes[stack.nodes.length - 1]?.pop();
+    if (node === undefined) {
+        stack.nodes.pop();
     }
 };
 const buildFragment = (hooks, reader, rs, stack)=>{
     reader.reset();
     let step = reader.next();
     while(step){
-        console.log("step:", step);
         if (step.type === "BUILD") {
             if (step.state === "TAGNAME") {
-                console.log("build node:");
-                createNode(hooks, rs, stack, step);
+                stack.node = hooks.createNode(step.value);
+            }
+            if (step.state === "TEXT") {
+                createTextNode(hooks, rs, stack, step);
+            }
+            if (step.state === "ATTRIBUTE") {
+                stack.attributeStep = step;
+            }
+            if (stack.attributeStep && stack.node && (step.state === "SPACE_NODE" || step.state === "ATTRIBUTE_VALUE" || step.state === "CLOSE_NODE")) {
+                setAttribute(hooks, rs, stack, step);
+                stack.attributeStep = undefined;
+            }
+            if (step.state === "CLOSE_NODE") {
+                pushNode(hooks, rs, stack, step);
+            }
+            if (step.state === "CLOSE_NODE_CLOSER" || step.state === "CLOSE_INDEPENDENT_CLOSE") {
+                pushNode(hooks, rs, stack, step);
+                popNode(hooks, rs, stack, step);
             }
         }
-        if (step.type === "INJECT") {}
+        if (step.type === "INJECT") {
+            if (step.state === "ATTRIBUTE") {}
+            if (step.state === "ATTRIBUTE_MAP") {}
+            if (step.state === "DESCENDANT") {}
+        }
         step = reader.next();
     }
 };
@@ -190,7 +234,7 @@ const testCreateNode = ()=>{
         },
         {
             type: "BUILD",
-            state: "CLOSE_NODE",
+            state: "SPACE_NODE",
             vector: {
                 origin: {
                     x: 0,
@@ -201,6 +245,111 @@ const testCreateNode = ()=>{
                     y: 6
                 }
             },
+            value: " "
+        },
+        {
+            type: "BUILD",
+            state: "ATTRIBUTE",
+            vector: {
+                origin: {
+                    x: 0,
+                    y: 7
+                },
+                target: {
+                    x: 0,
+                    y: 12
+                }
+            },
+            value: "howdy"
+        },
+        {
+            type: "BUILD",
+            state: "CLOSE_NODE",
+            vector: {
+                origin: {
+                    x: 0,
+                    y: 13
+                },
+                target: {
+                    x: 0,
+                    y: 13
+                }
+            },
+            value: ">"
+        },
+        {
+            type: "BUILD",
+            state: "TEXT",
+            vector: {
+                origin: {
+                    x: 0,
+                    y: 13
+                },
+                target: {
+                    x: 0,
+                    y: 13
+                }
+            },
+            value: "yo!"
+        },
+        {
+            type: "BUILD",
+            state: "NODE",
+            vector: {
+                origin: {
+                    x: 0,
+                    y: 13
+                },
+                target: {
+                    x: 0,
+                    y: 13
+                }
+            },
+            value: "<"
+        },
+        {
+            type: "BUILD",
+            state: "NODE_CLOSER",
+            vector: {
+                origin: {
+                    x: 0,
+                    y: 13
+                },
+                target: {
+                    x: 0,
+                    y: 13
+                }
+            },
+            value: "/"
+        },
+        {
+            type: "BUILD",
+            state: "TAGNAME_CLOSE",
+            vector: {
+                origin: {
+                    x: 0,
+                    y: 13
+                },
+                target: {
+                    x: 0,
+                    y: 13
+                }
+            },
+            value: "hello"
+        },
+        {
+            type: "BUILD",
+            state: "CLOSE_NODE_CLOSER",
+            vector: {
+                origin: {
+                    x: 0,
+                    y: 13
+                },
+                target: {
+                    x: 0,
+                    y: 13
+                }
+            },
             value: ">"
         }
     ]);
@@ -209,6 +358,9 @@ const testCreateNode = ()=>{
     buildFragment(hooks, reader, fragment, stack);
     console.log("fragment:", fragment);
     console.log("stack:", stack);
+    for (const node of fragment.siblings){
+        console.log("node:", node, node.left, node.right);
+    }
     return assertions;
 };
 const tests = [

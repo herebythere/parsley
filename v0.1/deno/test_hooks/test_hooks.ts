@@ -27,17 +27,29 @@ const hooks: Hooks<TestNode, TestAttributes> = {
     return [sibling.left, sibling.right];
   },
   insertDescendant: (descendant, parentNode, leftNode) => {
-    // set descendant
-    if (leftNode !== undefined) {
-      const leftRightDescendant = leftNode.right;
-      descendant.right = leftRightDescendant;
-      if (leftRightDescendant !== undefined) {
-        leftRightDescendant.left = descendant;
-      }
+    const rightNode = leftNode?.right;
 
-      descendant.left = leftNode;
+    if (parentNode?.kind === "ELEMENT") {
+      descendant.parent = parentNode;
+    }
+    descendant.left = leftNode;
+    if (leftNode) {
       leftNode.right = descendant;
     }
+    descendant.right = rightNode;
+
+
+    // set descendant
+    // if (leftNode !== undefined) {
+    //   const leftRightDescendant = leftNode.right;
+    //   descendant.right = leftRightDescendant;
+    //   if (leftRightDescendant !== undefined) {
+    //     leftRightDescendant.left = descendant;
+    //   }
+
+    //   descendant.left = leftNode;
+    //   leftNode.right = descendant;
+    // }
 
     // appending
     if (parentNode?.kind === "ELEMENT") {

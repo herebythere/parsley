@@ -85,8 +85,50 @@ const testCreateNode = () => {
         },
         {
             type: "BUILD",
-            state: "CLOSE_NODE",
+            state: "SPACE_NODE",
             vector: {origin: {x: 0, y: 6}, target: {x: 0, y: 6}},
+            value: " ",
+        },
+        {
+            type: "BUILD",
+            state: "ATTRIBUTE",
+            vector: {origin: {x: 0, y: 7}, target: {x: 0, y: 12}},
+            value: "howdy",
+        },
+        {
+            type: "BUILD",
+            state: "CLOSE_NODE",
+            vector: {origin: {x: 0, y: 13}, target: {x: 0, y: 13}},
+            value: ">"
+        },
+        {
+            type: "BUILD",
+            state: "TEXT",
+            vector: {origin: {x: 0, y: 13}, target: {x: 0, y: 13}},
+            value: "yo!"
+        },
+        {
+            type: "BUILD",
+            state: "NODE",
+            vector: {origin: {x: 0, y: 13}, target: {x: 0, y: 13}},
+            value: "<"
+        },
+        {
+            type: "BUILD",
+            state: "NODE_CLOSER",
+            vector: {origin: {x: 0, y: 13}, target: {x: 0, y: 13}},
+            value: "/"
+        },
+        {
+            type: "BUILD",
+            state: "TAGNAME_CLOSE",
+            vector: {origin: {x: 0, y: 13}, target: {x: 0, y: 13}},
+            value: "hello"
+        },
+        {
+            type: "BUILD",
+            state: "CLOSE_NODE_CLOSER",
+            vector: {origin: {x: 0, y: 13}, target: {x: 0, y: 13}},
             value: ">"
         }
     ]);
@@ -103,6 +145,10 @@ const testCreateNode = () => {
 
     console.log("fragment:", fragment);
     console.log("stack:", stack);
+
+    for(const node of fragment.siblings) {
+        console.log("node:", node, node.left, node.right)
+    }
 
     return assertions;
 };

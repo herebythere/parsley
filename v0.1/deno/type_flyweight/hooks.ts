@@ -4,7 +4,7 @@
 type SetAttribute<N, A> = (
   node: N,
   attribute: string,
-  value: A,
+  value?: A | string,
 ) => void;
 
 type CreateNode<N> = (tag: string) => N;

@@ -6,7 +6,7 @@
 // import { unitTestSkeletonCrawl } from "./builders/skeleton_crawl/skeleton_crawl.test.ts";
 import { unitTestCrawl } from "./parse/parse.test.ts";
 
-import { unitTestBuildFragment } from "./fragment/fragment.test.ts";
+import { unitTestBuildFragment } from "./structure/structure.test.ts";
 // import { unitTestTagNameCrawl } from "./builders/tag_name_crawl/tag_name_crawl.test.ts";
 import { unitTestTestHooks } from "./test_hooks/test_hooks.test.ts";
 import { unitTestTextVector } from "./text_vector/text_vector.test.ts";

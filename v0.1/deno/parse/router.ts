@@ -19,15 +19,15 @@ const routers: Routers = {
   },
   // NODE
   NODE: {
-    " ": "NODE",
+    " ": "ERROR",
     "\n": "NODE",
-    "/": "NODE_CLOSE",
+    "/": "NODE_CLOSER",
     ">": "ERROR",
     "-": "COMMENT_0",
     DEFAULT: "TAGNAME",
   },
-  NODE_CLOSE: {
-    " ": "NODE_CLOSE",
+  NODE_CLOSER: {
+    " ": "ERROR",
     DEFAULT: "TAGNAME_CLOSE",
   },
   TAGNAME: {
@@ -38,7 +38,7 @@ const routers: Routers = {
     DEFAULT: "TAGNAME",
   },
   TAGNAME_CLOSE: {
-    ">": "CLOSE_NODE",
+    ">": "CLOSE_NODE_CLOSER",
     " ": "SPACE_CLOSE_NODE",
     "\n": "SPACE_CLOSE_NODE",
     DEFAULT: "TAGNAME_CLOSE",
@@ -48,6 +48,10 @@ const routers: Routers = {
     DEFAULT: "INDEPENDENT_NODE"
   },
   CLOSE_NODE: {
+    "<": "NODE",
+    DEFAULT: "TEXT",
+  },
+  CLOSE_NODE_CLOSER: {
     "<": "NODE",
     DEFAULT: "TEXT",
   },

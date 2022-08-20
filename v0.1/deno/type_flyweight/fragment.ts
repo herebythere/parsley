@@ -14,11 +14,11 @@ interface Chunk<N> {
 // has props, parent, left, descendants
 // update, connected, 
 
-interface AttributeInjection<N> {
+interface AttributeInjection<N, A> {
   type: "ATTRIBUTE";
   node: N;
   attribute: string;
-  value: string;
+  value: A;
 }
 
 interface AttributeMapInjection<N, A> {
@@ -35,7 +35,7 @@ interface ChunkDescendant<N> {
 }
 
 type Injection<N, A> =
-  AttributeInjection<N> |
+  AttributeInjection<N, A> |
   ChunkDescendant<N> |
   AttributeMapInjection<N, A>;
 
@@ -45,6 +45,7 @@ interface RenderStructure<N, A> {
   injections: Injection<N, A>[];
   references: ReferenceMap<N>;
   siblings: N[];
+  error?: string;
 }
 
 interface Stack<N> {
