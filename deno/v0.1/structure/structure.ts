@@ -43,25 +43,7 @@ type BuildHelper = <N, A>(
     nextStep?: BuildStep,
 ) => void;
 
-type BuildHelperNoHooks = <N, A>(
-    rs: RenderStructure<N, A>,
-    stack: Stack<N>,
-    step: BuildStep,
-) => void;
 
-// Separate render from build
-
-// if not big enough for memory it will be a write driven process
-// get build steps -> write build steps to file
-// read build steps -> get build steps one line at a time
-//
-// structure builder becomes about steps
-// next() next next until undefined
-// reset() -> 0 index mark
-
-// stack push pop
-
-//
 const fragmentSet = new Set([
     // node and attributes
     "TAGNAME",
@@ -76,23 +58,18 @@ const fragmentSet = new Set([
     "TEXT"
 ]);
 
-const createFragment = <N, A>(): RenderStructure<N, A> => {
-    return {
-        injections: [],
-        references: new Map(),
-        siblings: [],
-        error: undefined,
-    };
-}
+const createFragment = <N, A>(): RenderStructure<N, A> => ({
+    injections: [],
+    references: new Map(),
+    siblings: [],
+    error: undefined,
+});
 
-const createStack = <N>(): Stack<N> => {
-    return {
-        nodes: [],
-        node: undefined,
-        attributeStep: undefined,
-    };
-}
-
+const createStack = <N>(): Stack<N> => ({
+    nodes: [],
+    node: undefined,
+    attributeStep: undefined,
+});
 
 const pushNode: BuildHelper = (hooks, rs, stack, step) => {
     if (step.type !== "BUILD" || stack.node === undefined) return;
@@ -114,7 +91,6 @@ const pushNode: BuildHelper = (hooks, rs, stack, step) => {
     }
     stack.node = undefined;
 };
-
 
 const createTextNode: BuildHelper = (hooks, rs, stack, step) => {
     if (step.type !== "BUILD") return;
@@ -139,17 +115,12 @@ const setAttribute = <N, A>(
     step: BuildStep,
 ) => {
     if (stack?.node === undefined || stack?.attributeStep?.type !== "BUILD" || step?.type !== "BUILD") return;
-    if (step.state === "SPACE_NODE" || 
-        step.state === "CLOSE_NODE"
-    ) {
-        console.log("setting attribute without value");
-
-        hooks.setAttribute(stack.node, stack?.attributeStep?.value);
-    }
-
     if (step.state === "ATTRIBUTE_VALUE") {
         hooks.setAttribute(stack.node, stack?.attributeStep.value, step.value);
+        return;
     }
+
+    hooks.setAttribute(stack.node, stack?.attributeStep?.value);
 }
 
 const popNode: BuildHelper = (hooks, rs, stack, step) => {
@@ -175,7 +146,6 @@ const buildStructure: BuildStructure = (hooks, reader, rs, stack) => {
             // TEXT
             //
             if (step.state === "TEXT") {
-                // bump to the stack;
                 createTextNode(hooks, rs, stack, step);
             }
 
@@ -220,11 +190,14 @@ const buildStructure: BuildStructure = (hooks, reader, rs, stack) => {
             //   add to injecitons
             //
             if (step.state === "ATTRIBUTE_MAP") {
-
+                // set attribute map
             }
 
             if (step.state === "DESCENDANT") {
-
+                // parent
+                // left
+                //
+                // iterate and add descendant
             }
         }
 

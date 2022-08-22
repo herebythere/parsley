@@ -3,9 +3,9 @@ import type { Vector } from "../type_flyweight/text_vector.ts";
 
 import { BuildStep, BuilderInterface } from "../type_flyweight/parse.ts";
 
-import type {Delta} from "./parse.ts";
+import type { Delta } from "./parse.ts";
 
-import {crawl} from "./parse.ts";
+import { crawl } from "./parse.ts";
 
 import { createFromTemplate } from "../text_vector/text_vector.ts";
 
@@ -13,8 +13,8 @@ class TestBuilder implements BuilderInterface {
   builderStack: BuildStep[] = [];
 
   push(buildStep: BuildStep) {
-      // console.log("state:", state);
-      this.builderStack.push(buildStep);
+    // console.log("state:", state);
+    this.builderStack.push(buildStep);
   }
 }
 
@@ -24,10 +24,10 @@ const title = "** crawl tests **"
 const runTestsAsynchronously = true;
 
 type TextTextInterpolator = <N, A>(
-    templateArray: TemplateStringsArray,
-    ...injections: A[]
-  ) => Template<N, A>;
-  
+  templateArray: TemplateStringsArray,
+  ...injections: A[]
+) => Template<N, A>;
+
 const testTextInterpolator: TextTextInterpolator = (
   templateArray,
   ...injections
@@ -35,7 +35,7 @@ const testTextInterpolator: TextTextInterpolator = (
   return { templateArray, injections };
 };
 
-function createDelta (vector: Vector): Delta {
+function createDelta(vector: Vector): Delta {
   return {
     prevPos: { x: 0, y: 0 },
     origin: { x: 0, y: 0 },
@@ -46,15 +46,15 @@ function createDelta (vector: Vector): Delta {
 }
 
 const crawlTest = () => {
-    const testVector = testTextInterpolator`<hello>hello ${"buster"}!</hello>`;
+  const testVector = testTextInterpolator`<hello>hello ${"buster"}!</hello>`;
 
-    console.log(testVector);
+  console.log(testVector);
 
-    const rb = new TestBuilder();
-    crawl(testVector, rb, createDelta(createFromTemplate(testVector)));
-    console.log(rb.builderStack);
+  const rb = new TestBuilder();
+  crawl(testVector, rb, createDelta(createFromTemplate(testVector)));
+  console.log(rb.builderStack);
 
-    return ["fail!"];
+  return ["fail!"];
 }
 
 const crawlNodeTest = () => {
@@ -259,39 +259,38 @@ const crawlerTest2 = () => {
 }
 
 const tests = [
-    // crawlTest,
-    // crawlerTest,
-    // crawlerTest1,
-    // crawlerTest2,
-    // crawlerCommentTest,
+  // crawlTest,
+  // crawlerTest,
+  // crawlerTest1,
+  // crawlerTest2,
+  // crawlerCommentTest,
 
-    // crawlNodeTest,
-    // crawlImplicitAttributeTest,
-    // crawlImplicitAttributeWithSpacesTest,
+  // crawlNodeTest,
+  // crawlImplicitAttributeTest,
+  // crawlImplicitAttributeWithSpacesTest,
 
-    // crawlerCommentTest,
+  // crawlerCommentTest,
 
-    // crawlIndependentNodeTest,
-    // crawlIndependentNodeImplicitAttributeTest,
-    // crawlIndependentNodeImplicitAttributeWithSpacesTest,
+  // crawlIndependentNodeTest,
+  // crawlIndependentNodeImplicitAttributeTest,
+  // crawlIndependentNodeImplicitAttributeWithSpacesTest,
 
-    // crawlExplicitAttributeTest,
-    // crawlExplicitAttributeWithSpacesTest,
+  // crawlExplicitAttributeTest,
+  // crawlExplicitAttributeWithSpacesTest,
 
-    crawlNodeWithInjectionsTest,
-    // crawlNodeWithAttributeMapInjectionsTest,
-    // crawlNodeWithAttributeInjectionsTest, 
-    // crawlNodeInjectionsTest,
+  crawlNodeWithInjectionsTest,
+  // crawlNodeWithAttributeMapInjectionsTest,
+  // crawlNodeWithAttributeInjectionsTest, 
+  // crawlNodeInjectionsTest,
 
-    // crawlerTextThenNodeTest,
-    // crawlerTextThenNodeClosedTest,
+  // crawlerTextThenNodeTest,
+  // crawlerTextThenNodeClosedTest,
 ];
 
 const unitTestCrawl = {
-    title,
-    tests,
-    runTestsAsynchronously,
-  };
-  
-  export { unitTestCrawl };
-  
+  title,
+  tests,
+  runTestsAsynchronously,
+};
+
+export { unitTestCrawl };

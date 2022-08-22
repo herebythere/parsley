@@ -25,8 +25,8 @@ import { draw, hooks, TestAttributes } from "../test_hooks/test_hooks.ts";
 // ) => InterpolatorResults<N, A>;
 
 import type { BuildStep } from "../type_flyweight/parse.ts";
-import type {ReaderInterface} from "./fragment.ts";
-import {buildFragment, createFragment, createStack} from "./fragment.ts";
+import type {ReaderInterface} from "./structure.ts";
+import {buildFragment, createFragment, createStack} from "./structure.ts";
 
 const title = "build_render";
 const runTestsAsynchronously = true;

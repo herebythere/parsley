@@ -22,11 +22,6 @@ type Increment = <N, A>(
   vector: Vector,
 ) => Vector | undefined;
 
-type GetTextFromVector = <N, A>(
-  template: Template<N, A>,
-  vector: Vector,
-) => string | undefined;
-
 const DEFAULT_POSITION: Position = {
   x: 0,
   y: 0,
@@ -85,7 +80,7 @@ const incrementOrigin: Increment = (template, vector) => {
   return;
 };
 
-const getText: GetTextFromVector = (template, vector) => {
+const getText: GetChar = (template, vector) => {
   let templateText = template.templateArray[vector.origin.x];
   if (templateText === undefined) return;
 

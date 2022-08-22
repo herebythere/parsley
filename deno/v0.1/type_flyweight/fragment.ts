@@ -43,6 +43,7 @@ type ReferenceMap<N> = Map<string, N>;
 
 interface RenderStructure<N, A> {
   injections: Injection<N, A>[];
+  descendants: ChunkDescendant<N>,
   references: ReferenceMap<N>;
   siblings: N[];
   error?: string;
@@ -54,4 +55,11 @@ interface Stack<N> {
   attributeStep?: BuildStep;
 }
 
-export type { ReferenceMap, RenderStructure, Stack };
+interface Fragment<N, A, P> {
+  children(): N[];
+  update(params: P): void;
+  connect(): void;
+  disconnect(): void;
+}
+
+export type { ReferenceMap, RenderStructure, Stack, Fragment };

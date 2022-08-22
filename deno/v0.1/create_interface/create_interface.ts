@@ -5,6 +5,8 @@ import type { Hooks } from "../type_flyweight/hooks.ts";
 import { Chunk } from "../fragment/chunk.ts";
 import { ReaderInterface, BuilderInterface } from "../type_flyweight/parse.ts";
 
+
+
 type ContextFactory<N, A, P, S> = (params: P) => Chunk<N, A, P, S>;
 
 
@@ -61,12 +63,15 @@ interface ParsleyInterface<N, A> {
 
 type CreateInterface = <N, A>(
   hooks: Hooks<N, A>,
+  reader: ReaderInterface,
+  builder: BuilderInterface,
 ) => ParsleyInterface<N, A>;
 
-const createInterface: ParsleyInterface = <N, A>(
+const createInterface: CreateInterface = <N, A>(
   hooks: Hooks<N, A>,
   reader: ReaderInterface,
   builder: BuilderInterface,
+  Fragment: FragmentInterface,
 ) => {
   const attach: Attach<N> = (parentNode, chunkArray) => {
     let leftNode;
@@ -79,19 +84,11 @@ const createInterface: ParsleyInterface = <N, A>(
 
   const compose: Compose<N, A> = (chunker) => {
     return (params) => {
-      return new Chunk({ hooks, chunker, params });
+      return new Fragment(hooks, chunker, params);
     };
   };
 
-  // what if we returned a list of descendant siblings?
-  // () => nodes or chunk.update() -> node[]
-  // not chunk
-
   const draw: Draw<N, A> = (templateArray, ...injections) => {
-    // 
-    //
-    //
-
     return {
       templateArray,
       injections,
