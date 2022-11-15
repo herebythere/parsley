@@ -8,10 +8,9 @@ import { samestuff } from "../test_deps.ts";
 import {
   copy,
   create,
-  getText,
-  // targetCrossedOrigin,
-  incrementOrigin,
   createFromTemplate,
+  getText,
+  incrementOrigin,
 } from "./text_vector.ts";
 
 type TextTextInterpolator = <N, A>(
@@ -176,39 +175,6 @@ const incrementTextVectorTooFar = () => {
   return assertions;
 };
 
-// const testTargetCrossedOrigin = () => {
-//   const assertions = [];
-
-//   const vector: Vector = create();
-//   const results = targetCrossedOrigin(vector);
-
-//   if (results !== true) {
-//     assertions.push("orign eclipsed target");
-//   }
-
-//   return assertions;
-// };
-
-// const testHasOriginNotEclipsedTaraget = () => {
-//   const assertions = [];
-
-//   const structureRender = testTextInterpolator`hey${"world"}, how are you?`;
-//   const vector: Vector = createFromTemplate(structureRender);
-
-//   incrementOrigin(structureRender, vector);
-//   incrementOrigin(structureRender, vector);
-//   incrementOrigin(structureRender, vector);
-//   incrementOrigin(structureRender, vector);
-
-//   const results = targetCrossedOrigin(vector);
-
-//   if (results !== false) {
-//     assertions.push("orign has not eclipsed target");
-//   }
-
-//   return assertions;
-// };
-
 const testGetTextReturnsActualText = () => {
   const expectedResult = "world";
   const assertions = [];
@@ -237,8 +203,8 @@ const testGetTextOverTemplate = () => {
   const expectedResult = "how  you";
   const assertions = [];
 
-  const structureRender = testTextInterpolator
-    `hey ${"world"}, how ${"are"} you?`;
+  const structureRender =
+    testTextInterpolator`hey ${"world"}, how ${"are"} you?`;
   const vector: Vector = {
     origin: {
       x: 1,
@@ -262,8 +228,8 @@ const testGetTextOverChonkyTemplate = () => {
   const expectedResult = "how  you  buster";
   const assertions = [];
 
-  const structureRender = testTextInterpolator
-    `hey ${"world"}, how ${"are"} you ${"doing"} buster?`;
+  const structureRender =
+    testTextInterpolator`hey ${"world"}, how ${"are"} you ${"doing"} buster?`;
   const vector: Vector = {
     origin: {
       x: 1,
@@ -292,8 +258,6 @@ const tests = [
   incrementMultiTextVector,
   incrementEmptyTextVector,
   incrementTextVectorTooFar,
-  // testTargetCrossedOrigin,
-  // testHasOriginNotEclipsedTaraget,
   testGetTextReturnsActualText,
   testGetTextOverTemplate,
   testGetTextOverChonkyTemplate,

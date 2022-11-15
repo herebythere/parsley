@@ -24,4 +24,4 @@ interface TestText {
 
 type TestNode = TestElement | TestText;
 
-export type { TestNode, TestAttributes };
+export type { TestAttributes, TestNode };

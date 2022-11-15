@@ -67,16 +67,16 @@ const routers = {
         DEFAULT: "ATTRIBUTE"
     },
     ATTRIBUTE_SETTER: {
-        "\"": "ATTRIBUTE_DECLARATION",
+        '"': "ATTRIBUTE_DECLARATION",
         "\n": "SPACE_NODE",
         DEFAULT: "SPACE_NODE"
     },
     ATTRIBUTE_DECLARATION: {
-        "\"": "CLOSE_ATTRIBUTE_DECLARATION",
+        '"': "CLOSE_ATTRIBUTE_DECLARATION",
         DEFAULT: "ATTRIBUTE_VALUE"
     },
     ATTRIBUTE_VALUE: {
-        "\"": "CLOSE_ATTRIBUTE_DECLARATION",
+        '"': "CLOSE_ATTRIBUTE_DECLARATION",
         DEFAULT: "ATTRIBUTE_VALUE"
     },
     CLOSE_ATTRIBUTE_DECLARATION: {
@@ -190,7 +190,7 @@ const injectionMap = new Map([
     [
         "TEXT",
         "DESCENDANT_INJECTION"
-    ], 
+    ]
 ]);
 function crawl(template, builder, delta) {
     do {
@@ -201,6 +201,7 @@ function crawl(template, builder, delta) {
         if (delta.state === undefined) {
             delta.state = routers[delta.prevState]?.["DEFAULT"] ?? "ERROR";
         }
+        if (delta.state === "ERROR") return;
         if (delta.prevState !== delta.state) {
             const vector = create(delta.origin, delta.prevPos);
             const value = getText(template, vector);
@@ -247,7 +248,7 @@ function crawl(template, builder, delta) {
         delta.prevPos.x = delta.vector.origin.x;
         delta.prevPos.y = delta.vector.origin.y;
     }while (delta.state !== "ERROR" && incrementOrigin(template, delta.vector))
-    if (delta.state === "ERROR" || delta.prevState === delta.state) return;
+    if (delta.prevState === delta.state || delta.state === "ERROR") return;
     const vector2 = create(delta.origin, delta.origin);
     const value2 = getText(template, vector2);
     if (value2 === undefined) {
@@ -261,103 +262,4 @@ function crawl(template, builder, delta) {
         vector: vector2
     });
 }
-new Set([
-    "TAGNAME",
-    "ATTRIBUTE_VALUE",
-    "ATTRIBUTE",
-    "CLOSE_NODE",
-    "CLOSE_INDEPENDENT_NODE",
-    "CLOSE_NODE",
-    "CLOSE_TAGNAME",
-    "TEXT"
-]);
-const createFragment = ()=>{
-    return {
-        injections: [],
-        references: new Map(),
-        siblings: [],
-        error: undefined
-    };
-};
-const pushNode = (hooks, rs, stack, step)=>{
-    if (step.type !== "BUILD" || stack.node === undefined) return;
-    const parentNodes = stack.nodes[stack.nodes.length - 2];
-    const parentNode = parentNodes?.[(parentNodes.length ?? 1) - 1];
-    const rowNodes = stack.nodes[stack.nodes.length - 1];
-    const leftNode = rowNodes?.[(rowNodes.length ?? 1) - 1];
-    hooks.insertDescendant(stack.node, parentNode, leftNode);
-    const length = stack.nodes[stack.nodes.length - 1]?.push(stack.node);
-    if (length === undefined) {
-        stack.nodes.push([
-            stack.node
-        ]);
-    }
-    if (stack.nodes.length === 1) {
-        rs.siblings.push(stack.node);
-    }
-    stack.node = undefined;
-};
-const createTextNode = (hooks, rs, stack, step)=>{
-    if (step.type !== "BUILD") return;
-    const parentNodes = stack.nodes[stack.nodes.length - 2];
-    const parentNode = parentNodes?.[(parentNodes.length ?? 1) - 1];
-    const rowNodes = stack.nodes[stack.nodes.length - 1];
-    const leftNode = rowNodes?.[(rowNodes.length ?? 1) - 1];
-    const descendant = hooks.createTextNode(step.value);
-    hooks.insertDescendant(descendant, parentNode, leftNode);
-    if (stack.nodes.length === 1) {
-        rs.siblings.push(descendant);
-    }
-};
-const setAttribute = (hooks, rs, stack, step)=>{
-    if (stack?.node === undefined || stack?.attributeStep?.type !== "BUILD" || step?.type !== "BUILD") return;
-    if (step.state === "SPACE_NODE" || step.state === "CLOSE_NODE") {
-        console.log("setting attribute without value");
-        hooks.setAttribute(stack.node, stack?.attributeStep?.value);
-    }
-    if (step.state === "ATTRIBUTE_VALUE") {
-        hooks.setAttribute(stack.node, stack?.attributeStep.value, step.value);
-    }
-};
-const popNode = (hooks, rs, stack, step)=>{
-    const node = stack.nodes[stack.nodes.length - 1]?.pop();
-    if (node === undefined) {
-        stack.nodes.pop();
-    }
-};
-const buildFragment = (hooks, reader, rs, stack)=>{
-    reader.reset();
-    let step = reader.next();
-    while(step){
-        if (step.type === "BUILD") {
-            if (step.state === "TAGNAME") {
-                stack.node = hooks.createNode(step.value);
-            }
-            if (step.state === "TEXT") {
-                createTextNode(hooks, rs, stack, step);
-            }
-            if (step.state === "ATTRIBUTE") {
-                stack.attributeStep = step;
-            }
-            if (stack.attributeStep && stack.node && (step.state === "SPACE_NODE" || step.state === "ATTRIBUTE_VALUE" || step.state === "CLOSE_NODE")) {
-                setAttribute(hooks, rs, stack, step);
-                stack.attributeStep = undefined;
-            }
-            if (step.state === "CLOSE_NODE") {
-                pushNode(hooks, rs, stack, step);
-            }
-            if (step.state === "CLOSE_NODE_CLOSER" || step.state === "CLOSE_INDEPENDENT_CLOSE") {
-                pushNode(hooks, rs, stack, step);
-                popNode(hooks, rs, stack, step);
-            }
-        }
-        if (step.type === "INJECT") {
-            if (step.state === "ATTRIBUTE") {}
-            if (step.state === "ATTRIBUTE_MAP") {}
-            if (step.state === "DESCENDANT") {}
-        }
-        step = reader.next();
-    }
-};
 export { crawl as crawl };
-export { buildFragment as buildFragment, createFragment as createFragment };

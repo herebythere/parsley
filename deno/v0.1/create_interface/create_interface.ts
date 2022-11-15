@@ -3,12 +3,9 @@ import type { Attach, Draw } from "../type_flyweight/template.ts";
 import type { Hooks } from "../type_flyweight/hooks.ts";
 
 import { Chunk } from "../fragment/chunk.ts";
-import { ReaderInterface, BuilderInterface } from "../type_flyweight/parse.ts";
-
-
+import { BuilderInterface, ReaderInterface } from "../type_flyweight/parse.ts";
 
 type ContextFactory<N, A, P, S> = (params: P) => Chunk<N, A, P, S>;
-
 
 const buildSet = new Set([
   "TEXT",
@@ -28,7 +25,7 @@ class Builder implements BuilderInterface {
 
   push(step: BuildStep): void {
     if (buildMap.has(step)) {
-      this.steps.push(step)
+      this.steps.push(step);
     }
   }
 
@@ -42,7 +39,7 @@ class Reader implements ReaderInterface {
 
   next(): BuildStep {
     if (buildMap.has(step)) {
-      this.steps.push(step)
+      this.steps.push(step);
     }
   }
 

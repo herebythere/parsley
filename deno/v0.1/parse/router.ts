@@ -1,16 +1,12 @@
 // brian taylor vann
 // routers
 
-type RouterMap = Record<string, string> & {
-  DEFAULT: string
-}
-
-type Routers = Record<string, RouterMap>;
+import type { Routers } from "../type_flyweight/parse.ts";
 
 const routers: Routers = {
   INITIAL: {
     "<": "NODE",
-    DEFAULT: "TEXT"
+    DEFAULT: "TEXT",
   },
   // TEXT
   TEXT: {
@@ -45,7 +41,7 @@ const routers: Routers = {
   },
   INDEPENDENT_NODE: {
     ">": "CLOSE_INDEPENDENT_NODE",
-    DEFAULT: "INDEPENDENT_NODE"
+    DEFAULT: "INDEPENDENT_NODE",
   },
   CLOSE_NODE: {
     "<": "NODE",
@@ -75,16 +71,16 @@ const routers: Routers = {
     DEFAULT: "ATTRIBUTE", // incorrect
   },
   ATTRIBUTE_SETTER: {
-    "\"": "ATTRIBUTE_DECLARATION",
+    '"': "ATTRIBUTE_DECLARATION",
     "\n": "SPACE_NODE",
     DEFAULT: "SPACE_NODE",
   },
   ATTRIBUTE_DECLARATION: {
-    "\"": "CLOSE_ATTRIBUTE_DECLARATION",
+    '"': "CLOSE_ATTRIBUTE_DECLARATION",
     DEFAULT: "ATTRIBUTE_VALUE",
   },
   ATTRIBUTE_VALUE: {
-    "\"": "CLOSE_ATTRIBUTE_DECLARATION",
+    '"': "CLOSE_ATTRIBUTE_DECLARATION",
     DEFAULT: "ATTRIBUTE_VALUE",
   },
   CLOSE_ATTRIBUTE_DECLARATION: {
@@ -94,7 +90,7 @@ const routers: Routers = {
   // comments
   COMMENT_0: {
     "-": "COMMENT_1",
-    DEFAULT: "ERROR"
+    DEFAULT: "ERROR",
   },
   COMMENT_1: {
     "-": "COMMENT_CLOSE",

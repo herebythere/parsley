@@ -14,6 +14,12 @@ type GetChar = <N, A>(
   position: Position,
 ) => string | undefined;
 
+type GetText = <N, A>(
+  template: Template<N, A>,
+  origin: Position,
+  target: Position,
+) => string | undefined;
+
 type Create = (origin?: Position, target?: Position) => Vector;
 type Copy = (vector: Vector) => Vector;
 
@@ -42,15 +48,18 @@ const increment: IncrementPos = (template, position) => {
   if (position.y > chunkLength) {
     position.x += 1;
     position.y = 0;
-  };
+  }
 
   return position;
 };
 
-const getChar: GetChar = (template, position) => 
+const getChar: GetChar = (template, position) =>
   template.templateArray[position.x]?.[position.y];
 
-const create: Create = (origin = DEFAULT_POSITION, target = DEFAULT_POSITION) => ({
+const create: Create = (
+  origin = DEFAULT_POSITION,
+  target = DEFAULT_POSITION,
+) => ({
   origin: { ...origin },
   target: { ...target },
 });
@@ -60,15 +69,15 @@ const createFromTemplate = <N, A>(template: Template<N, A>) => {
   const y = template.templateArray[x].length - 1;
 
   return {
-    origin: {x: 0, y: 0},
-    target: {x, y},
-  }
-}
+    origin: { x: 0, y: 0 },
+    target: { x, y },
+  };
+};
 
 const copy: Copy = (vector) => {
   return {
-    origin: {...vector.origin},
-    target: {...vector.target},
+    origin: { ...vector.origin },
+    target: { ...vector.target },
   };
 };
 
@@ -80,28 +89,26 @@ const incrementOrigin: Increment = (template, vector) => {
   return;
 };
 
-const getText: GetChar = (template, vector) => {
-  let templateText = template.templateArray[vector.origin.x];
+const getText: GetText = (template, origin, target) => {
+  let templateText = template.templateArray[origin.x];
   if (templateText === undefined) return;
 
   const texts: string[] = [];
 
-  const targetX = vector.target.x;
-  const originX = vector.origin.x;
-  const xDistance = targetX - originX;
+  const xDistance = target.x - origin.x;
   if (xDistance < 0) return;
 
   if (xDistance === 0) {
-    const yDistance = vector.target.y - vector.origin.y + 1;
-    return templateText.substr(vector.origin.y, yDistance);
+    const yDistance = target.y - origin.y + 1;
+    return templateText.substr(origin.y, yDistance);
   }
 
-  const firstDistance = templateText.length - vector.origin.y;
-  const first = templateText.substr(vector.origin.y, firstDistance);
+  const firstDistance = templateText.length - origin.y;
+  const first = templateText.substr(origin.y, firstDistance);
   texts.push(first);
 
-  const bookend = targetX - 2;
-  let index = originX + 1;
+  const bookend = target.x - 2;
+  let index = origin.x + 1;
   while (index < bookend) {
     const piece = template.templateArray[index];
     if (piece === undefined) return;
@@ -110,20 +117,13 @@ const getText: GetChar = (template, vector) => {
     index += 1;
   }
 
-  const lastTemplate = template.templateArray[targetX];
+  const lastTemplate = template.templateArray[target.x];
   if (lastTemplate === undefined) return;
 
-  let last = lastTemplate.substr(0, vector.target.y + 1);
+  let last = lastTemplate.substr(0, target.y + 1);
   texts.push(last);
 
   return texts.join("");
 };
 
-export {
-  copy,
-  create,
-  createFromTemplate,
-  getText,
-  incrementOrigin,
-  getChar,
-};
+export { copy, create, createFromTemplate, getChar, getText, incrementOrigin };

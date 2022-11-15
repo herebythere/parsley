@@ -3,8 +3,7 @@
 
 import type { Hooks } from "../type_flyweight/hooks.ts";
 import type { Draw } from "../type_flyweight/template.ts";
-import type { TestNode, TestAttributes } from "./test_element.ts";
-
+import type { TestAttributes, TestNode } from "./test_element.ts";
 
 const hooks: Hooks<TestNode, TestAttributes> = {
   createNode: (tagname) => {
@@ -37,7 +36,6 @@ const hooks: Hooks<TestNode, TestAttributes> = {
       leftNode.right = descendant;
     }
     descendant.right = rightNode;
-
 
     // set descendant
     // if (leftNode !== undefined) {

@@ -11,17 +11,17 @@ unminimized and uncompressed < 39kb
 
 user supplies hooks
 
-BUILDER TO
-HOOKS
-VECTOR TO TEXT WRITER
+BUILDER TO HOOKS VECTOR TO TEXT WRITER
 
 ## Abstract
 
-Parsley is a portable meta-library that generates libraries to create different kinds of documents!
+Parsley is a portable meta-library that generates libraries to create different
+kinds of documents!
 
 ## About
 
-Parsley is an XML factory that generates APIs to create custom document structures.
+Parsley is an XML factory that generates APIs to create custom document
+structures.
 
 Parsley can build interfaces to represent:
 
@@ -58,7 +58,8 @@ maintain document structure.
 
 Parsley is written in Typescript.
 
-But it's a completely portable set of abstractions ready to be implemented in other languages.
+But it's a completely portable set of abstractions ready to be implemented in
+other languages.
 
 C# is most likeley the next target.
 
