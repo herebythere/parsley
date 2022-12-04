@@ -137,35 +137,6 @@ const incrementOrigin = (template, vector)=>{
     }
     return;
 };
-const getText = (template, vector)=>{
-    let templateText = template.templateArray[vector.origin.x];
-    if (templateText === undefined) return;
-    const texts = [];
-    const targetX = vector.target.x;
-    const originX = vector.origin.x;
-    const xDistance = targetX - originX;
-    if (xDistance < 0) return;
-    if (xDistance === 0) {
-        const yDistance = vector.target.y - vector.origin.y + 1;
-        return templateText.substr(vector.origin.y, yDistance);
-    }
-    const firstDistance = templateText.length - vector.origin.y;
-    const first = templateText.substr(vector.origin.y, firstDistance);
-    texts.push(first);
-    const bookend = targetX - 2;
-    let index = originX + 1;
-    while(index < bookend){
-        const piece = template.templateArray[index];
-        if (piece === undefined) return;
-        texts.push(piece);
-        index += 1;
-    }
-    const lastTemplate = template.templateArray[targetX];
-    if (lastTemplate === undefined) return;
-    let last = lastTemplate.substr(0, vector.target.y + 1);
-    texts.push(last);
-    return texts.join("");
-};
 const injectionMap = new Map([
     [
         "TAGNAME",
@@ -204,15 +175,9 @@ function crawl(template, builder, delta) {
         if (delta.state === "ERROR") return;
         if (delta.prevState !== delta.state) {
             const vector = create(delta.origin, delta.prevPos);
-            const value = getText(template, vector);
-            if (value === undefined) {
-                delta.state = "ERROR";
-                return;
-            }
             builder.push({
                 type: "BUILD",
                 state: delta.prevState,
-                value,
                 vector
             });
             delta.origin.x = delta.vector.origin.x;
@@ -221,15 +186,9 @@ function crawl(template, builder, delta) {
         if (delta.prevPos.x < delta.vector.origin.x) {
             if (delta.prevState === "TEXT") {
                 const vector1 = create(delta.origin, delta.prevPos);
-                const value1 = getText(template, vector1);
-                if (value1 === undefined) {
-                    delta.state = "ERROR";
-                    return;
-                }
                 builder.push({
                     type: "BUILD",
                     state: "TEXT",
-                    value: value1,
                     vector: vector1
                 });
                 delta.prevState = delta.state;
@@ -250,15 +209,9 @@ function crawl(template, builder, delta) {
     }while (delta.state !== "ERROR" && incrementOrigin(template, delta.vector))
     if (delta.prevState === delta.state || delta.state === "ERROR") return;
     const vector2 = create(delta.origin, delta.origin);
-    const value2 = getText(template, vector2);
-    if (value2 === undefined) {
-        delta.state = "ERROR";
-        return;
-    }
     builder.push({
         type: "BUILD",
         state: delta.state,
-        value: value2,
         vector: vector2
     });
 }

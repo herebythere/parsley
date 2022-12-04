@@ -35,4 +35,11 @@ interface Delta {
   vector: Vector;
 }
 
-export type { BuilderInterface, BuildStep, Delta, InjectionStep, NodeStep, Routers };
+export type {
+  BuilderInterface,
+  BuildStep,
+  Delta,
+  InjectionStep,
+  NodeStep,
+  Routers,
+};

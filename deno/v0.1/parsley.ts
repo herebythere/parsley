@@ -33,13 +33,13 @@ export { crawl } from "./parse/parse.ts";
 // export {hooks, draw} from "./test_hooks/test_hooks.ts"
 
 // export {
-  // appendExplicitAttribute,
-  // appendImplicitAttribute,
-  // appendInjectedAttribute,
-  // buildFragment,
-  // createFragment,
-  // closeNode,
-  // createChunkArrayInjection,
-  // createNode,
-  // createTextNode,
+// appendExplicitAttribute,
+// appendImplicitAttribute,
+// appendInjectedAttribute,
+// buildFragment,
+// createFragment,
+// closeNode,
+// createChunkArrayInjection,
+// createNode,
+// createTextNode,
 // } from "./fragment_builder/structure.ts";
