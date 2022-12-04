@@ -1,13 +1,16 @@
-import { Config, Logs, run } from "./cli/mod.ts";
+import type { ImporterInterface } from "./test_deps.ts";
 
-class Importer {
-  async load(filename: string): Collection {
-    return await import(filename);
+import { Config, Logger, run } from "./test_deps.ts";
+
+class Importer implements ImporterInterface {
+  async load(filename: string): Promise<Collection[]> {
+    const { tests } = await import(filename);
+    return tests;
   }
 }
 
-const importer = new Importer();
 const config = new Config(Deno.args);
-const logs = new Logs(config);
+const importer = new Importer();
+const logger = new Logger(config);
 
-run(config, importer, logs);
+run(config, importer, logger);

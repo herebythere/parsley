@@ -5,13 +5,8 @@ import { routers } from "./router.ts";
 import {
   create,
   getChar,
-  getText,
   incrementOrigin,
 } from "../text_vector/text_vector.ts";
-
-// getText creates new vectors and then returns a value,
-// instead just update getText to take two positions,
-// then no need to create extra vectors
 
 const injectionMap = new Map([
   ["TAGNAME", "ATTRIBUTE_INJECTION_MAP"],

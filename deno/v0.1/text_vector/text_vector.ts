@@ -16,8 +16,7 @@ type GetChar = <N, A>(
 
 type GetText = <N, A>(
   template: Template<N, A>,
-  origin: Position,
-  target: Position,
+  vector: Vector,
 ) => string | undefined;
 
 type Create = (origin?: Position, target?: Position) => Vector;
@@ -89,12 +88,14 @@ const incrementOrigin: Increment = (template, vector) => {
   return;
 };
 
-const getText: GetText = (template, origin, target) => {
+const getText: GetText = (template, vector) => {
+  const origin = vector.origin;
   let templateText = template.templateArray[origin.x];
   if (templateText === undefined) return;
 
   const texts: string[] = [];
 
+  const target = vector.target;
   const xDistance = target.x - origin.x;
   if (xDistance < 0) return;
 

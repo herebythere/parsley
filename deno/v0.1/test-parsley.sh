@@ -1,8 +1,8 @@
 #!/bin/bash
 
-current_dir=`pwd`
-echo $current_dir
-test_file=$current_dir/../../es/v0.1/parsley.test.js
+current_dir=`dirname $0`
 
+target_pathname=$current_dir/test-parsley.ts
 
-deno_jackrabbit_cli --file $test_file
+# deno run --reload --allow-read $target_pathname --file ./parsley.test.ts
+deno run --allow-read $target_pathname --file ./parsley.test.ts
