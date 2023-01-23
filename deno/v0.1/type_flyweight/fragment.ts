@@ -45,6 +45,14 @@ interface RenderStructure<N, A> {
   error?: string;
 }
 
+interface RenderStructure<N, A> {
+  injections: Injection<N, A>[];
+  descendants: number[]; // index array
+  references: number[];
+  siblings: number[];
+  error?: string;
+}
+
 interface Stack<N> {
   nodes: N[][];
   node?: N;

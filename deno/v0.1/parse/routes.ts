@@ -1,22 +1,25 @@
 // brian taylor vann
 // routers
 
-import type { Routers } from "../type_flyweight/parse.ts";
+import type { Routes } from "../type_flyweight/parse.ts";
 
-const routers: Routers = {
+const NODE = "NODE";
+const TEXT = "TEXT";
+
+const routes: Routes = {
   INITIAL: {
-    "<": "NODE",
-    DEFAULT: "TEXT",
+    "<": NODE,
+    DEFAULT: TEXT,
   },
   // TEXT
   TEXT: {
-    "<": "NODE",
-    DEFAULT: "TEXT",
+    "<": NODE,
+    DEFAULT: TEXT,
   },
   // NODE
   NODE: {
     " ": "ERROR",
-    "\n": "NODE",
+    "\n": NODE,
     "/": "NODE_CLOSER",
     ">": "ERROR",
     "-": "COMMENT_0",
@@ -44,16 +47,16 @@ const routers: Routers = {
     DEFAULT: "INDEPENDENT_NODE",
   },
   CLOSE_NODE: {
-    "<": "NODE",
-    DEFAULT: "TEXT",
+    "<": NODE,
+    DEFAULT: TEXT,
   },
   CLOSE_NODE_CLOSER: {
-    "<": "NODE",
-    DEFAULT: "TEXT",
+    "<": NODE,
+    DEFAULT: TEXT,
   },
   CLOSE_INDEPENDENT_NODE: {
-    "<": "NODE",
-    DEFAULT: "TEXT",
+    "<": NODE,
+    DEFAULT: TEXT,
   },
   // ATTRIBUTE
   SPACE_NODE: {
@@ -110,4 +113,4 @@ const routers: Routers = {
   },
 };
 
-export { routers };
+export { routes };

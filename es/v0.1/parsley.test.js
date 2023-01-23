@@ -2,107 +2,23 @@
 // deno-lint-ignore-file
 // This code was bundled using `deno bundle` and it's not recommended to edit it manually
 
-const routers = {
-    INITIAL: {
-        "<": "NODE",
-        DEFAULT: "TEXT"
-    },
-    TEXT: {
-        "<": "NODE",
-        DEFAULT: "TEXT"
-    },
-    NODE: {
-        " ": "ERROR",
-        "\n": "NODE",
-        "/": "NODE_CLOSER",
-        ">": "ERROR",
-        "-": "COMMENT_0",
-        DEFAULT: "TAGNAME"
-    },
-    NODE_CLOSER: {
-        " ": "ERROR",
-        DEFAULT: "TAGNAME_CLOSE"
-    },
-    TAGNAME: {
-        ">": "CLOSE_NODE",
-        " ": "SPACE_NODE",
-        "\n": "SPACE_NODE",
-        "/": "INDEPENDENT_NODE",
-        DEFAULT: "TAGNAME"
-    },
-    TAGNAME_CLOSE: {
-        ">": "CLOSE_NODE_CLOSER",
-        " ": "SPACE_CLOSE_NODE",
-        "\n": "SPACE_CLOSE_NODE",
-        DEFAULT: "TAGNAME_CLOSE"
-    },
-    INDEPENDENT_NODE: {
-        ">": "CLOSE_INDEPENDENT_NODE",
-        DEFAULT: "INDEPENDENT_NODE"
-    },
-    CLOSE_NODE: {
-        "<": "NODE",
-        DEFAULT: "TEXT"
-    },
-    CLOSE_NODE_CLOSER: {
-        "<": "NODE",
-        DEFAULT: "TEXT"
-    },
-    CLOSE_INDEPENDENT_NODE: {
-        "<": "NODE",
-        DEFAULT: "TEXT"
-    },
-    SPACE_NODE: {
-        ">": "CLOSE_NODE",
-        " ": "SPACE_NODE",
-        "\n": "SPACE_NODE",
-        "/": "INDEPENDENT_NODE",
-        DEFAULT: "ATTRIBUTE"
-    },
-    ATTRIBUTE: {
-        " ": "SPACE_NODE",
-        "\n": "SPACE_NODE",
-        "=": "ATTRIBUTE_SETTER",
-        ">": "CLOSE_NODE",
-        DEFAULT: "ATTRIBUTE"
-    },
-    ATTRIBUTE_SETTER: {
-        '"': "ATTRIBUTE_DECLARATION",
-        "\n": "SPACE_NODE",
-        DEFAULT: "SPACE_NODE"
-    },
-    ATTRIBUTE_DECLARATION: {
-        '"': "CLOSE_ATTRIBUTE_DECLARATION",
-        DEFAULT: "ATTRIBUTE_VALUE"
-    },
-    ATTRIBUTE_VALUE: {
-        '"': "CLOSE_ATTRIBUTE_DECLARATION",
-        DEFAULT: "ATTRIBUTE_VALUE"
-    },
-    CLOSE_ATTRIBUTE_DECLARATION: {
-        ">": "CLOSE_INDEPENDENT_NODE",
-        DEFAULT: "SPACE_NODE"
-    },
-    COMMENT_0: {
-        "-": "COMMENT_1",
-        DEFAULT: "ERROR"
-    },
-    COMMENT_1: {
-        "-": "COMMENT_CLOSE",
-        DEFAULT: "COMMENT"
-    },
-    COMMENT: {
-        "-": "COMMENT_CLOSE",
-        DEFAULT: "COMMENT"
-    },
-    COMMENT_CLOSE: {
-        "-": "COMMENT_CLOSE_1",
-        DEFAULT: "ERROR"
-    },
-    COMMENT_CLOSE_1: {
-        ">": "CLOSE_NODE",
-        DEFAULT: "COMMENT"
+const samestuff = (source, target, depth = 256)=>{
+    if (depth < 1) {
+        console.warn("samestuff: exceeded maximum depth of recursion");
+        return false;
     }
+    if (source === target) return true;
+    if (typeof source !== "object" || typeof target !== "object") return source === target;
+    if (source === null || target === null) return source === target;
+    const sourceKeys = Object.keys(source);
+    const targetKeys = Object.keys(target);
+    if (sourceKeys.length !== targetKeys.length) return false;
+    for (const sourceKey of sourceKeys){
+        if (!samestuff(source[sourceKey], target[sourceKey], depth - 1)) {
+            return false;
+        }
+    }
+    return true;
 };
 const DEFAULT_POSITION = {
     x: 0,
@@ -123,7 +39,7 @@ const increment = (template, position)=>{
     return position;
 };
 const getChar = (template, position)=>template.templateArray[position.x]?.[position.y];
-const create = (origin = DEFAULT_POSITION, target = DEFAULT_POSITION)=>({
+const create = (origin = DEFAULT_POSITION, target = origin)=>({
         origin: {
             ...origin
         },
@@ -165,192 +81,15 @@ const getText = (template, vector)=>{
     const origin = vector.origin;
     let templateText = template.templateArray[origin.x];
     if (templateText === undefined) return;
-    const texts = [];
-    const target = vector.target;
-    const xDistance = target.x - origin.x;
-    if (xDistance < 0) return;
-    if (xDistance === 0) {
-        const yDistance = target.y - origin.y + 1;
-        return templateText.substr(origin.y, yDistance);
-    }
-    const firstDistance = templateText.length - origin.y;
-    const first = templateText.substr(origin.y, firstDistance);
-    texts.push(first);
-    const bookend = target.x - 2;
-    let index = origin.x + 1;
-    while(index < bookend){
-        const piece = template.templateArray[index];
-        if (piece === undefined) return;
-        texts.push(piece);
-        index += 1;
-    }
-    const lastTemplate = template.templateArray[target.x];
-    if (lastTemplate === undefined) return;
-    let last = lastTemplate.substr(0, target.y + 1);
-    texts.push(last);
-    return texts.join("");
+    return templateText.substr(origin.y, vector.target.y - origin.y + 1);
 };
-const injectionMap = new Map([
-    [
-        "TAGNAME",
-        "ATTRIBUTE_INJECTION_MAP"
-    ],
-    [
-        "SPACE_NODE",
-        "ATTRIBUTE_INJECTION_MAP"
-    ],
-    [
-        "ATTRIBUTE_DECLARATION",
-        "ATTRIBUTE_INJECTION"
-    ],
-    [
-        "CLOSE_NODE",
-        "DESCENDANT_INJECTION"
-    ],
-    [
-        "CLOSE_INDEPENDENT_NODE",
-        "DESCENDANT_INJECTION"
-    ],
-    [
-        "TEXT",
-        "DESCENDANT_INJECTION"
-    ]
-]);
-function crawl(template, builder, delta) {
-    do {
-        const __char = getChar(template, delta.vector.origin);
-        if (__char === undefined) return;
-        delta.prevState = delta.state;
-        delta.state = routers[delta.prevState]?.[__char];
-        if (delta.state === undefined) {
-            delta.state = routers[delta.prevState]?.["DEFAULT"] ?? "ERROR";
-        }
-        if (delta.state === "ERROR") return;
-        if (delta.prevState !== delta.state) {
-            const vector = create(delta.origin, delta.prevPos);
-            builder.push({
-                type: "BUILD",
-                state: delta.prevState,
-                vector
-            });
-            delta.origin.x = delta.vector.origin.x;
-            delta.origin.y = delta.vector.origin.y;
-        }
-        if (delta.prevPos.x < delta.vector.origin.x) {
-            if (delta.prevState === "TEXT") {
-                const vector1 = create(delta.origin, delta.prevPos);
-                builder.push({
-                    type: "BUILD",
-                    state: "TEXT",
-                    vector: vector1
-                });
-                delta.prevState = delta.state;
-                delta.origin.x = delta.vector.origin.x;
-                delta.origin.y = delta.vector.origin.y;
-            }
-            const state = injectionMap.get(delta.prevState);
-            if (state) {
-                builder.push({
-                    type: "INJECT",
-                    index: delta.prevPos.x,
-                    state
-                });
-            }
-        }
-        delta.prevPos.x = delta.vector.origin.x;
-        delta.prevPos.y = delta.vector.origin.y;
-    }while (delta.state !== "ERROR" && incrementOrigin(template, delta.vector))
-    if (delta.prevState === delta.state || delta.state === "ERROR") return;
-    const vector2 = create(delta.origin, delta.origin);
-    builder.push({
-        type: "BUILD",
-        state: delta.state,
-        vector: vector2
-    });
-}
-class TestBuilder {
-    builderStack = [];
-    push(buildStep) {
-        this.builderStack.push(buildStep);
-    }
-}
-const INITIAL = "INITIAL";
-const title = "** crawl tests **";
 const testTextInterpolator = (templateArray, ...injections)=>{
     return {
         templateArray,
         injections
     };
 };
-function createDelta(vector) {
-    return {
-        prevPos: {
-            x: 0,
-            y: 0
-        },
-        origin: {
-            x: 0,
-            y: 0
-        },
-        vector,
-        prevState: INITIAL,
-        state: INITIAL
-    };
-}
-const crawlTest = ()=>{
-    const testVector = testTextInterpolator`<hello>hello ${"buster"}!</hello>`;
-    console.log(testVector);
-    const rb = new TestBuilder();
-    crawl(testVector, rb, createDelta(createFromTemplate(testVector)));
-    console.log(rb.builderStack);
-    return [
-        "fail!"
-    ];
-};
-const crawlNodeWithInjectionsTest = ()=>{
-    const testVector = testTextInterpolator`<hello ${"world"}/>${"uwu"}</hello>`;
-    console.log(testVector);
-    const rb = new TestBuilder();
-    crawl(testVector, rb, createDelta(createFromTemplate(testVector)));
-    console.log(rb.builderStack);
-    return [
-        "fail!"
-    ];
-};
-const tests = [
-    crawlTest,
-    crawlNodeWithInjectionsTest
-];
-const unitTestCrawl = {
-    title,
-    tests,
-    runTestsAsynchronously: true
-};
-const samestuff = (source, target, depth = 256)=>{
-    if (depth < 1) {
-        console.warn("exceeded maximum depth of recursion");
-        return false;
-    }
-    if (source === target) return true;
-    if (typeof source !== "object" || typeof target !== "object") return source === target;
-    if (source === null || target === null) return source === target;
-    const sourceKeys = Object.keys(source);
-    const targetKeys = Object.keys(target);
-    if (sourceKeys.length !== targetKeys.length) return false;
-    for (const sourceKey of sourceKeys){
-        if (!samestuff(source[sourceKey], target[sourceKey], depth - 1)) {
-            return false;
-        }
-    }
-    return true;
-};
-const testTextInterpolator1 = (templateArray, ...injections)=>{
-    return {
-        templateArray,
-        injections
-    };
-};
-const title1 = "text_vector";
+const title = "text_vector";
 const createTextVector = ()=>{
     const assertions = [];
     const expectedResults = {
@@ -420,7 +159,7 @@ const incrementTextVector = ()=>{
             y: 4
         }
     };
-    const structureRender = testTextInterpolator1`hello`;
+    const structureRender = testTextInterpolator`hello`;
     const vector = createFromTemplate(structureRender);
     incrementOrigin(structureRender, vector);
     if (!samestuff(expectedResults, vector)) {
@@ -440,7 +179,7 @@ const incrementMultiTextVector = ()=>{
             y: 13
         }
     };
-    const structureRender = testTextInterpolator1`hey${"world"}, how are you?`;
+    const structureRender = testTextInterpolator`hey${"world"}, how are you?`;
     const vector = createFromTemplate(structureRender);
     incrementOrigin(structureRender, vector);
     incrementOrigin(structureRender, vector);
@@ -464,7 +203,7 @@ const incrementEmptyTextVector = ()=>{
             y: -1
         }
     };
-    const structureRender = testTextInterpolator1`${"hey"}${"world"}${"!!"}`;
+    const structureRender = testTextInterpolator`${"hey"}${"world"}${"!!"}`;
     const vector = createFromTemplate(structureRender);
     incrementOrigin(structureRender, vector);
     incrementOrigin(structureRender, vector);
@@ -489,7 +228,7 @@ const incrementTextVectorTooFar = ()=>{
             y: 13
         }
     };
-    const structureRender = testTextInterpolator1`hey${"world"}, how are you?`;
+    const structureRender = testTextInterpolator`hey${"world"}, how are you?`;
     const results = createFromTemplate(structureRender);
     let safety = 0;
     while(incrementOrigin(structureRender, results) && safety < 20){
@@ -503,7 +242,7 @@ const incrementTextVectorTooFar = ()=>{
 const testGetTextReturnsActualText = ()=>{
     const expectedResult = "world";
     const assertions = [];
-    const structureRender = testTextInterpolator1`hey world, how are you?`;
+    const structureRender = testTextInterpolator`hey world, how are you?`;
     const vector = {
         origin: {
             x: 0,
@@ -521,17 +260,17 @@ const testGetTextReturnsActualText = ()=>{
     return assertions;
 };
 const testGetTextOverTemplate = ()=>{
-    const expectedResult = "how  you";
+    const expectedResult = "how";
     const assertions = [];
-    const structureRender = testTextInterpolator1`hey ${"world"}, how ${"are"} you?`;
+    const structureRender = testTextInterpolator`hey ${"world"}, how ${"are"} you?`;
     const vector = {
         origin: {
             x: 1,
             y: 2
         },
         target: {
-            x: 2,
-            y: 3
+            x: 1,
+            y: 4
         }
     };
     const results = getText(structureRender, vector);
@@ -540,14 +279,14 @@ const testGetTextOverTemplate = ()=>{
     }
     return assertions;
 };
-const testGetTextOverChonkyTemplate = ()=>{
-    const expectedResult = "how  you  buster";
+const testGetTextLastChunkTemplate = ()=>{
+    const expectedResult = "buster";
     const assertions = [];
-    const structureRender = testTextInterpolator1`hey ${"world"}, how ${"are"} you ${"doing"} buster?`;
+    const structureRender = testTextInterpolator`hey ${"world"}, how ${"are"} you ${"doing"} buster?`;
     const vector = {
         origin: {
-            x: 1,
-            y: 2
+            x: 3,
+            y: 1
         },
         target: {
             x: 3,
@@ -555,12 +294,13 @@ const testGetTextOverChonkyTemplate = ()=>{
         }
     };
     const results = getText(structureRender, vector);
+    console.log(results);
     if (expectedResult !== results) {
         assertions.push("text should say 'world'");
     }
     return assertions;
 };
-const tests1 = [
+const tests = [
     createTextVector,
     createTextVectorFromPosition,
     copyTextVector,
@@ -570,15 +310,244 @@ const tests1 = [
     incrementTextVectorTooFar,
     testGetTextReturnsActualText,
     testGetTextOverTemplate,
-    testGetTextOverChonkyTemplate
+    testGetTextLastChunkTemplate
 ];
 const unitTestTextVector = {
+    title,
+    tests,
+    runTestsAsynchronously: true
+};
+const NODE = "NODE";
+const TEXT = "TEXT";
+const routes = {
+    INITIAL: {
+        "<": NODE,
+        DEFAULT: TEXT
+    },
+    TEXT: {
+        "<": NODE,
+        DEFAULT: TEXT
+    },
+    NODE: {
+        " ": "ERROR",
+        "\n": NODE,
+        "/": "NODE_CLOSER",
+        ">": "ERROR",
+        "-": "COMMENT_0",
+        DEFAULT: "TAGNAME"
+    },
+    NODE_CLOSER: {
+        " ": "ERROR",
+        DEFAULT: "TAGNAME_CLOSE"
+    },
+    TAGNAME: {
+        ">": "CLOSE_NODE",
+        " ": "SPACE_NODE",
+        "\n": "SPACE_NODE",
+        "/": "INDEPENDENT_NODE",
+        DEFAULT: "TAGNAME"
+    },
+    TAGNAME_CLOSE: {
+        ">": "CLOSE_NODE_CLOSER",
+        " ": "SPACE_CLOSE_NODE",
+        "\n": "SPACE_CLOSE_NODE",
+        DEFAULT: "TAGNAME_CLOSE"
+    },
+    INDEPENDENT_NODE: {
+        ">": "CLOSE_INDEPENDENT_NODE",
+        DEFAULT: "INDEPENDENT_NODE"
+    },
+    CLOSE_NODE: {
+        "<": NODE,
+        DEFAULT: TEXT
+    },
+    CLOSE_NODE_CLOSER: {
+        "<": NODE,
+        DEFAULT: TEXT
+    },
+    CLOSE_INDEPENDENT_NODE: {
+        "<": NODE,
+        DEFAULT: TEXT
+    },
+    SPACE_NODE: {
+        ">": "CLOSE_NODE",
+        " ": "SPACE_NODE",
+        "\n": "SPACE_NODE",
+        "/": "INDEPENDENT_NODE",
+        DEFAULT: "ATTRIBUTE"
+    },
+    ATTRIBUTE: {
+        " ": "SPACE_NODE",
+        "\n": "SPACE_NODE",
+        "=": "ATTRIBUTE_SETTER",
+        ">": "CLOSE_NODE",
+        DEFAULT: "ATTRIBUTE"
+    },
+    ATTRIBUTE_SETTER: {
+        '"': "ATTRIBUTE_DECLARATION",
+        "\n": "SPACE_NODE",
+        DEFAULT: "SPACE_NODE"
+    },
+    ATTRIBUTE_DECLARATION: {
+        '"': "CLOSE_ATTRIBUTE_DECLARATION",
+        DEFAULT: "ATTRIBUTE_VALUE"
+    },
+    ATTRIBUTE_VALUE: {
+        '"': "CLOSE_ATTRIBUTE_DECLARATION",
+        DEFAULT: "ATTRIBUTE_VALUE"
+    },
+    CLOSE_ATTRIBUTE_DECLARATION: {
+        ">": "CLOSE_INDEPENDENT_NODE",
+        DEFAULT: "SPACE_NODE"
+    },
+    COMMENT_0: {
+        "-": "COMMENT_1",
+        DEFAULT: "ERROR"
+    },
+    COMMENT_1: {
+        "-": "COMMENT_CLOSE",
+        DEFAULT: "COMMENT"
+    },
+    COMMENT: {
+        "-": "COMMENT_CLOSE",
+        DEFAULT: "COMMENT"
+    },
+    COMMENT_CLOSE: {
+        "-": "COMMENT_CLOSE_1",
+        DEFAULT: "ERROR"
+    },
+    COMMENT_CLOSE_1: {
+        ">": "CLOSE_NODE",
+        DEFAULT: "COMMENT"
+    }
+};
+const injectionMap = new Map([
+    [
+        "TAGNAME",
+        "ATTRIBUTE_INJECTION_MAP"
+    ],
+    [
+        "SPACE_NODE",
+        "ATTRIBUTE_INJECTION_MAP"
+    ],
+    [
+        "ATTRIBUTE_DECLARATION",
+        "ATTRIBUTE_INJECTION"
+    ],
+    [
+        "CLOSE_NODE",
+        "DESCENDANT_INJECTION"
+    ],
+    [
+        "CLOSE_INDEPENDENT_NODE",
+        "DESCENDANT_INJECTION"
+    ],
+    [
+        "TEXT",
+        "DESCENDANT_INJECTION"
+    ]
+]);
+function parse(template, builder, delta) {
+    do {
+        const __char = getChar(template, delta.vector.origin);
+        if (__char === undefined) return;
+        delta.prevState = delta.state;
+        delta.state = routes[delta.prevState]?.[__char];
+        if (delta.state === undefined) {
+            delta.state = routes[delta.prevState]?.["DEFAULT"] ?? "ERROR";
+        }
+        if (delta.state === "ERROR") return;
+        if (delta.prevState !== delta.state) {
+            const vector = create(delta.origin, delta.prevPos);
+            builder.push({
+                type: "BUILD",
+                state: delta.prevState,
+                vector
+            });
+            delta.origin.x = delta.vector.origin.x;
+            delta.origin.y = delta.vector.origin.y;
+        }
+        if (delta.prevPos.x < delta.vector.origin.x) {
+            if (delta.prevState === "TEXT") {
+                const vector1 = create(delta.origin, delta.prevPos);
+                builder.push({
+                    type: "BUILD",
+                    state: "TEXT",
+                    vector: vector1
+                });
+                delta.prevState = delta.state;
+                delta.origin.x = delta.vector.origin.x;
+                delta.origin.y = delta.vector.origin.y;
+            }
+            const state = injectionMap.get(delta.prevState);
+            if (state) {
+                builder.push({
+                    type: "INJECT",
+                    index: delta.prevPos.x,
+                    state
+                });
+            }
+        }
+        delta.prevPos.x = delta.vector.origin.x;
+        delta.prevPos.y = delta.vector.origin.y;
+    }while (delta.state !== "ERROR" && incrementOrigin(template, delta.vector))
+    if (delta.prevState === delta.state || delta.state === "ERROR") return;
+    const vector2 = create(delta.origin, delta.origin);
+    builder.push({
+        type: "BUILD",
+        state: delta.state,
+        vector: vector2
+    });
+}
+class TestBuilder {
+    builderStack = [];
+    push(buildStep) {
+        this.builderStack.push(buildStep);
+    }
+}
+const INITIAL = "INITIAL";
+const title1 = "** parse tests **";
+const testTextInterpolator1 = (templateArray, ...injections)=>{
+    return {
+        templateArray,
+        injections
+    };
+};
+function createDelta(vector) {
+    return {
+        prevPos: {
+            x: 0,
+            y: 0
+        },
+        origin: {
+            x: 0,
+            y: 0
+        },
+        vector,
+        prevState: INITIAL,
+        state: INITIAL
+    };
+}
+const parseTest = ()=>{
+    const testVector = testTextInterpolator1`<hello>hello ${"buster"}!</hello>`;
+    console.log(testVector);
+    const rb = new TestBuilder();
+    parse(testVector, rb, createDelta(createFromTemplate(testVector)));
+    console.log(rb.builderStack);
+    return [
+        "fail!"
+    ];
+};
+const tests1 = [
+    parseTest
+];
+const unitTestParse = {
     title: title1,
     tests: tests1,
     runTestsAsynchronously: true
 };
-const tests2 = [
-    unitTestCrawl,
-    unitTestTextVector
+const testCollections = [
+    unitTestTextVector,
+    unitTestParse
 ];
-export { tests2 as tests };
+export { testCollections as testCollections };

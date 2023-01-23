@@ -5,10 +5,11 @@ import { BuilderInterface, BuildStep } from "../type_flyweight/parse.ts";
 
 import type { Delta } from "../type_flyweight/parse.ts";
 
-import { crawl } from "./parse.ts";
+import { parse } from "./parse.ts";
 
 import { createFromTemplate } from "../text_vector/text_vector.ts";
 
+// could just be an array
 class TestBuilder implements BuilderInterface {
   builderStack: BuildStep[] = [];
 
@@ -20,7 +21,7 @@ class TestBuilder implements BuilderInterface {
 
 const INITIAL = "INITIAL";
 
-const title = "** crawl tests **";
+const title = "** parse tests **";
 const runTestsAsynchronously = true;
 
 type TextTextInterpolator = <N, A>(
@@ -45,249 +46,251 @@ function createDelta(vector: Vector): Delta {
   };
 }
 
-const crawlTest = () => {
+const parseTest = () => {
   const testVector = testTextInterpolator`<hello>hello ${"buster"}!</hello>`;
 
   console.log(testVector);
 
   const rb = new TestBuilder();
-  crawl(testVector, rb, createDelta(createFromTemplate(testVector)));
+  parse(testVector, rb, createDelta(createFromTemplate(testVector)));
   console.log(rb.builderStack);
 
   return ["fail!"];
 };
 
-const crawlNodeTest = () => {
+const parseNodeTest = () => {
   const testVector = testTextInterpolator`<hello>`;
 
   console.log(testVector);
 
   const rb = new TestBuilder();
-  crawl(testVector, rb, createDelta(createFromTemplate(testVector)));
+  parse(testVector, rb, createDelta(createFromTemplate(testVector)));
   console.log(rb.builderStack);
   return ["fail!"];
 };
 
-const crawlImplicitAttributeTest = () => {
+const parseImplicitAttributeTest = () => {
   const testVector = testTextInterpolator`<hello attribute>`;
 
   console.log(testVector);
 
   const rb = new TestBuilder();
-  crawl(testVector, rb, createDelta(createFromTemplate(testVector)));
+  parse(testVector, rb, createDelta(createFromTemplate(testVector)));
   console.log(rb.builderStack);
   return ["fail!"];
 };
 
-const crawlImplicitAttributeWithSpacesTest = () => {
+const parseImplicitAttributeWithSpacesTest = () => {
   const testVector = testTextInterpolator`<hello  attribute  >`;
 
   console.log(testVector);
 
   const rb = new TestBuilder();
-  crawl(testVector, rb, createDelta(createFromTemplate(testVector)));
+  parse(testVector, rb, createDelta(createFromTemplate(testVector)));
   console.log(rb.builderStack);
   return ["fail!"];
 };
 
-const crawlIndependentNodeTest = () => {
+const parseIndependentNodeTest = () => {
   const testVector = testTextInterpolator`<hello/>`;
 
   console.log(testVector);
 
   const rb = new TestBuilder();
-  crawl(testVector, rb, createDelta(createFromTemplate(testVector)));
+  parse(testVector, rb, createDelta(createFromTemplate(testVector)));
   console.log(rb.builderStack);
   return ["fail!"];
 };
 
-const crawlIndependentNodeImplicitAttributeTest = () => {
+const parseIndependentNodeImplicitAttributeTest = () => {
   const testVector = testTextInterpolator`<hello attribute/>`;
 
   console.log(testVector);
 
   const rb = new TestBuilder();
-  crawl(testVector, rb, createDelta(createFromTemplate(testVector)));
+  parse(testVector, rb, createDelta(createFromTemplate(testVector)));
   console.log(rb.builderStack);
   return ["fail!"];
 };
 
-const crawlIndependentNodeImplicitAttributeWithSpacesTest = () => {
+const parseIndependentNodeImplicitAttributeWithSpacesTest = () => {
   const testVector = testTextInterpolator`<hello  attribute  />`;
 
   console.log(testVector);
 
   const rb = new TestBuilder();
-  crawl(testVector, rb, createDelta(createFromTemplate(testVector)));
+  parse(testVector, rb, createDelta(createFromTemplate(testVector)));
   console.log(rb.builderStack);
   return ["fail!"];
 };
 
-const crawlExplicitAttributeTest = () => {
+const parseExplicitAttributeTest = () => {
   const testVector = testTextInterpolator`<hello attribute="value"/>`;
 
   console.log(testVector);
 
   const rb = new TestBuilder();
-  crawl(testVector, rb, createDelta(createFromTemplate(testVector)));
+  parse(testVector, rb, createDelta(createFromTemplate(testVector)));
   console.log(rb.builderStack);
   return ["fail!"];
 };
 
-const crawlExplicitAttributeWithSpacesTest = () => {
+const parseExplicitAttributeWithSpacesTest = () => {
   const testVector = testTextInterpolator`<hello  attribute="value"  />`;
 
   console.log(testVector);
 
   const rb = new TestBuilder();
-  crawl(testVector, rb, createDelta(createFromTemplate(testVector)));
+  parse(testVector, rb, createDelta(createFromTemplate(testVector)));
   console.log(rb.builderStack);
   return ["fail!"];
 };
 
-// const crawlNodeWithAttributeMapInjectionsTest = () => {
-//   const testVector = testTextInterpolator`<hello ${"world"}/>`;
+const parseNodeWithAttributeMapInjectionsTest = () => {
+  const testVector = testTextInterpolator`<hello ${"world"}/>`;
 
-//   console.log(testVector);
+  console.log(testVector);
 
-//   const rb = new TestBuilder();
-//   crawl(testVector, rb, createDelta(createFromTemplate(testVector)));
-//   console.log(rb.builderStack);;
-//   return ["fail!"];
-// }
+  const rb = new TestBuilder();
+  parse(testVector, rb, createDelta(createFromTemplate(testVector)));
+  console.log(rb.builderStack);
+  return ["fail!"];
+};
 
-const crawlNodeWithInjectionsTest = () => {
+const parseNodeWithInjectionsTest = () => {
   const testVector = testTextInterpolator`<hello ${"world"}/>${"uwu"}</hello>`;
 
   console.log(testVector);
 
   const rb = new TestBuilder();
-  crawl(testVector, rb, createDelta(createFromTemplate(testVector)));
+  parse(testVector, rb, createDelta(createFromTemplate(testVector)));
   console.log(rb.builderStack);
   return ["fail!"];
 };
 
-const crawlNodeWithAttributeInjectionsTest = () => {
+const parseNodeWithAttributeInjectionsTest = () => {
   const testVector = testTextInterpolator`<hello world="${"world"}"/>`;
 
   console.log(testVector);
 
   const rb = new TestBuilder();
-  crawl(testVector, rb, createDelta(createFromTemplate(testVector)));
+  parse(testVector, rb, createDelta(createFromTemplate(testVector)));
   console.log(rb.builderStack);
   return ["fail!"];
 };
 
-const crawlNodeInjectionsTest = () => {
+const parseNodeInjectionsTest = () => {
   const testVector = testTextInterpolator`<hello>${"hi"}</hello>`;
 
   console.log(testVector);
 
   const rb = new TestBuilder();
-  crawl(testVector, rb, createDelta(createFromTemplate(testVector)));
+  parse(testVector, rb, createDelta(createFromTemplate(testVector)));
   console.log(rb.builderStack);
   return ["fail!"];
 };
 
-const crawlerCommentTest = () => {
+const parseerCommentTest = () => {
   const testVector = testTextInterpolator`<-- Hello world! -->`;
 
   console.log(testVector);
 
   const rb = new TestBuilder();
-  crawl(testVector, rb, createDelta(createFromTemplate(testVector)));
+  parse(testVector, rb, createDelta(createFromTemplate(testVector)));
   console.log(rb.builderStack);
   return ["fail!"];
 };
 
-const crawlerTextThenNodeTest = () => {
+const parseerTextThenNodeTest = () => {
   const testVector = testTextInterpolator`<Z<hello <howdy>`;
 
   console.log(testVector);
 
   const rb = new TestBuilder();
-  crawl(testVector, rb, createDelta(createFromTemplate(testVector)));
+  parse(testVector, rb, createDelta(createFromTemplate(testVector)));
   console.log(rb);
   return ["fail!"];
 };
 
-const crawlerTextThenNodeClosedTest = () => {
+const parseerTextThenNodeClosedTest = () => {
   const testVector = testTextInterpolator`<howdy> </ dfsdf </howdy?`;
 
   console.log(testVector);
 
   const rb = new TestBuilder();
-  crawl(testVector, rb, createDelta(createFromTemplate(testVector)));
+  parse(testVector, rb, createDelta(createFromTemplate(testVector)));
   console.log(rb.builderStack);
   return ["fail!"];
 };
 
-const crawlerTest = () => {
+const parseerTest = () => {
   const testVector = testTextInterpolator``;
 
   console.log(testVector);
 
   const rb = new TestBuilder();
-  crawl(testVector, rb, createDelta(createFromTemplate(testVector)));
+  parse(testVector, rb, createDelta(createFromTemplate(testVector)));
   console.log(rb.builderStack);
   return ["fail!"];
 };
 
-const crawlerTest1 = () => {
+const parseerTest1 = () => {
   const testVector = testTextInterpolator`${"buster"}`;
 
   console.log(testVector);
 
   const rb = new TestBuilder();
-  crawl(testVector, rb, createDelta(createFromTemplate(testVector)));
+  parse(testVector, rb, createDelta(createFromTemplate(testVector)));
   console.log(rb.builderStack);
   return ["fail!"];
 };
 
-const crawlerTest2 = () => {
+const parseerTest2 = () => {
   const testVector = testTextInterpolator`${"yo"}${"buddy"}${"boi"}`;
 
   console.log(testVector);
 
   const rb = new TestBuilder();
-  crawl(testVector, rb, createDelta(createFromTemplate(testVector)));
+  parse(testVector, rb, createDelta(createFromTemplate(testVector)));
   console.log(rb.builderStack);
   return ["fail!"];
 };
 
 const tests = [
-  crawlTest,
-  // crawlerTest,
-  // crawlerTest1,
-  // crawlerTest2,
-  // crawlerCommentTest,
+  parseTest,
+  /*
+  parseerTest,
+  parseerTest1,
+  parseerTest2,
+  parseerCommentTest,
 
-  // crawlNodeTest,
-  // crawlImplicitAttributeTest,
-  // crawlImplicitAttributeWithSpacesTest,
+  parseNodeTest,
+  parseImplicitAttributeTest,
+  parseImplicitAttributeWithSpacesTest,
 
-  // crawlerCommentTest,
+  parseerCommentTest,
 
-  // crawlIndependentNodeTest,
-  // crawlIndependentNodeImplicitAttributeTest,
-  // crawlIndependentNodeImplicitAttributeWithSpacesTest,
+  parseIndependentNodeTest,
+  parseIndependentNodeImplicitAttributeTest,
+  parseIndependentNodeImplicitAttributeWithSpacesTest,
 
-  // crawlExplicitAttributeTest,
-  // crawlExplicitAttributeWithSpacesTest,
+  parseExplicitAttributeTest,
+  parseExplicitAttributeWithSpacesTest,
 
-  crawlNodeWithInjectionsTest,
-  // crawlNodeWithAttributeMapInjectionsTest,
-  // crawlNodeWithAttributeInjectionsTest,
-  // crawlNodeInjectionsTest,
+  parseNodeWithInjectionsTest,
+  parseNodeWithAttributeMapInjectionsTest,
+  parseNodeWithAttributeInjectionsTest,
+  parseNodeInjectionsTest,
 
-  // crawlerTextThenNodeTest,
-  // crawlerTextThenNodeClosedTest,
+  parseerTextThenNodeTest,
+  parseerTextThenNodeClosedTest,
+  */
 ];
 
-const unitTestCrawl = {
+const unitTestParse = {
   title,
   tests,
   runTestsAsynchronously,
 };
 
-export { unitTestCrawl };
+export { unitTestParse };

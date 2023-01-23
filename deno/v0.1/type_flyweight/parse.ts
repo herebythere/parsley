@@ -7,7 +7,7 @@ type RouterMap = Record<string, string> & {
   DEFAULT: string;
 };
 
-type Routers = Record<string, RouterMap>;
+type Routes = Record<string, RouterMap>;
 
 interface NodeStep {
   type: "BUILD";
@@ -41,5 +41,5 @@ export type {
   Delta,
   InjectionStep,
   NodeStep,
-  Routers,
+  Routes,
 };

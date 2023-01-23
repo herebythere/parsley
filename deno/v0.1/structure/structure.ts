@@ -43,7 +43,7 @@ type BuildHelper = <N, A>(
   nextStep?: BuildStep,
 ) => void;
 
-const fragmentSet = new Set([
+/* const fragmentSet = new Set([
   // node and attributes
   "TAGNAME",
   "ATTRIBUTE_VALUE",
@@ -55,7 +55,7 @@ const fragmentSet = new Set([
   "CLOSE_NODE",
   "CLOSE_TAGNAME",
   "TEXT",
-]);
+]); */
 
 const createFragment = <N, A>(): RenderStructure<N, A> => ({
   injections: [],

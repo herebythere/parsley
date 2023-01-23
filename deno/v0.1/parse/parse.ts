@@ -1,7 +1,7 @@
 import type { BuilderInterface, Delta } from "../type_flyweight/parse.ts";
 import type { Template } from "../type_flyweight/template.ts";
 
-import { routers } from "./router.ts";
+import { routes } from "./routes.ts";
 import {
   create,
   getChar,
@@ -17,9 +17,11 @@ const injectionMap = new Map([
   ["TEXT", "DESCENDANT_INJECTION"],
 ]);
 
-function crawl<N, A>(
+// previous state
+function parse<N, A>(
   template: Template<N, A>,
   builder: BuilderInterface,
+  // previous state
   delta: Delta,
 ) {
   // iterate across text
@@ -29,9 +31,9 @@ function crawl<N, A>(
 
     // state swap
     delta.prevState = delta.state;
-    delta.state = routers[delta.prevState]?.[char];
+    delta.state = routes[delta.prevState]?.[char];
     if (delta.state === undefined) {
-      delta.state = routers[delta.prevState]?.["DEFAULT"] ?? "ERROR";
+      delta.state = routes[delta.prevState]?.["DEFAULT"] ?? "ERROR";
     }
     if (delta.state === "ERROR") return;
 
@@ -78,4 +80,4 @@ function crawl<N, A>(
   });
 }
 
-export { crawl };
+export { parse };

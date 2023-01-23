@@ -61,8 +61,8 @@ Parsley is written in Typescript.
 But it's a completely portable set of abstractions ready to be implemented in
 other languages.
 
-C# is most likeley the next target.
+Rust and C# are the most likely next targets.
 
 ## License
 
-BSD 2-Clause “Simplified” License
+BSD 3-Clause License

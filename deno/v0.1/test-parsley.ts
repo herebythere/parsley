@@ -4,8 +4,8 @@ import { Config, Logger, run } from "./test_deps.ts";
 
 class Importer implements ImporterInterface {
   async load(filename: string): Promise<Collection[]> {
-    const { tests } = await import(filename);
-    return tests;
+    const { testCollections } = await import(filename);
+    return testCollections;
   }
 }
 

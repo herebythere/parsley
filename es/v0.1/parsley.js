@@ -2,18 +2,20 @@
 // deno-lint-ignore-file
 // This code was bundled using `deno bundle` and it's not recommended to edit it manually
 
-const routers = {
+const NODE = "NODE";
+const TEXT = "TEXT";
+const routes = {
     INITIAL: {
-        "<": "NODE",
-        DEFAULT: "TEXT"
+        "<": NODE,
+        DEFAULT: TEXT
     },
     TEXT: {
-        "<": "NODE",
-        DEFAULT: "TEXT"
+        "<": NODE,
+        DEFAULT: TEXT
     },
     NODE: {
         " ": "ERROR",
-        "\n": "NODE",
+        "\n": NODE,
         "/": "NODE_CLOSER",
         ">": "ERROR",
         "-": "COMMENT_0",
@@ -41,16 +43,16 @@ const routers = {
         DEFAULT: "INDEPENDENT_NODE"
     },
     CLOSE_NODE: {
-        "<": "NODE",
-        DEFAULT: "TEXT"
+        "<": NODE,
+        DEFAULT: TEXT
     },
     CLOSE_NODE_CLOSER: {
-        "<": "NODE",
-        DEFAULT: "TEXT"
+        "<": NODE,
+        DEFAULT: TEXT
     },
     CLOSE_INDEPENDENT_NODE: {
-        "<": "NODE",
-        DEFAULT: "TEXT"
+        "<": NODE,
+        DEFAULT: TEXT
     },
     SPACE_NODE: {
         ">": "CLOSE_NODE",
@@ -123,7 +125,7 @@ const increment = (template, position)=>{
     return position;
 };
 const getChar = (template, position)=>template.templateArray[position.x]?.[position.y];
-const create = (origin = DEFAULT_POSITION, target = DEFAULT_POSITION)=>({
+const create = (origin = DEFAULT_POSITION, target = origin)=>({
         origin: {
             ...origin
         },
@@ -163,14 +165,14 @@ const injectionMap = new Map([
         "DESCENDANT_INJECTION"
     ]
 ]);
-function crawl(template, builder, delta) {
+function parse(template, builder, delta) {
     do {
         const __char = getChar(template, delta.vector.origin);
         if (__char === undefined) return;
         delta.prevState = delta.state;
-        delta.state = routers[delta.prevState]?.[__char];
+        delta.state = routes[delta.prevState]?.[__char];
         if (delta.state === undefined) {
-            delta.state = routers[delta.prevState]?.["DEFAULT"] ?? "ERROR";
+            delta.state = routes[delta.prevState]?.["DEFAULT"] ?? "ERROR";
         }
         if (delta.state === "ERROR") return;
         if (delta.prevState !== delta.state) {
@@ -215,4 +217,4 @@ function crawl(template, builder, delta) {
         vector: vector2
     });
 }
-export { crawl as crawl };
+export { parse as parse };

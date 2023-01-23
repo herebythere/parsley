@@ -2,8 +2,8 @@
 
 curr_dir=`dirname $0`
 
-parsley=$curr_dir/parsley.ts
-parsley_test=$curr_dir/parsley.test.ts
+parsley=$curr_dir/mod.ts
+parsley_test=$curr_dir/mod.test.ts
 
 es_dir=$curr_dir/../../es/v0.1
 es_pathname=$es_dir/parsley.js

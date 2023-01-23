@@ -200,7 +200,7 @@ const testGetTextReturnsActualText = () => {
 };
 
 const testGetTextOverTemplate = () => {
-  const expectedResult = "how  you";
+  const expectedResult = "how";
   const assertions = [];
 
   const structureRender =
@@ -211,8 +211,8 @@ const testGetTextOverTemplate = () => {
       y: 2,
     },
     target: {
-      x: 2,
-      y: 3,
+      x: 1,
+      y: 4,
     },
   };
 
@@ -224,16 +224,16 @@ const testGetTextOverTemplate = () => {
   return assertions;
 };
 
-const testGetTextOverChonkyTemplate = () => {
-  const expectedResult = "how  you  buster";
+const testGetTextLastChunkTemplate = () => {
+  const expectedResult = "buster";
   const assertions = [];
 
   const structureRender =
     testTextInterpolator`hey ${"world"}, how ${"are"} you ${"doing"} buster?`;
   const vector: Vector = {
     origin: {
-      x: 1,
-      y: 2,
+      x: 3,
+      y: 1,
     },
     target: {
       x: 3,
@@ -243,6 +243,7 @@ const testGetTextOverChonkyTemplate = () => {
 
   const results = getText(structureRender, vector);
 
+  console.log(results);
   if (expectedResult !== results) {
     assertions.push("text should say 'world'");
   }
@@ -260,7 +261,7 @@ const tests = [
   incrementTextVectorTooFar,
   testGetTextReturnsActualText,
   testGetTextOverTemplate,
-  testGetTextOverChonkyTemplate,
+  testGetTextLastChunkTemplate,
 ];
 
 const unitTestTextVector = {

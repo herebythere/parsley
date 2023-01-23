@@ -57,7 +57,7 @@ const getChar: GetChar = (template, position) =>
 
 const create: Create = (
   origin = DEFAULT_POSITION,
-  target = DEFAULT_POSITION,
+  target = origin,
 ) => ({
   origin: { ...origin },
   target: { ...target },
@@ -93,38 +93,7 @@ const getText: GetText = (template, vector) => {
   let templateText = template.templateArray[origin.x];
   if (templateText === undefined) return;
 
-  const texts: string[] = [];
-
-  const target = vector.target;
-  const xDistance = target.x - origin.x;
-  if (xDistance < 0) return;
-
-  if (xDistance === 0) {
-    const yDistance = target.y - origin.y + 1;
-    return templateText.substr(origin.y, yDistance);
-  }
-
-  const firstDistance = templateText.length - origin.y;
-  const first = templateText.substr(origin.y, firstDistance);
-  texts.push(first);
-
-  const bookend = target.x - 2;
-  let index = origin.x + 1;
-  while (index < bookend) {
-    const piece = template.templateArray[index];
-    if (piece === undefined) return;
-
-    texts.push(piece);
-    index += 1;
-  }
-
-  const lastTemplate = template.templateArray[target.x];
-  if (lastTemplate === undefined) return;
-
-  let last = lastTemplate.substr(0, target.y + 1);
-  texts.push(last);
-
-  return texts.join("");
+  return templateText.substr(origin.y, vector.target.y - origin.y + 1);
 };
 
 export { copy, create, createFromTemplate, getChar, getText, incrementOrigin };
