@@ -38,6 +38,7 @@ const increment = (template, position)=>{
     }
     return position;
 };
+const getChar = (template, position)=>template.templateArray[position.x]?.[position.y];
 const create = (origin = DEFAULT_POSITION, target = origin)=>({
         origin: {
             ...origin
@@ -313,7 +314,497 @@ const unitTestTextVector = {
     tests,
     runTestsAsynchronously: true
 };
+const NODE = "NODE";
+const TEXT = "TEXT";
+const routes = {
+    INITIAL: {
+        "<": NODE,
+        DEFAULT: TEXT
+    },
+    TEXT: {
+        "<": NODE,
+        DEFAULT: TEXT
+    },
+    NODE: {
+        " ": "ERROR",
+        "\n": NODE,
+        "/": "NODE_CLOSER",
+        ">": "ERROR",
+        "-": "COMMENT_0",
+        DEFAULT: "TAGNAME"
+    },
+    NODE_CLOSER: {
+        " ": "ERROR",
+        DEFAULT: "TAGNAME_CLOSE"
+    },
+    TAGNAME: {
+        ">": "CLOSE_NODE",
+        " ": "SPACE_NODE",
+        "\n": "SPACE_NODE",
+        "/": "INDEPENDENT_NODE",
+        DEFAULT: "TAGNAME"
+    },
+    TAGNAME_CLOSE: {
+        ">": "CLOSE_NODE_CLOSER",
+        " ": "SPACE_CLOSE_NODE",
+        "\n": "SPACE_CLOSE_NODE",
+        DEFAULT: "TAGNAME_CLOSE"
+    },
+    INDEPENDENT_NODE: {
+        ">": "CLOSE_INDEPENDENT_NODE",
+        DEFAULT: "INDEPENDENT_NODE"
+    },
+    CLOSE_NODE: {
+        "<": NODE,
+        DEFAULT: TEXT
+    },
+    CLOSE_NODE_CLOSER: {
+        "<": NODE,
+        DEFAULT: TEXT
+    },
+    CLOSE_INDEPENDENT_NODE: {
+        "<": NODE,
+        DEFAULT: TEXT
+    },
+    SPACE_NODE: {
+        ">": "CLOSE_NODE",
+        " ": "SPACE_NODE",
+        "\n": "SPACE_NODE",
+        "/": "INDEPENDENT_NODE",
+        DEFAULT: "ATTRIBUTE"
+    },
+    ATTRIBUTE: {
+        " ": "SPACE_NODE",
+        "\n": "SPACE_NODE",
+        "=": "ATTRIBUTE_SETTER",
+        ">": "CLOSE_NODE",
+        DEFAULT: "ATTRIBUTE"
+    },
+    ATTRIBUTE_SETTER: {
+        '"': "ATTRIBUTE_DECLARATION",
+        "\n": "SPACE_NODE",
+        DEFAULT: "SPACE_NODE"
+    },
+    ATTRIBUTE_DECLARATION: {
+        '"': "CLOSE_ATTRIBUTE_DECLARATION",
+        DEFAULT: "ATTRIBUTE_VALUE"
+    },
+    ATTRIBUTE_VALUE: {
+        '"': "CLOSE_ATTRIBUTE_DECLARATION",
+        DEFAULT: "ATTRIBUTE_VALUE"
+    },
+    CLOSE_ATTRIBUTE_DECLARATION: {
+        ">": "CLOSE_INDEPENDENT_NODE",
+        DEFAULT: "SPACE_NODE"
+    },
+    COMMENT_0: {
+        "-": "COMMENT_1",
+        DEFAULT: "ERROR"
+    },
+    COMMENT_1: {
+        "-": "COMMENT_CLOSE",
+        DEFAULT: "COMMENT"
+    },
+    COMMENT: {
+        "-": "COMMENT_CLOSE",
+        DEFAULT: "COMMENT"
+    },
+    COMMENT_CLOSE: {
+        "-": "COMMENT_CLOSE_1",
+        DEFAULT: "ERROR"
+    },
+    COMMENT_CLOSE_1: {
+        ">": "CLOSE_NODE",
+        DEFAULT: "COMMENT"
+    }
+};
+const injectionMap = new Map([
+    [
+        "TAGNAME",
+        "ATTRIBUTE_INJECTION_MAP"
+    ],
+    [
+        "SPACE_NODE",
+        "ATTRIBUTE_INJECTION_MAP"
+    ],
+    [
+        "ATTRIBUTE_DECLARATION",
+        "ATTRIBUTE_INJECTION"
+    ],
+    [
+        "CLOSE_NODE",
+        "DESCENDANT_INJECTION"
+    ],
+    [
+        "CLOSE_INDEPENDENT_NODE",
+        "DESCENDANT_INJECTION"
+    ],
+    [
+        "TEXT",
+        "DESCENDANT_INJECTION"
+    ]
+]);
+function parse(template, builder, delta) {
+    do {
+        const __char = getChar(template, delta.vector.origin);
+        if (__char === undefined) return;
+        delta.prevState = delta.state;
+        delta.state = routes[delta.prevState]?.[__char];
+        if (delta.state === undefined) {
+            delta.state = routes[delta.prevState]?.["DEFAULT"] ?? "ERROR";
+        }
+        if (delta.state === "ERROR") return;
+        if (delta.prevState !== delta.state) {
+            const vector = create(delta.origin, delta.prevPos);
+            builder.push({
+                type: "BUILD",
+                state: delta.prevState,
+                vector
+            });
+            delta.origin.x = delta.vector.origin.x;
+            delta.origin.y = delta.vector.origin.y;
+        }
+        if (delta.prevPos.x < delta.vector.origin.x) {
+            if (delta.prevState === "TEXT") {
+                const vector1 = create(delta.origin, delta.prevPos);
+                builder.push({
+                    type: "BUILD",
+                    state: "TEXT",
+                    vector: vector1
+                });
+                delta.prevState = delta.state;
+                delta.origin.x = delta.vector.origin.x;
+                delta.origin.y = delta.vector.origin.y;
+            }
+            const state = injectionMap.get(delta.prevState);
+            if (state) {
+                builder.push({
+                    type: "INJECT",
+                    index: delta.prevPos.x,
+                    state
+                });
+            }
+        }
+        delta.prevPos.x = delta.vector.origin.x;
+        delta.prevPos.y = delta.vector.origin.y;
+    }while (delta.state !== "ERROR" && incrementOrigin(template, delta.vector))
+    if (delta.prevState === delta.state || delta.state === "ERROR") return;
+    const vector2 = create(delta.origin, delta.origin);
+    builder.push({
+        type: "BUILD",
+        state: delta.state,
+        vector: vector2
+    });
+}
+const INITIAL = "INITIAL";
+const title1 = "** parse tests **";
+const testTextInterpolator1 = (templateArray, ...injections)=>{
+    return {
+        templateArray,
+        injections
+    };
+};
+function createDelta(vector) {
+    return {
+        prevPos: {
+            x: 0,
+            y: 0
+        },
+        origin: {
+            x: 0,
+            y: 0
+        },
+        vector,
+        prevState: INITIAL,
+        state: INITIAL
+    };
+}
+function parseNodeTest() {
+    const assertions = [];
+    const testVector = testTextInterpolator1`<hello>`;
+    const expectedResults = [
+        {
+            type: "BUILD",
+            state: "INITIAL",
+            vector: {
+                origin: {
+                    x: 0,
+                    y: 0
+                },
+                target: {
+                    x: 0,
+                    y: 0
+                }
+            }
+        },
+        {
+            type: "BUILD",
+            state: "NODE",
+            vector: {
+                origin: {
+                    x: 0,
+                    y: 0
+                },
+                target: {
+                    x: 0,
+                    y: 0
+                }
+            }
+        },
+        {
+            type: "BUILD",
+            state: "TAGNAME",
+            vector: {
+                origin: {
+                    x: 0,
+                    y: 1
+                },
+                target: {
+                    x: 0,
+                    y: 5
+                }
+            }
+        },
+        {
+            type: "BUILD",
+            state: "CLOSE_NODE",
+            vector: {
+                origin: {
+                    x: 0,
+                    y: 6
+                },
+                target: {
+                    x: 0,
+                    y: 6
+                }
+            }
+        }
+    ];
+    const stack = [];
+    parse(testVector, stack, createDelta(createFromTemplate(testVector)));
+    if (!samestuff(expectedResults, stack)) {
+        assertions.push("stack does not match expected results");
+    }
+    return assertions;
+}
+function parseNodeWithImplicitAttributeTest() {
+    const assertions = [];
+    const testVector = testTextInterpolator1`<hello attribute>`;
+    const expectedResults = [
+        {
+            type: "BUILD",
+            state: "INITIAL",
+            vector: {
+                origin: {
+                    x: 0,
+                    y: 0
+                },
+                target: {
+                    x: 0,
+                    y: 0
+                }
+            }
+        },
+        {
+            type: "BUILD",
+            state: "NODE",
+            vector: {
+                origin: {
+                    x: 0,
+                    y: 0
+                },
+                target: {
+                    x: 0,
+                    y: 0
+                }
+            }
+        },
+        {
+            type: "BUILD",
+            state: "TAGNAME",
+            vector: {
+                origin: {
+                    x: 0,
+                    y: 1
+                },
+                target: {
+                    x: 0,
+                    y: 5
+                }
+            }
+        },
+        {
+            type: "BUILD",
+            state: "SPACE_NODE",
+            vector: {
+                origin: {
+                    x: 0,
+                    y: 6
+                },
+                target: {
+                    x: 0,
+                    y: 6
+                }
+            }
+        },
+        {
+            type: "BUILD",
+            state: "ATTRIBUTE",
+            vector: {
+                origin: {
+                    x: 0,
+                    y: 7
+                },
+                target: {
+                    x: 0,
+                    y: 15
+                }
+            }
+        },
+        {
+            type: "BUILD",
+            state: "CLOSE_NODE",
+            vector: {
+                origin: {
+                    x: 0,
+                    y: 16
+                },
+                target: {
+                    x: 0,
+                    y: 16
+                }
+            }
+        }
+    ];
+    const stack = [];
+    parse(testVector, stack, createDelta(createFromTemplate(testVector)));
+    if (!samestuff(expectedResults, stack)) {
+        assertions.push("stack does not match expected results");
+    }
+    return assertions;
+}
+function parseNodeWithImplicitAttributeWithSpacesTest() {
+    const assertions = [];
+    const testVector = testTextInterpolator1`<hello  attribute  >`;
+    const expectedResults = [
+        {
+            type: "BUILD",
+            state: "INITIAL",
+            vector: {
+                origin: {
+                    x: 0,
+                    y: 0
+                },
+                target: {
+                    x: 0,
+                    y: 0
+                }
+            }
+        },
+        {
+            type: "BUILD",
+            state: "NODE",
+            vector: {
+                origin: {
+                    x: 0,
+                    y: 0
+                },
+                target: {
+                    x: 0,
+                    y: 0
+                }
+            }
+        },
+        {
+            type: "BUILD",
+            state: "TAGNAME",
+            vector: {
+                origin: {
+                    x: 0,
+                    y: 1
+                },
+                target: {
+                    x: 0,
+                    y: 5
+                }
+            }
+        },
+        {
+            type: "BUILD",
+            state: "SPACE_NODE",
+            vector: {
+                origin: {
+                    x: 0,
+                    y: 6
+                },
+                target: {
+                    x: 0,
+                    y: 7
+                }
+            }
+        },
+        {
+            type: "BUILD",
+            state: "ATTRIBUTE",
+            vector: {
+                origin: {
+                    x: 0,
+                    y: 8
+                },
+                target: {
+                    x: 0,
+                    y: 16
+                }
+            }
+        },
+        {
+            type: "BUILD",
+            state: "SPACE_NODE",
+            vector: {
+                origin: {
+                    x: 0,
+                    y: 17
+                },
+                target: {
+                    x: 0,
+                    y: 18
+                }
+            }
+        },
+        {
+            type: "BUILD",
+            state: "CLOSE_NODE",
+            vector: {
+                origin: {
+                    x: 0,
+                    y: 19
+                },
+                target: {
+                    x: 0,
+                    y: 19
+                }
+            }
+        }
+    ];
+    const stack = [];
+    parse(testVector, stack, createDelta(createFromTemplate(testVector)));
+    if (!samestuff(expectedResults, stack)) {
+        assertions.push("stack does not match expected results");
+    }
+    return assertions;
+}
+const tests1 = [
+    parseNodeTest,
+    parseNodeWithImplicitAttributeTest,
+    parseNodeWithImplicitAttributeWithSpacesTest
+];
+const unitTestParse = {
+    title: title1,
+    tests: tests1,
+    runTestsAsynchronously: true
+};
 const testCollections = [
-    unitTestTextVector
+    unitTestTextVector,
+    unitTestParse
 ];
 export { testCollections as testCollections };

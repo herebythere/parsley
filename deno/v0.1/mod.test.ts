@@ -6,7 +6,7 @@ import { unitTestParse } from "./parse/parse.test.ts";
 
 const testCollections = [
   unitTestTextVector,
-  // unitTestParse,
+  unitTestParse,
 ];
 
 export { testCollections };
