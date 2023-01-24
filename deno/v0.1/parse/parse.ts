@@ -24,6 +24,10 @@ function parse<N, A>(
   // previous state
   delta: Delta,
 ) {
+  // no delta object just previous state?
+  // delta allows us to reference things from outside of calling function
+  // so no, we need the delta
+
   // iterate across text
   do {
     const char = getChar(template, delta.vector.origin);

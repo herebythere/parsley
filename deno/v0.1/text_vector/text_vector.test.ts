@@ -242,8 +242,6 @@ const testGetTextLastChunkTemplate = () => {
   };
 
   const results = getText(structureRender, vector);
-
-  console.log(results);
   if (expectedResult !== results) {
     assertions.push("text should say 'world'");
   }

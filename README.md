@@ -45,6 +45,8 @@ Import `v0.1` into a deno project.
 import { Chunk } from "https://raw.githubusercontent.com/taylor-vann/parsley/main/v0.1/src/parsley.ts";
 ```
 
+// N Node // A Attributables // P Params // S State
+
 ## How to use
 
 Parsley contructs interactive documents from XML through an external interface.

@@ -64,8 +64,9 @@ const create: Create = (
 });
 
 const createFromTemplate = <N, A>(template: Template<N, A>) => {
-  const x = template.templateArray.length - 1;
-  const y = template.templateArray[x].length - 1;
+  const { templateArray } = template;
+  const x = templateArray.length - 1;
+  const y = templateArray[x].length - 1;
 
   return {
     origin: { x: 0, y: 0 },
@@ -81,11 +82,7 @@ const copy: Copy = (vector) => {
 };
 
 const incrementOrigin: Increment = (template, vector) => {
-  if (increment(template, vector.origin)) {
-    return vector;
-  }
-
-  return;
+  if (increment(template, vector.origin)) return vector;
 };
 
 const getText: GetText = (template, vector) => {

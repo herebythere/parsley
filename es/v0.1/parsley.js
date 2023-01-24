@@ -134,10 +134,7 @@ const create = (origin = DEFAULT_POSITION, target = origin)=>({
         }
     });
 const incrementOrigin = (template, vector)=>{
-    if (increment(template, vector.origin)) {
-        return vector;
-    }
-    return;
+    if (increment(template, vector.origin)) return vector;
 };
 const injectionMap = new Map([
     [
