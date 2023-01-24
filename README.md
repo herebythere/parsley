@@ -5,12 +5,23 @@ Dynamically maintain XML documents like
 
 unminimized and uncompressed < 39kb
 
+## TODO
+
+** Make Template independent of render strucutre or other structures
+
+user supplies hooks
+
+BUILDER TO HOOKS VECTOR TO TEXT WRITER
+
 ## Abstract
 
-Parsley is a portable library that generates libraries to create documents!
+Parsley is a portable meta-library that generates libraries to create different
+kinds of documents!
 
-It's an XML factory that will, provided an interface, generate an API to
-maintain custom document structures.
+## About
+
+Parsley is an XML factory that generates APIs to create custom document
+structures.
 
 Parsley can build interfaces to represent:
 
@@ -34,6 +45,8 @@ Import `v0.1` into a deno project.
 import { Chunk } from "https://raw.githubusercontent.com/taylor-vann/parsley/main/v0.1/src/parsley.ts";
 ```
 
+// N Node // A Attributables // P Params // S State
+
 ## How to use
 
 Parsley contructs interactive documents from XML through an external interface.
@@ -47,10 +60,11 @@ maintain document structure.
 
 Parsley is written in Typescript.
 
-But it's a completely portable set of abstractions ready to be implemented in other languages.
+But it's a completely portable set of abstractions ready to be implemented in
+other languages.
 
-C# is most likeley the next target.
+Rust and C# are the most likely next targets.
 
 ## License
 
-BSD 2-Clause “Simplified” License
+BSD 3-Clause License
