@@ -18,8 +18,8 @@ const injectionMap = new Map([
 ]);
 
 // previous state
-function parse<N, A>(
-  template: Template<N, A>,
+function parse<I>(
+  template: Template<I>,
   builder: BuilderInterface,
   // previous state
   delta: Delta,

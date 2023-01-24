@@ -24,10 +24,10 @@ const INITIAL = "INITIAL";
 const title = "** parse tests **";
 const runTestsAsynchronously = true;
 
-type TextTextInterpolator = <N, A>(
+type TextTextInterpolator = <I>(
   templateArray: TemplateStringsArray,
-  ...injections: A[]
-) => Template<N, A>;
+  ...injections: I[]
+) => Template<I>;
 
 const testTextInterpolator: TextTextInterpolator = (
   templateArray,
