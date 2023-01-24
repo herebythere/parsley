@@ -306,11 +306,16 @@ const parseIndependentNodeWithImplicitAttributeTest = () => {
 		{
 		  type: "BUILD",
 		  state: "ATTRIBUTE",
-		  vector: { origin: { x: 0, y: 7 }, target: { x: 0, y: 16 } }
+		  vector: { origin: { x: 0, y: 7 }, target: { x: 0, y: 15 } }
 		},
 		{
 		  type: "BUILD",
-		  state: "CLOSE_NODE",
+		  state: "INDEPENDENT_NODE",
+		  vector: { origin: { x: 0, y: 16 }, target: { x: 0, y: 16 } }
+		},
+		{
+		  type: "BUILD",
+		  state: "CLOSE_INDEPENDENT_NODE",
 		  vector: { origin: { x: 0, y: 17 }, target: { x: 0, y: 17 } }
 		}
 	];
@@ -381,18 +386,156 @@ function parseIndependentNodeWithImplicitAttributeWithSpacesTest() {
   return assertions;
 };
 
-/*
-
 const parseExplicitAttributeTest = () => {
+	const assertions = [];
   const testVector = testTextInterpolator`<hello attribute="value"/>`;
+	const expectedResults: BuildStep[] = [
+		{
+		  type: "BUILD",
+		  state: "INITIAL",
+		  vector: { origin: { x: 0, y: 0 }, target: { x: 0, y: 0 } }
+		},
+		{
+		  type: "BUILD",
+		  state: "NODE",
+		  vector: { origin: { x: 0, y: 0 }, target: { x: 0, y: 0 } }
+		},
+		{
+		  type: "BUILD",
+		  state: "TAGNAME",
+		  vector: { origin: { x: 0, y: 1 }, target: { x: 0, y: 5 } }
+		},
+		{
+		  type: "BUILD",
+		  state: "SPACE_NODE",
+		  vector: { origin: { x: 0, y: 6 }, target: { x: 0, y: 6 } }
+		},
+		{
+		  type: "BUILD",
+		  state: "ATTRIBUTE",
+		  vector: { origin: { x: 0, y: 7 }, target: { x: 0, y: 15 } }
+		},
+		{
+		  type: "BUILD",
+		  state: "ATTRIBUTE_SETTER",
+		  vector: { origin: { x: 0, y: 16 }, target: { x: 0, y: 16 } }
+		},
+		{
+		  type: "BUILD",
+		  state: "ATTRIBUTE_DECLARATION",
+		  vector: { origin: { x: 0, y: 17 }, target: { x: 0, y: 17 } }
+		},
+		{
+		  type: "BUILD",
+		  state: "ATTRIBUTE_VALUE",
+		  vector: { origin: { x: 0, y: 18 }, target: { x: 0, y: 22 } }
+		},
+		{
+		  type: "BUILD",
+		  state: "CLOSE_ATTRIBUTE_DECLARATION",
+		  vector: { origin: { x: 0, y: 23 }, target: { x: 0, y: 23 } }
+		},
+		// independent node closer
+		{
+		  type: "BUILD",
+		  state: "INDEPENDENT_NODE",
+		  vector: { origin: { x: 0, y: 24 }, target: { x: 0, y: 24 } }
+		},
+		// close independent node
+		{
+		  type: "BUILD",
+		  state: "CLOSE_INDEPENDENT_NODE",
+		  vector: { origin: { x: 0, y: 25 }, target: { x: 0, y: 25 } }
+		}
+	];
 
-  console.log(testVector);
+  const stack: BuildStep[] = [];
+  parse(testVector, stack, createDelta(createFromTemplate(testVector)));
 
-  const rb = new TestBuilder();
-  parse(testVector, rb, createDelta(createFromTemplate(testVector)));
-  console.log(rb.builderStack);
-  return ["fail!"];
+  if (!samestuff(expectedResults, stack)) {
+    assertions.push("stack does not match expected results");
+  }
+
+  return assertions;
 };
+
+function parseExplicitAttributeWithSpacesTest() {
+	const assertions = [];
+  const testVector = testTextInterpolator`<hello  attribute="value"  />`;
+	const expectedResults: BuildStep[] = [
+		{
+		  type: "BUILD",
+		  state: "INITIAL",
+		  vector: { origin: { x: 0, y: 0 }, target: { x: 0, y: 0 } }
+		},
+		{
+		  type: "BUILD",
+		  state: "NODE",
+		  vector: { origin: { x: 0, y: 0 }, target: { x: 0, y: 0 } }
+		},
+		{
+		  type: "BUILD",
+		  state: "TAGNAME",
+		  vector: { origin: { x: 0, y: 1 }, target: { x: 0, y: 5 } }
+		},
+		{
+		  type: "BUILD",
+		  state: "SPACE_NODE",
+		  vector: { origin: { x: 0, y: 6 }, target: { x: 0, y: 7 } }
+		},
+		{
+		  type: "BUILD",
+		  state: "ATTRIBUTE",
+		  vector: { origin: { x: 0, y: 8 }, target: { x: 0, y: 16 } }
+		},
+		{
+		  type: "BUILD",
+		  state: "ATTRIBUTE_SETTER",
+		  vector: { origin: { x: 0, y: 17 }, target: { x: 0, y: 17 } }
+		},
+		{
+		  type: "BUILD",
+		  state: "ATTRIBUTE_DECLARATION",
+		  vector: { origin: { x: 0, y: 18 }, target: { x: 0, y: 18 } }
+		},
+		{
+		  type: "BUILD",
+		  state: "ATTRIBUTE_VALUE",
+		  vector: { origin: { x: 0, y: 19 }, target: { x: 0, y: 23 } }
+		},
+		{
+		  type: "BUILD",
+		  state: "CLOSE_ATTRIBUTE_DECLARATION",
+		  vector: { origin: { x: 0, y: 24 }, target: { x: 0, y: 24 } }
+		},
+		{
+		  type: "BUILD",
+		  state: "SPACE_NODE",
+		  vector: { origin: { x: 0, y: 25 }, target: { x: 0, y: 26 } }
+		},
+		{
+		  type: "BUILD",
+		  state: "INDEPENDENT_NODE",
+		  vector: { origin: { x: 0, y: 27 }, target: { x: 0, y: 27 } }
+		},
+		{
+		  type: "BUILD",
+		  state: "CLOSE_INDEPENDENT_NODE",
+		  vector: { origin: { x: 0, y: 28 }, target: { x: 0, y: 28 } }
+		}
+	];
+
+  const stack: BuildStep[] = [];
+  parse(testVector, stack, createDelta(createFromTemplate(testVector)));
+
+  if (!samestuff(expectedResults, stack)) {
+    assertions.push("stack does not match expected results");
+  }
+
+  return assertions;
+};
+
+/*
 
 const parseExplicitAttributeWithSpacesTest = () => {
   const testVector = testTextInterpolator`<hello  attribute="value"  />`;
@@ -527,7 +670,12 @@ const tests = [
   
   // independent nodes
   parseIndependentNodeTest,
+  parseIndependentNodeWithImplicitAttributeTest,
   parseIndependentNodeWithImplicitAttributeWithSpacesTest,
+  
+  // explicit attributes
+  parseExplicitAttributeTest,
+  parseExplicitAttributeWithSpacesTest,
   
   /*
   parseerTest,
@@ -544,9 +692,6 @@ const tests = [
   parseIndependentNodeTest,
   parseIndependentNodeImplicitAttributeTest,
   parseIndependentNodeImplicitAttributeWithSpacesTest,
-
-  parseExplicitAttributeTest,
-  parseExplicitAttributeWithSpacesTest,
 
   parseNodeWithInjectionsTest,
   parseNodeWithAttributeMapInjectionsTest,

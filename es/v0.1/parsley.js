@@ -66,6 +66,7 @@ const routes = {
         "\n": "SPACE_NODE",
         "=": "ATTRIBUTE_SETTER",
         ">": "CLOSE_NODE",
+        "/": "INDEPENDENT_NODE",
         DEFAULT: "ATTRIBUTE"
     },
     ATTRIBUTE_SETTER: {
@@ -83,6 +84,7 @@ const routes = {
     },
     CLOSE_ATTRIBUTE_DECLARATION: {
         ">": "CLOSE_INDEPENDENT_NODE",
+        "/": "INDEPENDENT_NODE",
         DEFAULT: "SPACE_NODE"
     },
     COMMENT_0: {
