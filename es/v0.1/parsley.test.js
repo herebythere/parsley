@@ -793,10 +793,218 @@ function parseNodeWithImplicitAttributeWithSpacesTest() {
     }
     return assertions;
 }
+function parseIndependentNodeTest() {
+    const assertions = [];
+    const testVector = testTextInterpolator1`<hello/>`;
+    const expectedResults = [
+        {
+            type: "BUILD",
+            state: "INITIAL",
+            vector: {
+                origin: {
+                    x: 0,
+                    y: 0
+                },
+                target: {
+                    x: 0,
+                    y: 0
+                }
+            }
+        },
+        {
+            type: "BUILD",
+            state: "NODE",
+            vector: {
+                origin: {
+                    x: 0,
+                    y: 0
+                },
+                target: {
+                    x: 0,
+                    y: 0
+                }
+            }
+        },
+        {
+            type: "BUILD",
+            state: "TAGNAME",
+            vector: {
+                origin: {
+                    x: 0,
+                    y: 1
+                },
+                target: {
+                    x: 0,
+                    y: 5
+                }
+            }
+        },
+        {
+            type: "BUILD",
+            state: "INDEPENDENT_NODE",
+            vector: {
+                origin: {
+                    x: 0,
+                    y: 6
+                },
+                target: {
+                    x: 0,
+                    y: 6
+                }
+            }
+        },
+        {
+            type: "BUILD",
+            state: "CLOSE_INDEPENDENT_NODE",
+            vector: {
+                origin: {
+                    x: 0,
+                    y: 7
+                },
+                target: {
+                    x: 0,
+                    y: 7
+                }
+            }
+        }
+    ];
+    const stack = [];
+    parse(testVector, stack, createDelta(createFromTemplate(testVector)));
+    if (!samestuff(expectedResults, stack)) {
+        assertions.push("stack does not match expected results");
+    }
+    return assertions;
+}
+function parseIndependentNodeWithImplicitAttributeWithSpacesTest() {
+    const assertions = [];
+    const testVector = testTextInterpolator1`<hello  attribute  />`;
+    const expectedResults = [
+        {
+            type: "BUILD",
+            state: "INITIAL",
+            vector: {
+                origin: {
+                    x: 0,
+                    y: 0
+                },
+                target: {
+                    x: 0,
+                    y: 0
+                }
+            }
+        },
+        {
+            type: "BUILD",
+            state: "NODE",
+            vector: {
+                origin: {
+                    x: 0,
+                    y: 0
+                },
+                target: {
+                    x: 0,
+                    y: 0
+                }
+            }
+        },
+        {
+            type: "BUILD",
+            state: "TAGNAME",
+            vector: {
+                origin: {
+                    x: 0,
+                    y: 1
+                },
+                target: {
+                    x: 0,
+                    y: 5
+                }
+            }
+        },
+        {
+            type: "BUILD",
+            state: "SPACE_NODE",
+            vector: {
+                origin: {
+                    x: 0,
+                    y: 6
+                },
+                target: {
+                    x: 0,
+                    y: 7
+                }
+            }
+        },
+        {
+            type: "BUILD",
+            state: "ATTRIBUTE",
+            vector: {
+                origin: {
+                    x: 0,
+                    y: 8
+                },
+                target: {
+                    x: 0,
+                    y: 16
+                }
+            }
+        },
+        {
+            type: "BUILD",
+            state: "SPACE_NODE",
+            vector: {
+                origin: {
+                    x: 0,
+                    y: 17
+                },
+                target: {
+                    x: 0,
+                    y: 18
+                }
+            }
+        },
+        {
+            type: "BUILD",
+            state: "INDEPENDENT_NODE",
+            vector: {
+                origin: {
+                    x: 0,
+                    y: 19
+                },
+                target: {
+                    x: 0,
+                    y: 19
+                }
+            }
+        },
+        {
+            type: "BUILD",
+            state: "CLOSE_INDEPENDENT_NODE",
+            vector: {
+                origin: {
+                    x: 0,
+                    y: 20
+                },
+                target: {
+                    x: 0,
+                    y: 20
+                }
+            }
+        }
+    ];
+    const stack = [];
+    parse(testVector, stack, createDelta(createFromTemplate(testVector)));
+    if (!samestuff(expectedResults, stack)) {
+        assertions.push("stack does not match expected results");
+    }
+    return assertions;
+}
 const tests1 = [
     parseNodeTest,
     parseNodeWithImplicitAttributeTest,
-    parseNodeWithImplicitAttributeWithSpacesTest
+    parseNodeWithImplicitAttributeWithSpacesTest,
+    parseIndependentNodeTest,
+    parseIndependentNodeWithImplicitAttributeWithSpacesTest
 ];
 const unitTestParse = {
     title: title1,
