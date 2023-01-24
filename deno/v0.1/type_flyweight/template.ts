@@ -6,9 +6,9 @@
 // Parameters
 // State
 
-interface Template<N, A> {
+interface Template<I> {
   templateArray: TemplateStringsArray;
-  injections: A[];
+  injections: I[];
 }
 
 export type { Template };

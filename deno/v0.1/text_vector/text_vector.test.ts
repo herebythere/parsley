@@ -13,10 +13,10 @@ import {
   incrementOrigin,
 } from "./text_vector.ts";
 
-type TextTextInterpolator = <N, A>(
+type TextTextInterpolator = <I>(
   templateArray: TemplateStringsArray,
-  ...injections: A[]
-) => Template<N, A>;
+  ...injections: I[]
+) => Template<I>;
 
 const testTextInterpolator: TextTextInterpolator = (
   templateArray,

@@ -4,26 +4,26 @@
 import type { Template } from "../type_flyweight/template.ts";
 import type { Position, Vector } from "../type_flyweight/text_vector.ts";
 
-type IncrementPos = <N, A>(
-  template: Template<N, A>,
+type IncrementPos = <I>(
+  template: Template<I>,
   position: Position,
 ) => Position | undefined;
 
-type GetChar = <N, A>(
-  template: Template<N, A>,
+type GetChar = <I>(
+  template: Template<I>,
   position: Position,
 ) => string | undefined;
 
-type GetText = <N, A>(
-  template: Template<N, A>,
+type GetText = <I>(
+  template: Template<I>,
   vector: Vector,
 ) => string | undefined;
 
 type Create = (origin?: Position, target?: Position) => Vector;
 type Copy = (vector: Vector) => Vector;
 
-type Increment = <N, A>(
-  template: Template<N, A>,
+type Increment = <I>(
+  template: Template<I>,
   vector: Vector,
 ) => Vector | undefined;
 
@@ -63,7 +63,7 @@ const create: Create = (
   target: { ...target },
 });
 
-const createFromTemplate = <N, A>(template: Template<N, A>) => {
+const createFromTemplate = <I>(template: Template<I>) => {
   const { templateArray } = template;
   const x = templateArray.length - 1;
   const y = templateArray[x].length - 1;
