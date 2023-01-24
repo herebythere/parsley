@@ -535,62 +535,235 @@ function parseExplicitAttributeWithSpacesTest() {
   return assertions;
 };
 
-/*
+function parseNodeInjectionsTest() {
+	const assertions = [];
+  const testVector = testTextInterpolator`<hello>${"hi"}</hello>`;
+	const expectedResults: BuildStep[] = [
+		{
+		  type: "BUILD",
+		  state: "INITIAL",
+		  vector: { origin: { x: 0, y: 0 }, target: { x: 0, y: 0 } }
+		},
+		{
+		  type: "BUILD",
+		  state: "NODE",
+		  vector: { origin: { x: 0, y: 0 }, target: { x: 0, y: 0 } }
+		},
+		{
+		  type: "BUILD",
+		  state: "TAGNAME",
+		  vector: { origin: { x: 0, y: 1 }, target: { x: 0, y: 5 } }
+		},
+		{
+		  type: "BUILD",
+		  state: "CLOSE_NODE",
+		  vector: { origin: { x: 0, y: 6 }, target: { x: 0, y: 6 } }
+		},
+		{ type: "INJECT", index: 0, state: "DESCENDANT_INJECTION" },
+		{
+		  type: "BUILD",
+		  state: "NODE",
+		  vector: { origin: { x: 1, y: 0 }, target: { x: 1, y: 0 } }
+		},
+		{
+		  type: "BUILD",
+		  state: "NODE_CLOSER",
+		  vector: { origin: { x: 1, y: 1 }, target: { x: 1, y: 1 } }
+		},
+		{
+		  type: "BUILD",
+		  state: "TAGNAME_CLOSE",
+		  vector: { origin: { x: 1, y: 2 }, target: { x: 1, y: 6 } }
+		},
+		{
+		  type: "BUILD",
+		  state: "CLOSE_NODE_CLOSER",
+		  vector: { origin: { x: 1, y: 7 }, target: { x: 1, y: 7 } }
+		}
+	];
 
-const parseExplicitAttributeWithSpacesTest = () => {
-  const testVector = testTextInterpolator`<hello  attribute="value"  />`;
+  const stack: BuildStep[] = [];
+  parse(testVector, stack, createDelta(createFromTemplate(testVector)));
 
-  console.log(testVector);
+  if (!samestuff(expectedResults, stack)) {
+    assertions.push("stack does not match expected results");
+  }
 
-  const rb = new TestBuilder();
-  parse(testVector, rb, createDelta(createFromTemplate(testVector)));
-  console.log(rb.builderStack);
-  return ["fail!"];
+  return assertions;
+};
+
+function parseNodeWithAttributeInjectionsTest() {
+	const assertions = [];
+  const testVector = testTextInterpolator`<hello world="${"world"}"/>`;
+	const expectedResults: BuildStep[] = [
+		{
+		  type: "BUILD",
+		  state: "INITIAL",
+		  vector: { origin: { x: 0, y: 0 }, target: { x: 0, y: 0 } }
+		},
+		{
+		  type: "BUILD",
+		  state: "NODE",
+		  vector: { origin: { x: 0, y: 0 }, target: { x: 0, y: 0 } }
+		},
+		{
+		  type: "BUILD",
+		  state: "TAGNAME",
+		  vector: { origin: { x: 0, y: 1 }, target: { x: 0, y: 5 } }
+		},
+		{
+		  type: "BUILD",
+		  state: "SPACE_NODE",
+		  vector: { origin: { x: 0, y: 6 }, target: { x: 0, y: 6 } }
+		},
+		{
+		  type: "BUILD",
+		  state: "ATTRIBUTE",
+		  vector: { origin: { x: 0, y: 7 }, target: { x: 0, y: 11 } }
+		},
+		{
+		  type: "BUILD",
+		  state: "ATTRIBUTE_SETTER",
+		  vector: { origin: { x: 0, y: 12 }, target: { x: 0, y: 12 } }
+		},
+		{
+		  type: "BUILD",
+		  state: "ATTRIBUTE_DECLARATION",
+		  vector: { origin: { x: 0, y: 13 }, target: { x: 0, y: 13 } }
+		},
+		{ type: "INJECT", index: 0, state: "ATTRIBUTE_INJECTION" },
+		{
+		  type: "BUILD",
+		  state: "CLOSE_ATTRIBUTE_DECLARATION",
+		  vector: { origin: { x: 1, y: 0 }, target: { x: 1, y: 0 } }
+		},
+		{
+		  type: "BUILD",
+		  state: "INDEPENDENT_NODE",
+		  vector: { origin: { x: 1, y: 1 }, target: { x: 1, y: 1 } }
+		},
+		{
+		  type: "BUILD",
+		  state: "CLOSE_INDEPENDENT_NODE",
+		  vector: { origin: { x: 1, y: 2 }, target: { x: 1, y: 2 } }
+		}
+	];
+
+  const stack: BuildStep[] = [];
+  parse(testVector, stack, createDelta(createFromTemplate(testVector)));
+
+  if (!samestuff(expectedResults, stack)) {
+    assertions.push("stack does not match expected results");
+  }
+
+  return assertions;
 };
 
 const parseNodeWithAttributeMapInjectionsTest = () => {
+	const assertions = [];
   const testVector = testTextInterpolator`<hello ${"world"}/>`;
+	const expectedResults: BuildStep[] = [
+		{
+		  type: "BUILD",
+		  state: "INITIAL",
+		  vector: { origin: { x: 0, y: 0 }, target: { x: 0, y: 0 } }
+		},
+		{
+		  type: "BUILD",
+		  state: "NODE",
+		  vector: { origin: { x: 0, y: 0 }, target: { x: 0, y: 0 } }
+		},
+		{
+		  type: "BUILD",
+		  state: "TAGNAME",
+		  vector: { origin: { x: 0, y: 1 }, target: { x: 0, y: 5 } }
+		},
+		{
+		  type: "BUILD",
+		  state: "SPACE_NODE",
+		  vector: { origin: { x: 0, y: 6 }, target: { x: 0, y: 6 } }
+		},
+		{ type: "INJECT", index: 0, state: "ATTRIBUTE_INJECTION_MAP" },
+		{
+		  type: "BUILD",
+		  state: "INDEPENDENT_NODE",
+		  vector: { origin: { x: 1, y: 0 }, target: { x: 1, y: 0 } }
+		},
+		{
+		  type: "BUILD",
+		  state: "CLOSE_INDEPENDENT_NODE",
+		  vector: { origin: { x: 1, y: 1 }, target: { x: 1, y: 1 } }
+		}
+	];
 
-  console.log(testVector);
+  const stack: BuildStep[] = [];
+  parse(testVector, stack, createDelta(createFromTemplate(testVector)));
 
-  const rb = new TestBuilder();
-  parse(testVector, rb, createDelta(createFromTemplate(testVector)));
-  console.log(rb.builderStack);
-  return ["fail!"];
+  if (!samestuff(expectedResults, stack)) {
+    assertions.push("stack does not match expected results");
+  }
+
+  return assertions;
 };
 
-const parseNodeWithInjectionsTest = () => {
-  const testVector = testTextInterpolator`<hello ${"world"}/>${"uwu"}</hello>`;
+const parserCommentTest = () => {
+	const assertions = [];
+  const testVector = testTextInterpolator`<-- Hello world! -->`;
+	const expectedResults: BuildStep[] = [
+		{
+		  type: "BUILD",
+		  state: "INITIAL",
+		  vector: { origin: { x: 0, y: 0 }, target: { x: 0, y: 0 } }
+		},
+		{
+		  type: "BUILD",
+		  state: "NODE",
+		  vector: { origin: { x: 0, y: 0 }, target: { x: 0, y: 0 } }
+		},
+		{
+		  type: "BUILD",
+		  state: "COMMENT_0",
+		  vector: { origin: { x: 0, y: 1 }, target: { x: 0, y: 1 } }
+		},
+		{
+		  type: "BUILD",
+		  state: "COMMENT_1",
+		  vector: { origin: { x: 0, y: 2 }, target: { x: 0, y: 2 } }
+		},
+		{
+		  type: "BUILD",
+		  state: "COMMENT",
+		  vector: { origin: { x: 0, y: 3 }, target: { x: 0, y: 16 } }
+		},
+		{
+		  type: "BUILD",
+		  state: "COMMENT_CLOSE",
+		  vector: { origin: { x: 0, y: 17 }, target: { x: 0, y: 17 } }
+		},
+		{
+		  type: "BUILD",
+		  state: "COMMENT_CLOSE_1",
+		  vector: { origin: { x: 0, y: 18 }, target: { x: 0, y: 18 } }
+		},
+		{
+		  type: "BUILD",
+		  state: "CLOSE_NODE",
+		  vector: { origin: { x: 0, y: 19 }, target: { x: 0, y: 19 } }
+		}
+	];
 
-  console.log(testVector);
+  const stack: BuildStep[] = [];
+  parse(testVector, stack, createDelta(createFromTemplate(testVector)));
 
-  const rb = new TestBuilder();
-  parse(testVector, rb, createDelta(createFromTemplate(testVector)));
-  console.log(rb.builderStack);
-  return ["fail!"];
+  if (!samestuff(expectedResults, stack)) {
+    assertions.push("stack does not match expected results");
+  }
+
+  return assertions;
 };
 
-const parseNodeWithAttributeInjectionsTest = () => {
-  const testVector = testTextInterpolator`<hello world="${"world"}"/>`;
+/*
 
-  console.log(testVector);
-
-  const rb = new TestBuilder();
-  parse(testVector, rb, createDelta(createFromTemplate(testVector)));
-  console.log(rb.builderStack);
-  return ["fail!"];
-};
-
-const parseNodeInjectionsTest = () => {
-  const testVector = testTextInterpolator`<hello>${"hi"}</hello>`;
-
-  console.log(testVector);
-
-  const rb = new TestBuilder();
-  parse(testVector, rb, createDelta(createFromTemplate(testVector)));
-  console.log(rb.builderStack);
-  return ["fail!"];
-};
 
 const parseerCommentTest = () => {
   const testVector = testTextInterpolator`<-- Hello world! -->`;
@@ -662,6 +835,16 @@ const parseerTest2 = () => {
 
 const tests = [
   // parseTest,
+    /*
+  parseerTest,
+  parseerTest1,
+  parseerTest2,
+  parseerCommentTest,
+
+
+  parseerTextThenNodeTest,
+  parseerTextThenNodeClosedTest,
+  */
   
   // nodes
   parseNodeTest,
@@ -677,30 +860,13 @@ const tests = [
   parseExplicitAttributeTest,
   parseExplicitAttributeWithSpacesTest,
   
-  /*
-  parseerTest,
-  parseerTest1,
-  parseerTest2,
-  parseerCommentTest,
-
-
-
-
-
-  parseerCommentTest,
-
-  parseIndependentNodeTest,
-  parseIndependentNodeImplicitAttributeTest,
-  parseIndependentNodeImplicitAttributeWithSpacesTest,
-
-  parseNodeWithInjectionsTest,
-  parseNodeWithAttributeMapInjectionsTest,
-  parseNodeWithAttributeInjectionsTest,
+  // injections
   parseNodeInjectionsTest,
-
-  parseerTextThenNodeTest,
-  parseerTextThenNodeClosedTest,
-  */
+  parseNodeWithAttributeInjectionsTest,
+  parseNodeWithAttributeMapInjectionsTest,
+  
+  // comments
+  parserCommentTest,
 ];
 
 const unitTestParse = {
