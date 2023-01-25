@@ -55,7 +55,7 @@ const increment: IncrementPos = (template, position) => {
 const getChar: GetChar = (template, position) => {
 	const str = template.templateArray[position.x];
 	if (str === undefined) return;
-	if (str.length === 0) return "";
+	if (str.length === 0) return str;
 	
 	return str[position.y]
 }

@@ -135,7 +135,7 @@ const increment = (template, position)=>{
 const getChar = (template, position)=>{
     const str = template.templateArray[position.x];
     if (str === undefined) return;
-    if (str.length === 0) return "";
+    if (str.length === 0) return str;
     return str[position.y];
 };
 const create = (origin = DEFAULT_POSITION, target = origin)=>({
