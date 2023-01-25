@@ -38,7 +38,13 @@ const increment = (template, position)=>{
     }
     return position;
 };
-const getChar = (template, position)=>template.templateArray[position.x]?.[position.y];
+const getChar = (template, position)=>{
+    const str = template.templateArray[position.x];
+    if (str?.length === 0) {
+        return "";
+    }
+    return str?.[position.y];
+};
 const create = (origin = DEFAULT_POSITION, target = origin)=>({
         origin: {
             ...origin
@@ -455,7 +461,7 @@ function parse(template, builder, delta) {
         console.log("getChar", delta.vector.origin);
         const __char = getChar(template, delta.vector.origin);
         console.log("char: ", __char);
-        if (__char === undefined) return;
+        if (__char === undefined) continue;
         delta.prevState = delta.state;
         delta.state = routes[delta.prevState]?.[__char];
         if (delta.state === undefined) {
@@ -528,19 +534,28 @@ function createDelta(vector) {
         state: INITIAL
     };
 }
-function parserEmptyTest() {
+const parserNestedTemplateWithInjectionsTest = ()=>{
     const assertions = [];
-    const testVector = testTextInterpolator1``;
+    const testVector = testTextInterpolator1`${"stardust"}
+  	<div sunshine>
+  		${"yo"}
+  		<p ${"moonlight"}>${"buddy"}</p>
+  		<hello starshine />
+  		${"boi"}
+  	</div>
+  `;
     const expectedResults = [];
+    console.log(testVector);
     const stack = [];
     parse(testVector, stack, createDelta(createFromTemplate(testVector)));
+    console.log(stack);
     if (!samestuff(expectedResults, stack)) {
         assertions.push("stack does not match expected results");
     }
     return assertions;
-}
+};
 const tests1 = [
-    parserEmptyTest
+    parserNestedTemplateWithInjectionsTest
 ];
 const unitTestParse = {
     title: title1,

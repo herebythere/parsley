@@ -52,8 +52,13 @@ const increment: IncrementPos = (template, position) => {
   return position;
 };
 
-const getChar: GetChar = (template, position) =>
-  template.templateArray[position.x]?.[position.y];
+const getChar: GetChar = (template, position) => {
+	const str = template.templateArray[position.x];
+	if (str?.length === 0) {
+		return "";
+	}
+	return str?.[position.y]
+}
 
 const create: Create = (
   origin = DEFAULT_POSITION,

@@ -25,16 +25,12 @@ function parse<I>(
   // previous state
   delta: Delta,
 ) {
-  // no delta object just previous state?
-  // delta allows us to reference things from outside of calling function
-  // so no, we need the delta
-
   // iterate across text
   do {
   	console.log("getChar", delta.vector.origin);
     const char = getChar(template, delta.vector.origin);
     console.log("char: ", char);
-    if (char === undefined) return;
+    if (char === undefined) continue;
 
     // state swap
     delta.prevState = delta.state;
@@ -79,6 +75,7 @@ function parse<I>(
   // get tail end
   if (delta.prevState === delta.state || delta.state === "ERROR") return;
 
+	// this could be an injection state
   const vector = create(delta.origin, delta.origin);
 
   builder.push({

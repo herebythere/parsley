@@ -769,7 +769,7 @@ function parserEmptyTest() {
 
   const stack: BuildStep[] = [];
   parse(testVector, stack, createDelta(createFromTemplate(testVector)));
-
+	// console.log(stack);
 	// this is wrong, should give us something but we got nothing
   if (!samestuff(expectedResults, stack)) {
     assertions.push("stack does not match expected results");
@@ -801,14 +801,14 @@ const parserEmptyWithMultipleInjectionsTest = () => {
   const testVector = testTextInterpolator`${"yo"}${"buddy"}${"boi"}`;
   const expectedResults: BuildStep[] = [];
   
-  // console.log(testVector);
+  console.log(testVector);
 
   const stack: BuildStep[] = [];
   // this is wrong
   // should give some kind of feedback
   
   parse(testVector, stack, createDelta(createFromTemplate(testVector)));
-	// console.log(stack);
+	console.log(stack);
   if (!samestuff(expectedResults, stack)) {
     assertions.push("stack does not match expected results");
   }
@@ -929,8 +929,9 @@ const tests = [
   // something complicated and nested
   //
   // these are failing (passing but shouldnt)
-  parserEmptyTest,
+  parserNestedTemplateWithInjectionsTest,
   /*
+  parserEmptyTest,
   parserEmptyWithInjectionTest,
   parserEmptyWithMultipleInjectionsTest,
   
