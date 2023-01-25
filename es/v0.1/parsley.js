@@ -181,7 +181,6 @@ const injectionMap = new Map([
 ]);
 function parse(template, builder, delta) {
     do {
-        console.log("getChar", delta.vector.origin);
         const __char = getChar(template, delta.vector.origin);
         if (__char === undefined) return;
         if (__char !== "") {
@@ -203,7 +202,6 @@ function parse(template, builder, delta) {
             delta.origin.y = delta.vector.origin.y;
         }
         if (delta.prevPos.x < delta.vector.origin.x) {
-            console.log("made it to injections!");
             if (delta.prevState === "TEXT") {
                 const vector1 = create(delta.origin, delta.prevPos);
                 builder.push({
@@ -228,8 +226,6 @@ function parse(template, builder, delta) {
         delta.prevPos.y = delta.vector.origin.y;
     }while (delta.state !== "ERROR" && incrementOrigin(template, delta.vector))
     if (delta.prevState === delta.state || delta.state === "ERROR") return;
-    console.log("doing something at the end!");
-    console.log(delta);
     const vector2 = create(delta.origin, delta.origin);
     builder.push({
         type: "BUILD",

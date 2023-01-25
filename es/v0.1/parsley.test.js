@@ -463,7 +463,6 @@ const injectionMap = new Map([
 ]);
 function parse(template, builder, delta) {
     do {
-        console.log("getChar", delta.vector.origin);
         const __char = getChar(template, delta.vector.origin);
         if (__char === undefined) return;
         if (__char !== "") {
@@ -485,7 +484,6 @@ function parse(template, builder, delta) {
             delta.origin.y = delta.vector.origin.y;
         }
         if (delta.prevPos.x < delta.vector.origin.x) {
-            console.log("made it to injections!");
             if (delta.prevState === "TEXT") {
                 const vector1 = create(delta.origin, delta.prevPos);
                 builder.push({
@@ -510,8 +508,6 @@ function parse(template, builder, delta) {
         delta.prevPos.y = delta.vector.origin.y;
     }while (delta.state !== "ERROR" && incrementOrigin(template, delta.vector))
     if (delta.prevState === delta.state || delta.state === "ERROR") return;
-    console.log("doing something at the end!");
-    console.log(delta);
     const vector2 = create(delta.origin, delta.origin);
     builder.push({
         type: "BUILD",
@@ -2470,7 +2466,7 @@ const parserNestedTemplateWithInjectionsTest = ()=>{
         },
         {
             type: "BUILD",
-            state: "NODE_SPACE",
+            state: "ATTRIBUTE_SETTER",
             vector: {
                 origin: {
                     x: 4,
@@ -2484,7 +2480,7 @@ const parserNestedTemplateWithInjectionsTest = ()=>{
         },
         {
             type: "BUILD",
-            state: "INDEPENDENT_NODE",
+            state: "ATTRIBUTE_DECLARATION",
             vector: {
                 origin: {
                     x: 4,
@@ -2498,25 +2494,11 @@ const parserNestedTemplateWithInjectionsTest = ()=>{
         },
         {
             type: "BUILD",
-            state: "CLOSE_INDEPENDENT_NODE",
+            state: "ATTRIBUTE_VALUE",
             vector: {
                 origin: {
                     x: 4,
                     y: 24
-                },
-                target: {
-                    x: 4,
-                    y: 24
-                }
-            }
-        },
-        {
-            type: "BUILD",
-            state: "TEXT",
-            vector: {
-                origin: {
-                    x: 4,
-                    y: 25
                 },
                 target: {
                     x: 4,
@@ -2526,7 +2508,7 @@ const parserNestedTemplateWithInjectionsTest = ()=>{
         },
         {
             type: "BUILD",
-            state: "NODE",
+            state: "CLOSE_ATTRIBUTE_DECLARATION",
             vector: {
                 origin: {
                     x: 4,
@@ -2540,7 +2522,7 @@ const parserNestedTemplateWithInjectionsTest = ()=>{
         },
         {
             type: "BUILD",
-            state: "TAGNAME",
+            state: "NODE_SPACE",
             vector: {
                 origin: {
                     x: 4,
@@ -2548,21 +2530,35 @@ const parserNestedTemplateWithInjectionsTest = ()=>{
                 },
                 target: {
                     x: 4,
-                    y: 35
+                    y: 31
                 }
             }
         },
         {
             type: "BUILD",
-            state: "CLOSE_NODE",
+            state: "INDEPENDENT_NODE",
             vector: {
                 origin: {
                     x: 4,
-                    y: 36
+                    y: 32
                 },
                 target: {
                     x: 4,
-                    y: 36
+                    y: 32
+                }
+            }
+        },
+        {
+            type: "BUILD",
+            state: "CLOSE_INDEPENDENT_NODE",
+            vector: {
+                origin: {
+                    x: 4,
+                    y: 33
+                },
+                target: {
+                    x: 4,
+                    y: 33
                 }
             }
         },
@@ -2572,7 +2568,7 @@ const parserNestedTemplateWithInjectionsTest = ()=>{
             vector: {
                 origin: {
                     x: 4,
-                    y: 37
+                    y: 34
                 },
                 target: {
                     x: 4,
@@ -2596,7 +2592,7 @@ const parserNestedTemplateWithInjectionsTest = ()=>{
         },
         {
             type: "BUILD",
-            state: "NODE_CLOSER",
+            state: "TAGNAME",
             vector: {
                 origin: {
                     x: 4,
@@ -2604,17 +2600,17 @@ const parserNestedTemplateWithInjectionsTest = ()=>{
                 },
                 target: {
                     x: 4,
-                    y: 40
+                    y: 44
                 }
             }
         },
         {
             type: "BUILD",
-            state: "TAGNAME_CLOSE",
+            state: "CLOSE_NODE",
             vector: {
                 origin: {
                     x: 4,
-                    y: 41
+                    y: 45
                 },
                 target: {
                     x: 4,
@@ -2624,7 +2620,7 @@ const parserNestedTemplateWithInjectionsTest = ()=>{
         },
         {
             type: "BUILD",
-            state: "CLOSE_NODE_CLOSER",
+            state: "TEXT",
             vector: {
                 origin: {
                     x: 4,
@@ -2632,7 +2628,63 @@ const parserNestedTemplateWithInjectionsTest = ()=>{
                 },
                 target: {
                     x: 4,
-                    y: 46
+                    y: 47
+                }
+            }
+        },
+        {
+            type: "BUILD",
+            state: "NODE",
+            vector: {
+                origin: {
+                    x: 4,
+                    y: 48
+                },
+                target: {
+                    x: 4,
+                    y: 48
+                }
+            }
+        },
+        {
+            type: "BUILD",
+            state: "NODE_CLOSER",
+            vector: {
+                origin: {
+                    x: 4,
+                    y: 49
+                },
+                target: {
+                    x: 4,
+                    y: 49
+                }
+            }
+        },
+        {
+            type: "BUILD",
+            state: "TAGNAME_CLOSE",
+            vector: {
+                origin: {
+                    x: 4,
+                    y: 50
+                },
+                target: {
+                    x: 4,
+                    y: 54
+                }
+            }
+        },
+        {
+            type: "BUILD",
+            state: "CLOSE_NODE_CLOSER",
+            vector: {
+                origin: {
+                    x: 4,
+                    y: 55
+                },
+                target: {
+                    x: 4,
+                    y: 55
                 }
             }
         },
@@ -2642,11 +2694,11 @@ const parserNestedTemplateWithInjectionsTest = ()=>{
             vector: {
                 origin: {
                     x: 4,
-                    y: 47
+                    y: 56
                 },
                 target: {
                     x: 4,
-                    y: 51
+                    y: 60
                 }
             }
         },
@@ -2745,10 +2797,8 @@ const parserNestedTemplateWithInjectionsTest = ()=>{
             state: "DESCENDANT_INJECTION"
         }
     ];
-    console.log(testVector);
     const stack = [];
     parse(testVector, stack, createDelta(createFromTemplate(testVector)));
-    console.log(stack);
     if (!samestuff(expectedResults, stack)) {
         assertions.push("stack does not match expected results");
     }

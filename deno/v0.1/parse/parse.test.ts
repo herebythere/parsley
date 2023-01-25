@@ -35,76 +35,6 @@ function createDelta(vector: Vector): Delta {
   };
 }
 
-/*
-const parseTest = () => {
-  const assertions = [];
-  const testVector = testTextInterpolator`<hello>hello ${"buster"}!</hello>`;
-
-  const expectedResults: BuildStep[] = [
-    {
-      type: "BUILD",
-      state: "INITIAL",
-      vector: { origin: { x: 0, y: 0 }, target: { x: 0, y: 0 } },
-    },
-    {
-      type: "BUILD",
-      state: "NODE",
-      vector: { origin: { x: 0, y: 0 }, target: { x: 0, y: 0 } },
-    },
-    {
-      type: "BUILD",
-      state: "TAGNAME",
-      vector: { origin: { x: 0, y: 1 }, target: { x: 0, y: 5 } },
-    },
-    {
-      type: "BUILD",
-      state: "CLOSE_NODE",
-      vector: { origin: { x: 0, y: 6 }, target: { x: 0, y: 6 } },
-    },
-    {
-      type: "BUILD",
-      state: "TEXT",
-      vector: { origin: { x: 0, y: 7 }, target: { x: 0, y: 12 } },
-    },
-    { type: "INJECT", index: 0, state: "DESCENDANT_INJECTION" },
-    {
-      type: "BUILD",
-      state: "TEXT",
-      vector: { origin: { x: 1, y: 0 }, target: { x: 1, y: 0 } },
-    },
-    {
-      type: "BUILD",
-      state: "NODE",
-      vector: { origin: { x: 1, y: 1 }, target: { x: 1, y: 1 } },
-    },
-    {
-      type: "BUILD",
-      state: "NODE_CLOSER",
-      vector: { origin: { x: 1, y: 2 }, target: { x: 1, y: 2 } },
-    },
-    {
-      type: "BUILD",
-      state: "TAGNAME_CLOSE",
-      vector: { origin: { x: 1, y: 3 }, target: { x: 1, y: 7 } },
-    },
-    {
-      type: "BUILD",
-      state: "CLOSE_NODE_CLOSER",
-      vector: { origin: { x: 1, y: 8 }, target: { x: 1, y: 8 } },
-    },
-  ];
-
-  const stack: BuildStep[] = [];
-  parse(testVector, stack, createDelta(createFromTemplate(testVector)));
-
-  if (!samestuff(expectedResults, stack)) {
-    assertions.push("stack does not match expected results");
-  }
-
-  return assertions;
-};
-*/
-
 function parseNodeTest() {
   const assertions = [];
   const testVector = testTextInterpolator`<hello>`;
@@ -279,7 +209,7 @@ function parseIndependentNodeTest() {
   return assertions;
 };
 
-const parseIndependentNodeWithImplicitAttributeTest = () => {
+function parseIndependentNodeWithImplicitAttributeTest () {
 	const assertions = [];
   const testVector = testTextInterpolator`<hello attribute/>`;
 	const expectedResults: BuildStep[] = [
@@ -386,7 +316,7 @@ function parseIndependentNodeWithImplicitAttributeWithSpacesTest() {
   return assertions;
 };
 
-const parseExplicitAttributeTest = () => {
+function parseExplicitAttributeTest() {
 	const assertions = [];
   const testVector = testTextInterpolator`<hello attribute="value"/>`;
 	const expectedResults: BuildStep[] = [
@@ -659,7 +589,7 @@ function parseNodeWithAttributeInjectionsTest() {
   return assertions;
 };
 
-const parseNodeWithAttributeMapInjectionsTest = () => {
+function parseNodeWithAttributeMapInjectionsTest() {
 	const assertions = [];
   const testVector = testTextInterpolator`<hello ${"world"}/>`;
 	const expectedResults: BuildStep[] = [
@@ -706,7 +636,7 @@ const parseNodeWithAttributeMapInjectionsTest = () => {
   return assertions;
 };
 
-const parserCommentTest = () => {
+function parserCommentTest() {
 	const assertions = [];
   const testVector = testTextInterpolator`<-- Hello world! -->`;
 	const expectedResults: BuildStep[] = [
@@ -779,7 +709,7 @@ function parserEmptyTest() {
   return assertions;
 };
 
-const parserEmptyWithInjectionTest = () => {
+function parserEmptyWithInjectionTest() {
 	const assertions = [];
   const testVector = testTextInterpolator`${"buster"}`;
   const expectedResults: BuildStep[] = [
@@ -800,7 +730,7 @@ const parserEmptyWithInjectionTest = () => {
   return assertions;
 };
 
-const parserEmptyWithMultipleInjectionsTest = () => {
+function parserEmptyWithMultipleInjectionsTest() {
 	const assertions = [];
   const testVector = testTextInterpolator`${"yo"}${"buddy"}${"boi"}`;
   const expectedResults: BuildStep[] = [
@@ -824,7 +754,7 @@ const parserEmptyWithMultipleInjectionsTest = () => {
   return assertions;
 };
 
-const parserNestedTemplateWithInjectionsTest = () => {
+function parserNestedTemplateWithInjectionsTest() {
 	const assertions = [];
   const testVector = testTextInterpolator`${"stardust"}
   	<boop sunshine>${"yo"}<beep>hai</beep>
@@ -1097,78 +1027,15 @@ const parserNestedTemplateWithInjectionsTest = () => {
 		{ type: "INJECT", index: 5, state: "DESCENDANT_INJECTION" }
 	];
 
-  console.log(testVector);
-
   const stack: BuildStep[] = [];
-  // this is wrong
-  // should give some kind of feedback
   
   parse(testVector, stack, createDelta(createFromTemplate(testVector)));
-	console.log(stack);
   if (!samestuff(expectedResults, stack)) {
     assertions.push("stack does not match expected results");
   }
 
   return assertions;
 };
-
-/*
-const parseerTextThenNodeTest = () => {
-  const testVector = testTextInterpolator`<Z<hello <howdy>`;
-
-  console.log(testVector);
-
-  const rb = new TestBuilder();
-  parse(testVector, rb, createDelta(createFromTemplate(testVector)));
-  console.log(rb);
-  return ["fail!"];
-};
-
-const parseerTextThenNodeClosedTest = () => {
-  const testVector = testTextInterpolator`<howdy> </ dfsdf </howdy?`;
-
-  console.log(testVector);
-
-  const rb = new TestBuilder();
-  parse(testVector, rb, createDelta(createFromTemplate(testVector)));
-  console.log(rb.builderStack);
-  return ["fail!"];
-};
-
-const parseerTest = () => {
-  const testVector = testTextInterpolator``;
-
-  console.log(testVector);
-
-  const rb = new TestBuilder();
-  parse(testVector, rb, createDelta(createFromTemplate(testVector)));
-  console.log(rb.builderStack);
-  return ["fail!"];
-};
-
-const parseerTest1 = () => {
-  const testVector = testTextInterpolator`${"buster"}`;
-
-  console.log(testVector);
-
-  const rb = new TestBuilder();
-  parse(testVector, rb, createDelta(createFromTemplate(testVector)));
-  console.log(rb.builderStack);
-  return ["fail!"];
-};
-
-const parseerTest2 = () => {
-  const testVector = testTextInterpolator`${"yo"}${"buddy"}${"boi"}`;
-
-  console.log(testVector);
-
-  const rb = new TestBuilder();
-  parse(testVector, rb, createDelta(createFromTemplate(testVector)));
-  console.log(rb.builderStack);
-  return ["fail!"];
-};
-
-*/
 
 const tests = [
   // nodes
@@ -1194,18 +1061,11 @@ const tests = [
   parserCommentTest,
 
   // fail safes
-  // something complicated and nested
-  //
-  // these are failing (passing but shouldnt)
-  // parserNestedTemplateWithInjectionsTest,
-
   parserEmptyTest,
   parserEmptyWithInjectionTest,
   parserEmptyWithMultipleInjectionsTest,
  
- 	// yo yo big dawg test
-  // failing
-	// has to do with initial ${} injections
+  // fail safes
   parserNestedTemplateWithInjectionsTest,
 ];
 
