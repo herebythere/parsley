@@ -3,7 +3,15 @@
 // This code was bundled using `deno bundle` and it's not recommended to edit it manually
 
 const NODE = "NODE";
+const ATTRIBUTE = "ATTRIBUTE";
+const ATTRIBUTE_VALUE = "ATTRIBUTE_VALUE";
 const TEXT = "TEXT";
+const ERROR = "ERROR";
+const NODE_SPACE = "NODE_SPACE";
+const NODE_CLOSED = "NODE_CLOSED";
+const INDEPENDENT_NODE = "INDEPENDENT_NODE";
+const INDEPENDENT_NODE_CLOSED = "INDEPENDENT_NODE_CLOSED";
+const CLOSE_TAGNAME = "CLOSE_TAGNAME";
 const routes = {
     INITIAL: {
         "<": NODE,
@@ -14,80 +22,90 @@ const routes = {
         DEFAULT: TEXT
     },
     NODE: {
-        " ": "ERROR",
+        " ": ERROR,
         "\n": NODE,
-        "/": "NODE_CLOSER",
-        ">": "ERROR",
+        "\t": NODE,
+        "/": "CLOSE_NODE_SLASH",
+        ">": ERROR,
         "-": "COMMENT_0",
         DEFAULT: "TAGNAME"
     },
-    NODE_CLOSER: {
-        " ": "ERROR",
-        DEFAULT: "TAGNAME_CLOSE"
+    CLOSE_NODE_SLASH: {
+        " ": ERROR,
+        DEFAULT: CLOSE_TAGNAME
     },
     TAGNAME: {
-        ">": "CLOSE_NODE",
-        " ": "SPACE_NODE",
-        "\n": "SPACE_NODE",
-        "/": "INDEPENDENT_NODE",
+        ">": NODE_CLOSED,
+        " ": NODE_SPACE,
+        "\n": NODE_SPACE,
+        "\t": NODE_SPACE,
+        "/": INDEPENDENT_NODE,
         DEFAULT: "TAGNAME"
     },
-    TAGNAME_CLOSE: {
-        ">": "CLOSE_NODE_CLOSER",
-        " ": "SPACE_CLOSE_NODE",
-        "\n": "SPACE_CLOSE_NODE",
-        DEFAULT: "TAGNAME_CLOSE"
+    CLOSE_TAGNAME: {
+        ">": "CLOSE_NODE_CLOSED",
+        " ": "CLOSE_NODE_SPACE",
+        "\n": "CLOSE_NODE_SPACE",
+        DEFAULT: CLOSE_TAGNAME
+    },
+    CLOSE_NODE_SPACE: {
+        ">": "CLOSE_NODE_CLOSED",
+        DEFAULT: "CLOSE_NODE_SPACE"
     },
     INDEPENDENT_NODE: {
-        ">": "CLOSE_INDEPENDENT_NODE",
-        DEFAULT: "INDEPENDENT_NODE"
+        ">": INDEPENDENT_NODE_CLOSED,
+        DEFAULT: INDEPENDENT_NODE
     },
-    CLOSE_NODE: {
+    NODE_CLOSED: {
         "<": NODE,
         DEFAULT: TEXT
     },
-    CLOSE_NODE_CLOSER: {
+    CLOSE_NODE_CLOSED: {
         "<": NODE,
         DEFAULT: TEXT
     },
-    CLOSE_INDEPENDENT_NODE: {
+    INDEPENDENT_NODE_CLOSED: {
         "<": NODE,
         DEFAULT: TEXT
     },
-    SPACE_NODE: {
-        ">": "CLOSE_NODE",
-        " ": "SPACE_NODE",
-        "\n": "SPACE_NODE",
-        "/": "INDEPENDENT_NODE",
-        DEFAULT: "ATTRIBUTE"
+    NODE_SPACE: {
+        ">": NODE_CLOSED,
+        " ": NODE_SPACE,
+        "\n": NODE_SPACE,
+        "\t": NODE_SPACE,
+        "/": INDEPENDENT_NODE,
+        DEFAULT: ATTRIBUTE
     },
     ATTRIBUTE: {
-        " ": "SPACE_NODE",
-        "\n": "SPACE_NODE",
+        " ": NODE_SPACE,
+        "\n": NODE_SPACE,
+        "\t": NODE_SPACE,
         "=": "ATTRIBUTE_SETTER",
-        ">": "CLOSE_NODE",
-        DEFAULT: "ATTRIBUTE"
+        ">": NODE_CLOSED,
+        "/": INDEPENDENT_NODE,
+        DEFAULT: ATTRIBUTE
     },
     ATTRIBUTE_SETTER: {
         '"': "ATTRIBUTE_DECLARATION",
-        "\n": "SPACE_NODE",
-        DEFAULT: "SPACE_NODE"
+        "\n": NODE_SPACE,
+        DEFAULT: NODE_SPACE
     },
     ATTRIBUTE_DECLARATION: {
-        '"': "CLOSE_ATTRIBUTE_DECLARATION",
-        DEFAULT: "ATTRIBUTE_VALUE"
+        '"': "ATTRIBUTE_DECLARATION_CLOSE",
+        DEFAULT: ATTRIBUTE_VALUE
     },
     ATTRIBUTE_VALUE: {
-        '"': "CLOSE_ATTRIBUTE_DECLARATION",
-        DEFAULT: "ATTRIBUTE_VALUE"
+        '"': "ATTRIBUTE_DECLARATION_CLOSE",
+        DEFAULT: ATTRIBUTE_VALUE
     },
-    CLOSE_ATTRIBUTE_DECLARATION: {
-        ">": "CLOSE_INDEPENDENT_NODE",
-        DEFAULT: "SPACE_NODE"
+    ATTRIBUTE_DECLARATION_CLOSE: {
+        ">": INDEPENDENT_NODE_CLOSED,
+        "/": INDEPENDENT_NODE,
+        DEFAULT: NODE_SPACE
     },
     COMMENT_0: {
         "-": "COMMENT_1",
-        DEFAULT: "ERROR"
+        DEFAULT: ERROR
     },
     COMMENT_1: {
         "-": "COMMENT_CLOSE",
@@ -99,10 +117,10 @@ const routes = {
     },
     COMMENT_CLOSE: {
         "-": "COMMENT_CLOSE_1",
-        DEFAULT: "ERROR"
+        DEFAULT: ERROR
     },
     COMMENT_CLOSE_1: {
-        ">": "CLOSE_NODE",
+        ">": NODE_CLOSED,
         DEFAULT: "COMMENT"
     }
 };
@@ -124,7 +142,12 @@ const increment = (template, position)=>{
     }
     return position;
 };
-const getChar = (template, position)=>template.templateArray[position.x]?.[position.y];
+const getChar = (template, position)=>{
+    const str = template.templateArray[position.x];
+    if (str === undefined) return;
+    if (str.length === 0) return str;
+    return str[position.y];
+};
 const create = (origin = DEFAULT_POSITION, target = origin)=>({
         origin: {
             ...origin
@@ -138,24 +161,28 @@ const incrementOrigin = (template, vector)=>{
 };
 const injectionMap = new Map([
     [
-        "TAGNAME",
-        "ATTRIBUTE_INJECTION_MAP"
-    ],
-    [
-        "SPACE_NODE",
-        "ATTRIBUTE_INJECTION_MAP"
-    ],
-    [
         "ATTRIBUTE_DECLARATION",
         "ATTRIBUTE_INJECTION"
     ],
     [
-        "CLOSE_NODE",
+        "INDEPENDENT_NODE_CLOSED",
         "DESCENDANT_INJECTION"
     ],
     [
-        "CLOSE_INDEPENDENT_NODE",
+        "NODE_CLOSED",
         "DESCENDANT_INJECTION"
+    ],
+    [
+        "INITIAL",
+        "DESCENDANT_INJECTION"
+    ],
+    [
+        "NODE_SPACE",
+        "ATTRIBUTE_INJECTION_MAP"
+    ],
+    [
+        "TAGNAME",
+        "ATTRIBUTE_INJECTION_MAP"
     ],
     [
         "TEXT",
@@ -166,12 +193,14 @@ function parse(template, builder, delta) {
     do {
         const __char = getChar(template, delta.vector.origin);
         if (__char === undefined) return;
-        delta.prevState = delta.state;
-        delta.state = routes[delta.prevState]?.[__char];
-        if (delta.state === undefined) {
-            delta.state = routes[delta.prevState]?.["DEFAULT"] ?? "ERROR";
+        if (__char !== "") {
+            delta.prevState = delta.state;
+            delta.state = routes[delta.prevState]?.[__char];
+            if (delta.state === undefined) {
+                delta.state = routes[delta.prevState]?.["DEFAULT"] ?? "ERROR";
+            }
+            if (delta.state === "ERROR") return;
         }
-        if (delta.state === "ERROR") return;
         if (delta.prevState !== delta.state) {
             const vector = create(delta.origin, delta.prevPos);
             builder.push({

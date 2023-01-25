@@ -12,5 +12,5 @@ es_test_parsley=$es_dir/parsley.test.js
 deno bundle $parsley $es_pathname 
 deno bundle $parsley_test $es_test_parsley
 
-deno fmt $current_dir
-deno fmt $es_dir
+# deno fmt $current_dir
+# deno fmt $es_dir

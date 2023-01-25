@@ -8,39 +8,37 @@ import {
   incrementOrigin,
 } from "../text_vector/text_vector.ts";
 
+
 const injectionMap = new Map([
-  ["TAGNAME", "ATTRIBUTE_INJECTION_MAP"],
-  ["SPACE_NODE", "ATTRIBUTE_INJECTION_MAP"],
-  ["ATTRIBUTE_DECLARATION", "ATTRIBUTE_INJECTION"],
-  ["CLOSE_NODE", "DESCENDANT_INJECTION"],
-  ["CLOSE_INDEPENDENT_NODE", "DESCENDANT_INJECTION"],
-  ["TEXT", "DESCENDANT_INJECTION"],
+	["ATTRIBUTE_DECLARATION", "ATTRIBUTE_INJECTION"],
+	["INDEPENDENT_NODE_CLOSED", "DESCENDANT_INJECTION"],
+	["NODE_CLOSED", "DESCENDANT_INJECTION"],
+	["INITIAL", "DESCENDANT_INJECTION"],
+	["NODE_SPACE", "ATTRIBUTE_INJECTION_MAP"],
+	["TAGNAME", "ATTRIBUTE_INJECTION_MAP"],
+	["TEXT", "DESCENDANT_INJECTION"],
 ]);
 
-// previous state
 function parse<I>(
   template: Template<I>,
   builder: BuilderInterface,
-  // previous state
   delta: Delta,
 ) {
-  // no delta object just previous state?
-  // delta allows us to reference things from outside of calling function
-  // so no, we need the delta
-
   // iterate across text
   do {
     const char = getChar(template, delta.vector.origin);
     if (char === undefined) return;
-
-    // state swap
-    delta.prevState = delta.state;
-    delta.state = routes[delta.prevState]?.[char];
-    if (delta.state === undefined) {
-      delta.state = routes[delta.prevState]?.["DEFAULT"] ?? "ERROR";
+    
+    // skip empty strings or state swap
+		if (char !== "") {
+		  delta.prevState = delta.state;
+		  delta.state = routes[delta.prevState]?.[char];
+		  if (delta.state === undefined) {
+		    delta.state = routes[delta.prevState]?.["DEFAULT"] ?? "ERROR";
+		  }
+		  if (delta.state === "ERROR") return;
     }
-    if (delta.state === "ERROR") return;
-
+    
     // build
     if (delta.prevState !== delta.state) {
       const vector = create(delta.origin, delta.prevPos);
@@ -74,9 +72,8 @@ function parse<I>(
 
   // get tail end
   if (delta.prevState === delta.state || delta.state === "ERROR") return;
-
+  
   const vector = create(delta.origin, delta.origin);
-
   builder.push({
     type: "BUILD",
     state: delta.state,
