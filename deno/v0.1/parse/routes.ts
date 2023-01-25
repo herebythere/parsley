@@ -6,7 +6,8 @@ import type { Routes } from "../type_flyweight/parse.ts";
 const NODE = "NODE";
 const TEXT = "TEXT";
 const ERROR = "ERROR";
-const NODE_SPACE = "NODE_SPACE"
+const NODE_SPACE = "NODE_SPACE";
+const NODE_CLOSE = "NODE_CLOSE";
 
 const routes: Routes = {
   INITIAL: {
@@ -33,7 +34,7 @@ const routes: Routes = {
     DEFAULT: "TAGNAME_CLOSE",
   },
   TAGNAME: {
-    ">": "CLOSE_NODE",
+    ">": NODE_CLOSE,
     " ": NODE_SPACE,
     "\n": NODE_SPACE,
     "\t": NODE_SPACE,
@@ -50,7 +51,7 @@ const routes: Routes = {
     ">": "CLOSE_INDEPENDENT_NODE",
     DEFAULT: "INDEPENDENT_NODE",
   },
-  CLOSE_NODE: {
+  NODE_CLOSE: {
     "<": NODE,
     DEFAULT: TEXT,
   },
@@ -64,7 +65,7 @@ const routes: Routes = {
   },
   // ATTRIBUTE
   NODE_SPACE: {
-    ">": "CLOSE_NODE",
+    ">": NODE_CLOSE,
     " ": NODE_SPACE,
     "\n": NODE_SPACE,
     "\t": NODE_SPACE,
@@ -76,7 +77,7 @@ const routes: Routes = {
     "\n": NODE_SPACE,
     "\t": NODE_SPACE,
     "=": "ATTRIBUTE_SETTER",
-    ">": "CLOSE_NODE",
+    ">": NODE_CLOSE,
     "/": "INDEPENDENT_NODE",
     DEFAULT: "ATTRIBUTE", // incorrect
   },
@@ -116,7 +117,7 @@ const routes: Routes = {
     DEFAULT: ERROR,
   },
   COMMENT_CLOSE_1: {
-    ">": "CLOSE_NODE",
+    ">": NODE_CLOSE,
     DEFAULT: "COMMENT",
   },
 };

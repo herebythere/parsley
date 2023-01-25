@@ -6,6 +6,7 @@ const NODE = "NODE";
 const TEXT = "TEXT";
 const ERROR = "ERROR";
 const NODE_SPACE = "NODE_SPACE";
+const NODE_CLOSE = "NODE_CLOSE";
 const routes = {
     INITIAL: {
         "<": NODE,
@@ -29,7 +30,7 @@ const routes = {
         DEFAULT: "TAGNAME_CLOSE"
     },
     TAGNAME: {
-        ">": "CLOSE_NODE",
+        ">": NODE_CLOSE,
         " ": NODE_SPACE,
         "\n": NODE_SPACE,
         "\t": NODE_SPACE,
@@ -46,7 +47,7 @@ const routes = {
         ">": "CLOSE_INDEPENDENT_NODE",
         DEFAULT: "INDEPENDENT_NODE"
     },
-    CLOSE_NODE: {
+    NODE_CLOSE: {
         "<": NODE,
         DEFAULT: TEXT
     },
@@ -59,7 +60,7 @@ const routes = {
         DEFAULT: TEXT
     },
     NODE_SPACE: {
-        ">": "CLOSE_NODE",
+        ">": NODE_CLOSE,
         " ": NODE_SPACE,
         "\n": NODE_SPACE,
         "\t": NODE_SPACE,
@@ -71,7 +72,7 @@ const routes = {
         "\n": NODE_SPACE,
         "\t": NODE_SPACE,
         "=": "ATTRIBUTE_SETTER",
-        ">": "CLOSE_NODE",
+        ">": NODE_CLOSE,
         "/": "INDEPENDENT_NODE",
         DEFAULT: "ATTRIBUTE"
     },
@@ -110,7 +111,7 @@ const routes = {
         DEFAULT: ERROR
     },
     COMMENT_CLOSE_1: {
-        ">": "CLOSE_NODE",
+        ">": NODE_CLOSE,
         DEFAULT: "COMMENT"
     }
 };
@@ -159,7 +160,7 @@ const injectionMap = new Map([
         "DESCENDANT_INJECTION"
     ],
     [
-        "CLOSE_NODE",
+        "NODE_CLOSE",
         "DESCENDANT_INJECTION"
     ],
     [

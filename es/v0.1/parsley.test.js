@@ -323,6 +323,7 @@ const NODE = "NODE";
 const TEXT = "TEXT";
 const ERROR = "ERROR";
 const NODE_SPACE = "NODE_SPACE";
+const NODE_CLOSE = "NODE_CLOSE";
 const routes = {
     INITIAL: {
         "<": NODE,
@@ -346,7 +347,7 @@ const routes = {
         DEFAULT: "TAGNAME_CLOSE"
     },
     TAGNAME: {
-        ">": "CLOSE_NODE",
+        ">": NODE_CLOSE,
         " ": NODE_SPACE,
         "\n": NODE_SPACE,
         "\t": NODE_SPACE,
@@ -363,7 +364,7 @@ const routes = {
         ">": "CLOSE_INDEPENDENT_NODE",
         DEFAULT: "INDEPENDENT_NODE"
     },
-    CLOSE_NODE: {
+    NODE_CLOSE: {
         "<": NODE,
         DEFAULT: TEXT
     },
@@ -376,7 +377,7 @@ const routes = {
         DEFAULT: TEXT
     },
     NODE_SPACE: {
-        ">": "CLOSE_NODE",
+        ">": NODE_CLOSE,
         " ": NODE_SPACE,
         "\n": NODE_SPACE,
         "\t": NODE_SPACE,
@@ -388,7 +389,7 @@ const routes = {
         "\n": NODE_SPACE,
         "\t": NODE_SPACE,
         "=": "ATTRIBUTE_SETTER",
-        ">": "CLOSE_NODE",
+        ">": NODE_CLOSE,
         "/": "INDEPENDENT_NODE",
         DEFAULT: "ATTRIBUTE"
     },
@@ -427,7 +428,7 @@ const routes = {
         DEFAULT: ERROR
     },
     COMMENT_CLOSE_1: {
-        ">": "CLOSE_NODE",
+        ">": NODE_CLOSE,
         DEFAULT: "COMMENT"
     }
 };
@@ -441,7 +442,7 @@ const injectionMap = new Map([
         "DESCENDANT_INJECTION"
     ],
     [
-        "CLOSE_NODE",
+        "NODE_CLOSE",
         "DESCENDANT_INJECTION"
     ],
     [
@@ -586,7 +587,7 @@ function parseNodeTest() {
         },
         {
             type: "BUILD",
-            state: "CLOSE_NODE",
+            state: "NODE_CLOSE",
             vector: {
                 origin: {
                     x: 0,
@@ -682,7 +683,7 @@ function parseNodeWithImplicitAttributeTest() {
         },
         {
             type: "BUILD",
-            state: "CLOSE_NODE",
+            state: "NODE_CLOSE",
             vector: {
                 origin: {
                     x: 0,
@@ -792,7 +793,7 @@ function parseNodeWithImplicitAttributeWithSpacesTest() {
         },
         {
             type: "BUILD",
-            state: "CLOSE_NODE",
+            state: "NODE_CLOSE",
             vector: {
                 origin: {
                     x: 0,
@@ -894,7 +895,7 @@ function parseIndependentNodeTest() {
     }
     return assertions;
 }
-const parseIndependentNodeWithImplicitAttributeTest = ()=>{
+function parseIndependentNodeWithImplicitAttributeTest() {
     const assertions = [];
     const testVector = testTextInterpolator1`<hello attribute/>`;
     const expectedResults = [
@@ -1003,7 +1004,7 @@ const parseIndependentNodeWithImplicitAttributeTest = ()=>{
         assertions.push("stack does not match expected results");
     }
     return assertions;
-};
+}
 function parseIndependentNodeWithImplicitAttributeWithSpacesTest() {
     const assertions = [];
     const testVector = testTextInterpolator1`<hello  attribute  />`;
@@ -1128,7 +1129,7 @@ function parseIndependentNodeWithImplicitAttributeWithSpacesTest() {
     }
     return assertions;
 }
-const parseExplicitAttributeTest = ()=>{
+function parseExplicitAttributeTest() {
     const assertions = [];
     const testVector = testTextInterpolator1`<hello attribute="value"/>`;
     const expectedResults = [
@@ -1293,7 +1294,7 @@ const parseExplicitAttributeTest = ()=>{
         assertions.push("stack does not match expected results");
     }
     return assertions;
-};
+}
 function parseExplicitAttributeWithSpacesTest() {
     const assertions = [];
     const testVector = testTextInterpolator1`<hello  attribute="value"  />`;
@@ -1522,7 +1523,7 @@ function parseNodeInjectionsTest() {
         },
         {
             type: "BUILD",
-            state: "CLOSE_NODE",
+            state: "NODE_CLOSE",
             vector: {
                 origin: {
                     x: 0,
@@ -1760,7 +1761,7 @@ function parseNodeWithAttributeInjectionsTest() {
     }
     return assertions;
 }
-const parseNodeWithAttributeMapInjectionsTest = ()=>{
+function parseNodeWithAttributeMapInjectionsTest() {
     const assertions = [];
     const testVector = testTextInterpolator1`<hello ${"world"}/>`;
     const expectedResults = [
@@ -1860,8 +1861,8 @@ const parseNodeWithAttributeMapInjectionsTest = ()=>{
         assertions.push("stack does not match expected results");
     }
     return assertions;
-};
-const parserCommentTest = ()=>{
+}
+function parseCommentTest() {
     const assertions = [];
     const testVector = testTextInterpolator1`<-- Hello world! -->`;
     const expectedResults = [
@@ -1965,7 +1966,7 @@ const parserCommentTest = ()=>{
         },
         {
             type: "BUILD",
-            state: "CLOSE_NODE",
+            state: "NODE_CLOSE",
             vector: {
                 origin: {
                     x: 0,
@@ -1984,20 +1985,19 @@ const parserCommentTest = ()=>{
         assertions.push("stack does not match expected results");
     }
     return assertions;
-};
-function parserEmptyTest() {
+}
+function parseEmptyTest() {
     const assertions = [];
     const testVector = testTextInterpolator1``;
     const expectedResults = [];
     const stack = [];
     parse(testVector, stack, createDelta(createFromTemplate(testVector)));
-    console.log(stack);
     if (!samestuff(expectedResults, stack)) {
         assertions.push("stack does not match expected results");
     }
     return assertions;
 }
-const parserEmptyWithInjectionTest = ()=>{
+function parseEmptyWithInjectionTest() {
     const assertions = [];
     const testVector = testTextInterpolator1`${"buster"}`;
     const expectedResults = [
@@ -2009,13 +2009,12 @@ const parserEmptyWithInjectionTest = ()=>{
     ];
     const stack = [];
     parse(testVector, stack, createDelta(createFromTemplate(testVector)));
-    console.log(stack);
     if (!samestuff(expectedResults, stack)) {
         assertions.push("stack does not match expected results");
     }
     return assertions;
-};
-const parserEmptyWithMultipleInjectionsTest = ()=>{
+}
+function parseEmptyWithMultipleInjectionsTest() {
     const assertions = [];
     const testVector = testTextInterpolator1`${"yo"}${"buddy"}${"boi"}`;
     const expectedResults = [
@@ -2041,8 +2040,8 @@ const parserEmptyWithMultipleInjectionsTest = ()=>{
         assertions.push("stack does not match expected results");
     }
     return assertions;
-};
-const parserNestedTemplateWithInjectionsTest = ()=>{
+}
+function parseNestedTemplateWithInjectionsTest() {
     const assertions = [];
     const testVector = testTextInterpolator1`${"stardust"}
   	<boop sunshine>${"yo"}<beep>hai</beep>
@@ -2143,7 +2142,7 @@ const parserNestedTemplateWithInjectionsTest = ()=>{
         },
         {
             type: "BUILD",
-            state: "CLOSE_NODE",
+            state: "NODE_CLOSE",
             vector: {
                 origin: {
                     x: 1,
@@ -2190,7 +2189,7 @@ const parserNestedTemplateWithInjectionsTest = ()=>{
         },
         {
             type: "BUILD",
-            state: "CLOSE_NODE",
+            state: "NODE_CLOSE",
             vector: {
                 origin: {
                     x: 2,
@@ -2335,7 +2334,7 @@ const parserNestedTemplateWithInjectionsTest = ()=>{
         },
         {
             type: "BUILD",
-            state: "CLOSE_NODE",
+            state: "NODE_CLOSE",
             vector: {
                 origin: {
                     x: 3,
@@ -2606,7 +2605,7 @@ const parserNestedTemplateWithInjectionsTest = ()=>{
         },
         {
             type: "BUILD",
-            state: "CLOSE_NODE",
+            state: "NODE_CLOSE",
             vector: {
                 origin: {
                     x: 4,
@@ -2803,7 +2802,7 @@ const parserNestedTemplateWithInjectionsTest = ()=>{
         assertions.push("stack does not match expected results");
     }
     return assertions;
-};
+}
 const tests1 = [
     parseNodeTest,
     parseNodeWithImplicitAttributeTest,
@@ -2816,11 +2815,11 @@ const tests1 = [
     parseNodeInjectionsTest,
     parseNodeWithAttributeInjectionsTest,
     parseNodeWithAttributeMapInjectionsTest,
-    parserCommentTest,
-    parserEmptyTest,
-    parserEmptyWithInjectionTest,
-    parserEmptyWithMultipleInjectionsTest,
-    parserNestedTemplateWithInjectionsTest
+    parseCommentTest,
+    parseEmptyTest,
+    parseEmptyWithInjectionTest,
+    parseEmptyWithMultipleInjectionsTest,
+    parseNestedTemplateWithInjectionsTest
 ];
 const unitTestParse = {
     title: title1,

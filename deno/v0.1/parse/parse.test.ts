@@ -57,7 +57,7 @@ function parseNodeTest() {
     },
     {
       type: "BUILD",
-      state: "CLOSE_NODE",
+      state: "NODE_CLOSE",
       vector: { origin: { x: 0, y: 6 }, target: { x: 0, y: 6 } },
     },
   ];
@@ -103,7 +103,7 @@ function parseNodeWithImplicitAttributeTest() {
 		},
 		{
 		  type: "BUILD",
-		  state: "CLOSE_NODE",
+		  state: "NODE_CLOSE",
 		  vector: { origin: { x: 0, y: 16 }, target: { x: 0, y: 16 } }
 		}
 	];
@@ -154,7 +154,7 @@ function parseNodeWithImplicitAttributeWithSpacesTest() {
 		},
 		{
 		  type: "BUILD",
-		  state: "CLOSE_NODE",
+		  state: "NODE_CLOSE",
 		  vector: { origin: { x: 0, y: 19 }, target: { x: 0, y: 19 } }
 		}
 	];
@@ -491,7 +491,7 @@ function parseNodeInjectionsTest() {
 		},
 		{
 		  type: "BUILD",
-		  state: "CLOSE_NODE",
+		  state: "NODE_CLOSE",
 		  vector: { origin: { x: 0, y: 6 }, target: { x: 0, y: 6 } }
 		},
 		{ type: "INJECT", index: 0, state: "DESCENDANT_INJECTION" },
@@ -643,7 +643,7 @@ function parseNodeWithAttributeMapInjectionsTest() {
 
 // comments
 
-function parserCommentTest() {
+function parseCommentTest() {
 	const assertions = [];
   const testVector = testTextInterpolator`<-- Hello world! -->`;
 	const expectedResults: BuildStep[] = [
@@ -684,7 +684,7 @@ function parserCommentTest() {
 		},
 		{
 		  type: "BUILD",
-		  state: "CLOSE_NODE",
+		  state: "NODE_CLOSE",
 		  vector: { origin: { x: 0, y: 19 }, target: { x: 0, y: 19 } }
 		}
 	];
@@ -701,7 +701,7 @@ function parserCommentTest() {
 
 // fail safes
 
-function parserEmptyTest() {
+function parseEmptyTest() {
 	const assertions = [];
   const testVector = testTextInterpolator``;
   const expectedResults: BuildStep[] = [];
@@ -717,7 +717,7 @@ function parserEmptyTest() {
   return assertions;
 };
 
-function parserEmptyWithInjectionTest() {
+function parseEmptyWithInjectionTest() {
 	const assertions = [];
   const testVector = testTextInterpolator`${"buster"}`;
   const expectedResults: BuildStep[] = [
@@ -735,7 +735,7 @@ function parserEmptyWithInjectionTest() {
   return assertions;
 };
 
-function parserEmptyWithMultipleInjectionsTest() {
+function parseEmptyWithMultipleInjectionsTest() {
 	const assertions = [];
   const testVector = testTextInterpolator`${"yo"}${"buddy"}${"boi"}`;
   const expectedResults: BuildStep[] = [
@@ -757,7 +757,7 @@ function parserEmptyWithMultipleInjectionsTest() {
 
 // real world
 
-function parserNestedTemplateWithInjectionsTest() {
+function parseNestedTemplateWithInjectionsTest() {
 	const assertions = [];
   const testVector = testTextInterpolator`${"stardust"}
   	<boop sunshine>${"yo"}<beep>hai</beep>
@@ -800,7 +800,7 @@ function parserNestedTemplateWithInjectionsTest() {
 		},
 		{
 		  type: "BUILD",
-		  state: "CLOSE_NODE",
+		  state: "NODE_CLOSE",
 		  vector: { origin: { x: 1, y: 18 }, target: { x: 1, y: 18 } }
 		},
 		{ type: "INJECT", index: 1, state: "DESCENDANT_INJECTION" },
@@ -816,7 +816,7 @@ function parserNestedTemplateWithInjectionsTest() {
 		},
 		{
 		  type: "BUILD",
-		  state: "CLOSE_NODE",
+		  state: "NODE_CLOSE",
 		  vector: { origin: { x: 2, y: 5 }, target: { x: 2, y: 5 } }
 		},
 		{
@@ -867,7 +867,7 @@ function parserNestedTemplateWithInjectionsTest() {
 		{ type: "INJECT", index: 2, state: "ATTRIBUTE_INJECTION_MAP" },
 		{
 		  type: "BUILD",
-		  state: "CLOSE_NODE",
+		  state: "NODE_CLOSE",
 		  vector: { origin: { x: 3, y: 0 }, target: { x: 3, y: 0 } }
 		},
 		{ type: "INJECT", index: 3, state: "DESCENDANT_INJECTION" },
@@ -963,7 +963,7 @@ function parserNestedTemplateWithInjectionsTest() {
 		},
 		{
 		  type: "BUILD",
-		  state: "CLOSE_NODE",
+		  state: "NODE_CLOSE",
 		  vector: { origin: { x: 4, y: 45 }, target: { x: 4, y: 45 } }
 		},
 		{
@@ -1061,15 +1061,15 @@ const tests = [
   parseNodeWithAttributeMapInjectionsTest,
 
   // comments
-  parserCommentTest,
+  parseCommentTest,
 
   // fail safes
-  parserEmptyTest,
-  parserEmptyWithInjectionTest,
-  parserEmptyWithMultipleInjectionsTest,
+  parseEmptyTest,
+  parseEmptyWithInjectionTest,
+  parseEmptyWithMultipleInjectionsTest,
  
   // real world
-  parserNestedTemplateWithInjectionsTest,
+  parseNestedTemplateWithInjectionsTest,
 ];
 
 const unitTestParse = {
