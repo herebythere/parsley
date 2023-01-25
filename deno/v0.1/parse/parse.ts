@@ -9,14 +9,17 @@ import {
 } from "../text_vector/text_vector.ts";
 
 const injectionMap = new Map([
-  ["TAGNAME", "ATTRIBUTE_INJECTION_MAP"],
-  ["SPACE_NODE", "ATTRIBUTE_INJECTION_MAP"],
-  ["ATTRIBUTE_DECLARATION", "ATTRIBUTE_INJECTION"],
-  ["CLOSE_NODE", "DESCENDANT_INJECTION"],
-  ["CLOSE_INDEPENDENT_NODE", "DESCENDANT_INJECTION"],
-  ["INITIAL", "DESCENDANT_INJECTION"],
-  ["TEXT", "DESCENDANT_INJECTION"],
+	["ATTRIBUTE_DECLARATION", "ATTRIBUTE_INJECTION"],
+	["CLOSE_INDEPENDENT_NODE", "DESCENDANT_INJECTION"],
+	["CLOSE_NODE", "DESCENDANT_INJECTION"],
+	["INITIAL", "DESCENDANT_INJECTION"],
+	["NODE_SPACE", "ATTRIBUTE_INJECTION_MAP"],
+	["TAGNAME", "ATTRIBUTE_INJECTION_MAP"],
+	["TEXT", "DESCENDANT_INJECTION"],
 ]);
+
+// special case "" empty string between injections
+// just do ptrevious state
 
 // previous state
 function parse<I>(
@@ -29,17 +32,19 @@ function parse<I>(
   do {
   	console.log("getChar", delta.vector.origin);
     const char = getChar(template, delta.vector.origin);
-    console.log("char: ", char);
-    if (char === undefined) continue;
-
-    // state swap
-    delta.prevState = delta.state;
-    delta.state = routes[delta.prevState]?.[char];
-    if (delta.state === undefined) {
-      delta.state = routes[delta.prevState]?.["DEFAULT"] ?? "ERROR";
+    // if (char === undefined) continue;
+    if (char === undefined) return;
+    
+		if (char !== "") {
+		  // state swap
+		  delta.prevState = delta.state;
+		  delta.state = routes[delta.prevState]?.[char];
+		  if (delta.state === undefined) {
+		    delta.state = routes[delta.prevState]?.["DEFAULT"] ?? "ERROR";
+		  }
+		  if (delta.state === "ERROR") return;
     }
-    if (delta.state === "ERROR") return;
-
+    
     // build
     if (delta.prevState !== delta.state) {
       const vector = create(delta.origin, delta.prevPos);
@@ -52,7 +57,7 @@ function parse<I>(
     // inject
     if (delta.prevPos.x < delta.vector.origin.x) {
     	console.log("made it to injections!");
-      if (delta.prevState === "TEXT" || delta.prevState === "INITIAL") {
+      if (delta.prevState === "TEXT") {
         const vector = create(delta.origin, delta.prevPos);
         builder.push({ type: "BUILD", state: "TEXT", vector });
 
@@ -75,6 +80,8 @@ function parse<I>(
   // get tail end
   if (delta.prevState === delta.state || delta.state === "ERROR") return;
 
+	console.log("doing something at the end!");
+	console.log(delta);
 	// this could be an injection state
   const vector = create(delta.origin, delta.origin);
 

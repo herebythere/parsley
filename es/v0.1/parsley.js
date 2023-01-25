@@ -4,6 +4,8 @@
 
 const NODE = "NODE";
 const TEXT = "TEXT";
+const ERROR = "ERROR";
+const NODE_SPACE = "NODE_SPACE";
 const routes = {
     INITIAL: {
         "<": NODE,
@@ -14,21 +16,23 @@ const routes = {
         DEFAULT: TEXT
     },
     NODE: {
-        " ": "ERROR",
+        " ": ERROR,
         "\n": NODE,
+        "\t": NODE,
         "/": "NODE_CLOSER",
-        ">": "ERROR",
+        ">": ERROR,
         "-": "COMMENT_0",
         DEFAULT: "TAGNAME"
     },
     NODE_CLOSER: {
-        " ": "ERROR",
+        " ": ERROR,
         DEFAULT: "TAGNAME_CLOSE"
     },
     TAGNAME: {
         ">": "CLOSE_NODE",
-        " ": "SPACE_NODE",
-        "\n": "SPACE_NODE",
+        " ": NODE_SPACE,
+        "\n": NODE_SPACE,
+        "\t": NODE_SPACE,
         "/": "INDEPENDENT_NODE",
         DEFAULT: "TAGNAME"
     },
@@ -54,16 +58,18 @@ const routes = {
         "<": NODE,
         DEFAULT: TEXT
     },
-    SPACE_NODE: {
+    NODE_SPACE: {
         ">": "CLOSE_NODE",
-        " ": "SPACE_NODE",
-        "\n": "SPACE_NODE",
+        " ": NODE_SPACE,
+        "\n": NODE_SPACE,
+        "\t": NODE_SPACE,
         "/": "INDEPENDENT_NODE",
         DEFAULT: "ATTRIBUTE"
     },
     ATTRIBUTE: {
-        " ": "SPACE_NODE",
-        "\n": "SPACE_NODE",
+        " ": NODE_SPACE,
+        "\n": NODE_SPACE,
+        "\t": NODE_SPACE,
         "=": "ATTRIBUTE_SETTER",
         ">": "CLOSE_NODE",
         "/": "INDEPENDENT_NODE",
@@ -71,8 +77,8 @@ const routes = {
     },
     ATTRIBUTE_SETTER: {
         '"': "ATTRIBUTE_DECLARATION",
-        "\n": "SPACE_NODE",
-        DEFAULT: "SPACE_NODE"
+        "\n": NODE_SPACE,
+        DEFAULT: NODE_SPACE
     },
     ATTRIBUTE_DECLARATION: {
         '"': "CLOSE_ATTRIBUTE_DECLARATION",
@@ -85,11 +91,11 @@ const routes = {
     CLOSE_ATTRIBUTE_DECLARATION: {
         ">": "CLOSE_INDEPENDENT_NODE",
         "/": "INDEPENDENT_NODE",
-        DEFAULT: "SPACE_NODE"
+        DEFAULT: NODE_SPACE
     },
     COMMENT_0: {
         "-": "COMMENT_1",
-        DEFAULT: "ERROR"
+        DEFAULT: ERROR
     },
     COMMENT_1: {
         "-": "COMMENT_CLOSE",
@@ -101,7 +107,7 @@ const routes = {
     },
     COMMENT_CLOSE: {
         "-": "COMMENT_CLOSE_1",
-        DEFAULT: "ERROR"
+        DEFAULT: ERROR
     },
     COMMENT_CLOSE_1: {
         ">": "CLOSE_NODE",
@@ -128,10 +134,9 @@ const increment = (template, position)=>{
 };
 const getChar = (template, position)=>{
     const str = template.templateArray[position.x];
-    if (str?.length === 0) {
-        return "";
-    }
-    return str?.[position.y];
+    if (str === undefined) return;
+    if (str.length === 0) return "";
+    return str[position.y];
 };
 const create = (origin = DEFAULT_POSITION, target = origin)=>({
         origin: {
@@ -146,28 +151,28 @@ const incrementOrigin = (template, vector)=>{
 };
 const injectionMap = new Map([
     [
-        "TAGNAME",
-        "ATTRIBUTE_INJECTION_MAP"
-    ],
-    [
-        "SPACE_NODE",
-        "ATTRIBUTE_INJECTION_MAP"
-    ],
-    [
         "ATTRIBUTE_DECLARATION",
         "ATTRIBUTE_INJECTION"
-    ],
-    [
-        "CLOSE_NODE",
-        "DESCENDANT_INJECTION"
     ],
     [
         "CLOSE_INDEPENDENT_NODE",
         "DESCENDANT_INJECTION"
     ],
     [
+        "CLOSE_NODE",
+        "DESCENDANT_INJECTION"
+    ],
+    [
         "INITIAL",
         "DESCENDANT_INJECTION"
+    ],
+    [
+        "NODE_SPACE",
+        "ATTRIBUTE_INJECTION_MAP"
+    ],
+    [
+        "TAGNAME",
+        "ATTRIBUTE_INJECTION_MAP"
     ],
     [
         "TEXT",
@@ -178,14 +183,15 @@ function parse(template, builder, delta) {
     do {
         console.log("getChar", delta.vector.origin);
         const __char = getChar(template, delta.vector.origin);
-        console.log("char: ", __char);
-        if (__char === undefined) continue;
-        delta.prevState = delta.state;
-        delta.state = routes[delta.prevState]?.[__char];
-        if (delta.state === undefined) {
-            delta.state = routes[delta.prevState]?.["DEFAULT"] ?? "ERROR";
+        if (__char === undefined) return;
+        if (__char !== "") {
+            delta.prevState = delta.state;
+            delta.state = routes[delta.prevState]?.[__char];
+            if (delta.state === undefined) {
+                delta.state = routes[delta.prevState]?.["DEFAULT"] ?? "ERROR";
+            }
+            if (delta.state === "ERROR") return;
         }
-        if (delta.state === "ERROR") return;
         if (delta.prevState !== delta.state) {
             const vector = create(delta.origin, delta.prevPos);
             builder.push({
@@ -198,7 +204,7 @@ function parse(template, builder, delta) {
         }
         if (delta.prevPos.x < delta.vector.origin.x) {
             console.log("made it to injections!");
-            if (delta.prevState === "TEXT" || delta.prevState === "INITIAL") {
+            if (delta.prevState === "TEXT") {
                 const vector1 = create(delta.origin, delta.prevPos);
                 builder.push({
                     type: "BUILD",
@@ -222,6 +228,8 @@ function parse(template, builder, delta) {
         delta.prevPos.y = delta.vector.origin.y;
     }while (delta.state !== "ERROR" && incrementOrigin(template, delta.vector))
     if (delta.prevState === delta.state || delta.state === "ERROR") return;
+    console.log("doing something at the end!");
+    console.log(delta);
     const vector2 = create(delta.origin, delta.origin);
     builder.push({
         type: "BUILD",

@@ -5,6 +5,8 @@ import type { Routes } from "../type_flyweight/parse.ts";
 
 const NODE = "NODE";
 const TEXT = "TEXT";
+const ERROR = "ERROR";
+const NODE_SPACE = "NODE_SPACE"
 
 const routes: Routes = {
   INITIAL: {
@@ -18,21 +20,23 @@ const routes: Routes = {
   },
   // NODE
   NODE: {
-    " ": "ERROR",
+    " ": ERROR,
     "\n": NODE,
+    "\t": NODE,
     "/": "NODE_CLOSER",
-    ">": "ERROR",
+    ">": ERROR,
     "-": "COMMENT_0",
     DEFAULT: "TAGNAME",
   },
   NODE_CLOSER: {
-    " ": "ERROR",
+    " ": ERROR,
     DEFAULT: "TAGNAME_CLOSE",
   },
   TAGNAME: {
     ">": "CLOSE_NODE",
-    " ": "SPACE_NODE",
-    "\n": "SPACE_NODE",
+    " ": NODE_SPACE,
+    "\n": NODE_SPACE,
+    "\t": NODE_SPACE,
     "/": "INDEPENDENT_NODE",
     DEFAULT: "TAGNAME",
   },
@@ -59,16 +63,18 @@ const routes: Routes = {
     DEFAULT: TEXT,
   },
   // ATTRIBUTE
-  SPACE_NODE: {
+  NODE_SPACE: {
     ">": "CLOSE_NODE",
-    " ": "SPACE_NODE",
-    "\n": "SPACE_NODE",
+    " ": NODE_SPACE,
+    "\n": NODE_SPACE,
+    "\t": NODE_SPACE,
     "/": "INDEPENDENT_NODE",
     DEFAULT: "ATTRIBUTE",
   },
   ATTRIBUTE: {
-    " ": "SPACE_NODE",
-    "\n": "SPACE_NODE",
+    " ": NODE_SPACE,
+    "\n": NODE_SPACE,
+    "\t": NODE_SPACE,
     "=": "ATTRIBUTE_SETTER",
     ">": "CLOSE_NODE",
     "/": "INDEPENDENT_NODE",
@@ -76,8 +82,8 @@ const routes: Routes = {
   },
   ATTRIBUTE_SETTER: {
     '"': "ATTRIBUTE_DECLARATION",
-    "\n": "SPACE_NODE",
-    DEFAULT: "SPACE_NODE",
+    "\n": NODE_SPACE,
+    DEFAULT: NODE_SPACE,
   },
   ATTRIBUTE_DECLARATION: {
     '"': "CLOSE_ATTRIBUTE_DECLARATION",
@@ -90,12 +96,12 @@ const routes: Routes = {
   CLOSE_ATTRIBUTE_DECLARATION: {
     ">": "CLOSE_INDEPENDENT_NODE",
     "/": "INDEPENDENT_NODE",
-    DEFAULT: "SPACE_NODE",
+    DEFAULT: NODE_SPACE,
   },
   // comments
   COMMENT_0: {
     "-": "COMMENT_1",
-    DEFAULT: "ERROR",
+    DEFAULT: ERROR,
   },
   COMMENT_1: {
     "-": "COMMENT_CLOSE",
@@ -107,7 +113,7 @@ const routes: Routes = {
   },
   COMMENT_CLOSE: {
     "-": "COMMENT_CLOSE_1",
-    DEFAULT: "ERROR",
+    DEFAULT: ERROR,
   },
   COMMENT_CLOSE_1: {
     ">": "CLOSE_NODE",

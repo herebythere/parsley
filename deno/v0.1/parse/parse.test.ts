@@ -162,7 +162,7 @@ function parseNodeWithImplicitAttributeTest() {
 		},
 		{
 		  type: "BUILD",
-		  state: "SPACE_NODE",
+		  state: "NODE_SPACE",
 		  vector: { origin: { x: 0, y: 6 }, target: { x: 0, y: 6 } }
 		},
 		{
@@ -208,7 +208,7 @@ function parseNodeWithImplicitAttributeWithSpacesTest() {
 		},
 		{
 		  type: "BUILD",
-		  state: "SPACE_NODE",
+		  state: "NODE_SPACE",
 		  vector: { origin: { x: 0, y: 6 }, target: { x: 0, y: 7 } }
 		},
 		{
@@ -218,7 +218,7 @@ function parseNodeWithImplicitAttributeWithSpacesTest() {
 		},
 		{
 		  type: "BUILD",
-		  state: "SPACE_NODE",
+		  state: "NODE_SPACE",
 		  vector: { origin: { x: 0, y: 17 }, target: { x: 0, y: 18 } }
 		},
 		{
@@ -300,7 +300,7 @@ const parseIndependentNodeWithImplicitAttributeTest = () => {
 		},
 		{
 		  type: "BUILD",
-		  state: "SPACE_NODE",
+		  state: "NODE_SPACE",
 		  vector: { origin: { x: 0, y: 6 }, target: { x: 0, y: 6 } }
 		},
 		{
@@ -351,7 +351,7 @@ function parseIndependentNodeWithImplicitAttributeWithSpacesTest() {
 		},
 		{
 		  type: "BUILD",
-		  state: "SPACE_NODE",
+		  state: "NODE_SPACE",
 		  vector: { origin: { x: 0, y: 6 }, target: { x: 0, y: 7 } }
 		},
 		{
@@ -361,7 +361,7 @@ function parseIndependentNodeWithImplicitAttributeWithSpacesTest() {
 		},
 		{
 		  type: "BUILD",
-		  state: "SPACE_NODE",
+		  state: "NODE_SPACE",
 		  vector: { origin: { x: 0, y: 17 }, target: { x: 0, y: 18 } }
 		},
 		{
@@ -407,7 +407,7 @@ const parseExplicitAttributeTest = () => {
 		},
 		{
 		  type: "BUILD",
-		  state: "SPACE_NODE",
+		  state: "NODE_SPACE",
 		  vector: { origin: { x: 0, y: 6 }, target: { x: 0, y: 6 } }
 		},
 		{
@@ -480,7 +480,7 @@ function parseExplicitAttributeWithSpacesTest() {
 		},
 		{
 		  type: "BUILD",
-		  state: "SPACE_NODE",
+		  state: "NODE_SPACE",
 		  vector: { origin: { x: 0, y: 6 }, target: { x: 0, y: 7 } }
 		},
 		{
@@ -510,7 +510,7 @@ function parseExplicitAttributeWithSpacesTest() {
 		},
 		{
 		  type: "BUILD",
-		  state: "SPACE_NODE",
+		  state: "NODE_SPACE",
 		  vector: { origin: { x: 0, y: 25 }, target: { x: 0, y: 26 } }
 		},
 		{
@@ -613,7 +613,7 @@ function parseNodeWithAttributeInjectionsTest() {
 		},
 		{
 		  type: "BUILD",
-		  state: "SPACE_NODE",
+		  state: "NODE_SPACE",
 		  vector: { origin: { x: 0, y: 6 }, target: { x: 0, y: 6 } }
 		},
 		{
@@ -680,7 +680,7 @@ const parseNodeWithAttributeMapInjectionsTest = () => {
 		},
 		{
 		  type: "BUILD",
-		  state: "SPACE_NODE",
+		  state: "NODE_SPACE",
 		  vector: { origin: { x: 0, y: 6 }, target: { x: 0, y: 6 } }
 		},
 		{ type: "INJECT", index: 0, state: "ATTRIBUTE_INJECTION_MAP" },
@@ -768,8 +768,9 @@ function parserEmptyTest() {
   const expectedResults: BuildStep[] = [];
 
   const stack: BuildStep[] = [];
+  
   parse(testVector, stack, createDelta(createFromTemplate(testVector)));
-	// console.log(stack);
+	console.log(stack);
 	// this is wrong, should give us something but we got nothing
   if (!samestuff(expectedResults, stack)) {
     assertions.push("stack does not match expected results");
@@ -781,12 +782,15 @@ function parserEmptyTest() {
 const parserEmptyWithInjectionTest = () => {
 	const assertions = [];
   const testVector = testTextInterpolator`${"buster"}`;
-  const expectedResults: BuildStep[] = [];
+  const expectedResults: BuildStep[] = [
+  	{ type: "INJECT", index: 0, state: "DESCENDANT_INJECTION" }
+  ];
   // console.log(testVector);
 
 	// this is wrong
 	// should give us an injection step
   const stack: BuildStep[] = [];
+  
   parse(testVector, stack, createDelta(createFromTemplate(testVector)));
 	console.log(stack);
   if (!samestuff(expectedResults, stack)) {
@@ -799,7 +803,11 @@ const parserEmptyWithInjectionTest = () => {
 const parserEmptyWithMultipleInjectionsTest = () => {
 	const assertions = [];
   const testVector = testTextInterpolator`${"yo"}${"buddy"}${"boi"}`;
-  const expectedResults: BuildStep[] = [];
+  const expectedResults: BuildStep[] = [
+		{ type: "INJECT", index: 0, state: "DESCENDANT_INJECTION" },
+		{ type: "INJECT", index: 1, state: "DESCENDANT_INJECTION" },
+		{ type: "INJECT", index: 2, state: "DESCENDANT_INJECTION" }
+	];
   
   console.log(testVector);
 
@@ -902,39 +910,38 @@ const parseerTest2 = () => {
 */
 
 const tests = [
-	/*
   // nodes
   parseNodeTest,
   parseNodeWithImplicitAttributeTest,
   parseNodeWithImplicitAttributeWithSpacesTest,
-  
+	
   // independent nodes
   parseIndependentNodeTest,
   parseIndependentNodeWithImplicitAttributeTest,
   parseIndependentNodeWithImplicitAttributeWithSpacesTest,
-  
+
   // explicit attributes
   parseExplicitAttributeTest,
   parseExplicitAttributeWithSpacesTest,
-  
+
   // injections
   parseNodeInjectionsTest,
   parseNodeWithAttributeInjectionsTest,
   parseNodeWithAttributeMapInjectionsTest,
-  
+
   // comments
   parserCommentTest,
-  */
+
   // fail safes
   // something complicated and nested
   //
   // these are failing (passing but shouldnt)
-  parserNestedTemplateWithInjectionsTest,
-  /*
-  parserEmptyTest,
+  // parserNestedTemplateWithInjectionsTest,
+
+  // parserEmptyTest,
   parserEmptyWithInjectionTest,
-  parserEmptyWithMultipleInjectionsTest,
-  
+  // parserEmptyWithMultipleInjectionsTest,
+  /*
   // yo yo big dawg test
   // failing
 	// has to do with initial ${} injections
