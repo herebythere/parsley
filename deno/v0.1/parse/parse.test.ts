@@ -35,6 +35,7 @@ function createDelta(vector: Vector): Delta {
   };
 }
 
+// nodes
 function parseNodeTest() {
   const assertions = [];
   const testVector = testTextInterpolator`<hello>`;
@@ -168,6 +169,8 @@ function parseNodeWithImplicitAttributeWithSpacesTest() {
   return assertions;
 };
 
+// independent nodes
+  
 function parseIndependentNodeTest() {
 	const assertions = [];
   const testVector = testTextInterpolator`<hello/>`;
@@ -316,6 +319,8 @@ function parseIndependentNodeWithImplicitAttributeWithSpacesTest() {
   return assertions;
 };
 
+// explicit attributes
+
 function parseExplicitAttributeTest() {
 	const assertions = [];
   const testVector = testTextInterpolator`<hello attribute="value"/>`;
@@ -365,13 +370,11 @@ function parseExplicitAttributeTest() {
 		  state: "CLOSE_ATTRIBUTE_DECLARATION",
 		  vector: { origin: { x: 0, y: 23 }, target: { x: 0, y: 23 } }
 		},
-		// independent node closer
 		{
 		  type: "BUILD",
 		  state: "INDEPENDENT_NODE",
 		  vector: { origin: { x: 0, y: 24 }, target: { x: 0, y: 24 } }
 		},
-		// close independent node
 		{
 		  type: "BUILD",
 		  state: "CLOSE_INDEPENDENT_NODE",
@@ -464,6 +467,8 @@ function parseExplicitAttributeWithSpacesTest() {
 
   return assertions;
 };
+
+// injections
 
 function parseNodeInjectionsTest() {
 	const assertions = [];
@@ -636,6 +641,8 @@ function parseNodeWithAttributeMapInjectionsTest() {
   return assertions;
 };
 
+// comments
+
 function parserCommentTest() {
 	const assertions = [];
   const testVector = testTextInterpolator`<-- Hello world! -->`;
@@ -692,6 +699,8 @@ function parserCommentTest() {
   return assertions;
 };
 
+// fail safes
+
 function parserEmptyTest() {
 	const assertions = [];
   const testVector = testTextInterpolator``;
@@ -700,8 +709,7 @@ function parserEmptyTest() {
   const stack: BuildStep[] = [];
   
   parse(testVector, stack, createDelta(createFromTemplate(testVector)));
-	console.log(stack);
-	// this is wrong, should give us something but we got nothing
+
   if (!samestuff(expectedResults, stack)) {
     assertions.push("stack does not match expected results");
   }
@@ -715,14 +723,11 @@ function parserEmptyWithInjectionTest() {
   const expectedResults: BuildStep[] = [
   	{ type: "INJECT", index: 0, state: "DESCENDANT_INJECTION" }
   ];
-  // console.log(testVector);
 
-	// this is wrong
-	// should give us an injection step
   const stack: BuildStep[] = [];
   
   parse(testVector, stack, createDelta(createFromTemplate(testVector)));
-	console.log(stack);
+
   if (!samestuff(expectedResults, stack)) {
     assertions.push("stack does not match expected results");
   }
@@ -739,20 +744,18 @@ function parserEmptyWithMultipleInjectionsTest() {
 		{ type: "INJECT", index: 2, state: "DESCENDANT_INJECTION" }
 	];
   
-  // console.log(testVector);
-
   const stack: BuildStep[] = [];
-  // this is wrong
-  // should give some kind of feedback
   
   parse(testVector, stack, createDelta(createFromTemplate(testVector)));
-	// console.log(stack);
+
   if (!samestuff(expectedResults, stack)) {
     assertions.push("stack does not match expected results");
   }
 
   return assertions;
 };
+
+// real world
 
 function parserNestedTemplateWithInjectionsTest() {
 	const assertions = [];
@@ -1065,7 +1068,7 @@ const tests = [
   parserEmptyWithInjectionTest,
   parserEmptyWithMultipleInjectionsTest,
  
-  // fail safes
+  // real world
   parserNestedTemplateWithInjectionsTest,
 ];
 
