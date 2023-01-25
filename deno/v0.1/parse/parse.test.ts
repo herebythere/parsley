@@ -762,20 +762,88 @@ const parserCommentTest = () => {
   return assertions;
 };
 
-/*
+function parserEmptyTest() {
+	const assertions = [];
+  const testVector = testTextInterpolator``;
+  const expectedResults: BuildStep[] = [];
 
+  const stack: BuildStep[] = [];
+  parse(testVector, stack, createDelta(createFromTemplate(testVector)));
 
-const parseerCommentTest = () => {
-  const testVector = testTextInterpolator`<-- Hello world! -->`;
+	// this is wrong, should give us something but we got nothing
+  if (!samestuff(expectedResults, stack)) {
+    assertions.push("stack does not match expected results");
+  }
 
-  console.log(testVector);
-
-  const rb = new TestBuilder();
-  parse(testVector, rb, createDelta(createFromTemplate(testVector)));
-  console.log(rb.builderStack);
-  return ["fail!"];
+  return assertions;
 };
 
+const parserEmptyWithInjectionTest = () => {
+	const assertions = [];
+  const testVector = testTextInterpolator`${"buster"}`;
+  const expectedResults: BuildStep[] = [];
+  // console.log(testVector);
+
+	// this is wrong
+	// should give us an injection step
+  const stack: BuildStep[] = [];
+  parse(testVector, stack, createDelta(createFromTemplate(testVector)));
+	console.log(stack);
+  if (!samestuff(expectedResults, stack)) {
+    assertions.push("stack does not match expected results");
+  }
+
+  return assertions;
+};
+
+const parserEmptyWithMultipleInjectionsTest = () => {
+	const assertions = [];
+  const testVector = testTextInterpolator`${"yo"}${"buddy"}${"boi"}`;
+  const expectedResults: BuildStep[] = [];
+  
+  // console.log(testVector);
+
+  const stack: BuildStep[] = [];
+  // this is wrong
+  // should give some kind of feedback
+  
+  parse(testVector, stack, createDelta(createFromTemplate(testVector)));
+	// console.log(stack);
+  if (!samestuff(expectedResults, stack)) {
+    assertions.push("stack does not match expected results");
+  }
+
+  return assertions;
+};
+
+const parserNestedTemplateWithInjectionsTest = () => {
+	const assertions = [];
+  const testVector = testTextInterpolator`${"stardust"}
+  	<div sunshine>
+  		${"yo"}
+  		<p ${"moonlight"}>${"buddy"}</p>
+  		<hello starshine />
+  		${"boi"}
+  	</div>
+  `;
+  const expectedResults: BuildStep[] = [];
+  
+  console.log(testVector);
+
+  const stack: BuildStep[] = [];
+  // this is wrong
+  // should give some kind of feedback
+  
+  parse(testVector, stack, createDelta(createFromTemplate(testVector)));
+	console.log(stack);
+  if (!samestuff(expectedResults, stack)) {
+    assertions.push("stack does not match expected results");
+  }
+
+  return assertions;
+};
+
+/*
 const parseerTextThenNodeTest = () => {
   const testVector = testTextInterpolator`<Z<hello <howdy>`;
 
@@ -834,18 +902,7 @@ const parseerTest2 = () => {
 */
 
 const tests = [
-  // parseTest,
-    /*
-  parseerTest,
-  parseerTest1,
-  parseerTest2,
-  parseerCommentTest,
-
-
-  parseerTextThenNodeTest,
-  parseerTextThenNodeClosedTest,
-  */
-  
+	/*
   // nodes
   parseNodeTest,
   parseNodeWithImplicitAttributeTest,
@@ -867,6 +924,21 @@ const tests = [
   
   // comments
   parserCommentTest,
+  */
+  // fail safes
+  // something complicated and nested
+  //
+  // these are failing (passing but shouldnt)
+  parserEmptyTest,
+  /*
+  parserEmptyWithInjectionTest,
+  parserEmptyWithMultipleInjectionsTest,
+  
+  // yo yo big dawg test
+  // failing
+	// has to do with initial ${} injections
+  parserNestedTemplateWithInjectionsTest,
+  */
 ];
 
 const unitTestParse = {

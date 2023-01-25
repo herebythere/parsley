@@ -14,6 +14,7 @@ const injectionMap = new Map([
   ["ATTRIBUTE_DECLARATION", "ATTRIBUTE_INJECTION"],
   ["CLOSE_NODE", "DESCENDANT_INJECTION"],
   ["CLOSE_INDEPENDENT_NODE", "DESCENDANT_INJECTION"],
+  ["INITIAL", "DESCENDANT_INJECTION"],
   ["TEXT", "DESCENDANT_INJECTION"],
 ]);
 
@@ -30,7 +31,9 @@ function parse<I>(
 
   // iterate across text
   do {
+  	console.log("getChar", delta.vector.origin);
     const char = getChar(template, delta.vector.origin);
+    console.log("char: ", char);
     if (char === undefined) return;
 
     // state swap
@@ -52,7 +55,8 @@ function parse<I>(
 
     // inject
     if (delta.prevPos.x < delta.vector.origin.x) {
-      if (delta.prevState === "TEXT") {
+    	console.log("made it to injections!");
+      if (delta.prevState === "TEXT" || delta.prevState === "INITIAL") {
         const vector = create(delta.origin, delta.prevPos);
         builder.push({ type: "BUILD", state: "TEXT", vector });
 
