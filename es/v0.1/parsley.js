@@ -3,10 +3,15 @@
 // This code was bundled using `deno bundle` and it's not recommended to edit it manually
 
 const NODE = "NODE";
+const ATTRIBUTE = "ATTRIBUTE";
+const ATTRIBUTE_VALUE = "ATTRIBUTE_VALUE";
 const TEXT = "TEXT";
 const ERROR = "ERROR";
 const NODE_SPACE = "NODE_SPACE";
-const NODE_CLOSE = "NODE_CLOSE";
+const NODE_CLOSED = "NODE_CLOSED";
+const INDEPENDENT_NODE = "INDEPENDENT_NODE";
+const INDEPENDENT_NODE_CLOSED = "INDEPENDENT_NODE_CLOSED";
+const CLOSE_TAGNAME = "CLOSE_TAGNAME";
 const routes = {
     INITIAL: {
         "<": NODE,
@@ -20,61 +25,65 @@ const routes = {
         " ": ERROR,
         "\n": NODE,
         "\t": NODE,
-        "/": "NODE_CLOSER",
+        "/": "CLOSE_NODE_SLASH",
         ">": ERROR,
         "-": "COMMENT_0",
         DEFAULT: "TAGNAME"
     },
-    NODE_CLOSER: {
+    CLOSE_NODE_SLASH: {
         " ": ERROR,
-        DEFAULT: "TAGNAME_CLOSE"
+        DEFAULT: CLOSE_TAGNAME
     },
     TAGNAME: {
-        ">": NODE_CLOSE,
+        ">": NODE_CLOSED,
         " ": NODE_SPACE,
         "\n": NODE_SPACE,
         "\t": NODE_SPACE,
-        "/": "INDEPENDENT_NODE",
+        "/": INDEPENDENT_NODE,
         DEFAULT: "TAGNAME"
     },
-    TAGNAME_CLOSE: {
-        ">": "CLOSE_NODE_CLOSER",
-        " ": "SPACE_CLOSE_NODE",
-        "\n": "SPACE_CLOSE_NODE",
-        DEFAULT: "TAGNAME_CLOSE"
+    CLOSE_TAGNAME: {
+        ">": "CLOSE_NODE_CLOSED",
+        " ": "CLOSE_NODE_SPACE",
+        "\n": "CLOSE_NODE_SPACE",
+        DEFAULT: CLOSE_TAGNAME
+    },
+    CLOSE_NODE_SPACE: {
+        ">": "CLOSE_NODE_CLOSED",
+        DEFAULT: "CLOSE_NODE_SPACE"
     },
     INDEPENDENT_NODE: {
-        ">": "CLOSE_INDEPENDENT_NODE",
-        DEFAULT: "INDEPENDENT_NODE"
+        ">": INDEPENDENT_NODE_CLOSED,
+        DEFAULT: INDEPENDENT_NODE
     },
-    NODE_CLOSE: {
+    NODE_CLOSED: {
         "<": NODE,
         DEFAULT: TEXT
     },
-    CLOSE_NODE_CLOSER: {
+    CLOSE_NODE_CLOSED: {
         "<": NODE,
         DEFAULT: TEXT
     },
-    CLOSE_INDEPENDENT_NODE: {
+    INDEPENDENT_NODE_CLOSED: {
         "<": NODE,
         DEFAULT: TEXT
     },
     NODE_SPACE: {
-        ">": NODE_CLOSE,
+        ">": NODE_CLOSED,
         " ": NODE_SPACE,
         "\n": NODE_SPACE,
         "\t": NODE_SPACE,
-        "/": "INDEPENDENT_NODE",
-        DEFAULT: "ATTRIBUTE"
+        "/": INDEPENDENT_NODE,
+        DEFAULT: ATTRIBUTE
     },
     ATTRIBUTE: {
         " ": NODE_SPACE,
         "\n": NODE_SPACE,
         "\t": NODE_SPACE,
         "=": "ATTRIBUTE_SETTER",
-        ">": NODE_CLOSE,
-        "/": "INDEPENDENT_NODE",
-        DEFAULT: "ATTRIBUTE"
+        ">": NODE_CLOSED,
+        "/": INDEPENDENT_NODE,
+        DEFAULT: ATTRIBUTE
     },
     ATTRIBUTE_SETTER: {
         '"': "ATTRIBUTE_DECLARATION",
@@ -82,16 +91,16 @@ const routes = {
         DEFAULT: NODE_SPACE
     },
     ATTRIBUTE_DECLARATION: {
-        '"': "CLOSE_ATTRIBUTE_DECLARATION",
-        DEFAULT: "ATTRIBUTE_VALUE"
+        '"': "ATTRIBUTE_DECLARATION_CLOSE",
+        DEFAULT: ATTRIBUTE_VALUE
     },
     ATTRIBUTE_VALUE: {
-        '"': "CLOSE_ATTRIBUTE_DECLARATION",
-        DEFAULT: "ATTRIBUTE_VALUE"
+        '"': "ATTRIBUTE_DECLARATION_CLOSE",
+        DEFAULT: ATTRIBUTE_VALUE
     },
-    CLOSE_ATTRIBUTE_DECLARATION: {
-        ">": "CLOSE_INDEPENDENT_NODE",
-        "/": "INDEPENDENT_NODE",
+    ATTRIBUTE_DECLARATION_CLOSE: {
+        ">": INDEPENDENT_NODE_CLOSED,
+        "/": INDEPENDENT_NODE,
         DEFAULT: NODE_SPACE
     },
     COMMENT_0: {
@@ -111,7 +120,7 @@ const routes = {
         DEFAULT: ERROR
     },
     COMMENT_CLOSE_1: {
-        ">": NODE_CLOSE,
+        ">": NODE_CLOSED,
         DEFAULT: "COMMENT"
     }
 };
@@ -156,11 +165,11 @@ const injectionMap = new Map([
         "ATTRIBUTE_INJECTION"
     ],
     [
-        "CLOSE_INDEPENDENT_NODE",
+        "INDEPENDENT_NODE_CLOSED",
         "DESCENDANT_INJECTION"
     ],
     [
-        "NODE_CLOSE",
+        "NODE_CLOSED",
         "DESCENDANT_INJECTION"
     ],
     [

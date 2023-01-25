@@ -57,7 +57,7 @@ function parseNodeTest() {
     },
     {
       type: "BUILD",
-      state: "NODE_CLOSE",
+      state: "NODE_CLOSED",
       vector: { origin: { x: 0, y: 6 }, target: { x: 0, y: 6 } },
     },
   ];
@@ -103,7 +103,7 @@ function parseNodeWithImplicitAttributeTest() {
 		},
 		{
 		  type: "BUILD",
-		  state: "NODE_CLOSE",
+		  state: "NODE_CLOSED",
 		  vector: { origin: { x: 0, y: 16 }, target: { x: 0, y: 16 } }
 		}
 	];
@@ -154,7 +154,7 @@ function parseNodeWithImplicitAttributeWithSpacesTest() {
 		},
 		{
 		  type: "BUILD",
-		  state: "NODE_CLOSE",
+		  state: "NODE_CLOSED",
 		  vector: { origin: { x: 0, y: 19 }, target: { x: 0, y: 19 } }
 		}
 	];
@@ -197,7 +197,7 @@ function parseIndependentNodeTest() {
 		},
 		{
 		  type: "BUILD",
-		  state: "CLOSE_INDEPENDENT_NODE",
+		  state: "INDEPENDENT_NODE_CLOSED",
 		  vector: { origin: { x: 0, y: 7 }, target: { x: 0, y: 7 } }
 		}
 	];
@@ -248,7 +248,7 @@ function parseIndependentNodeWithImplicitAttributeTest () {
 		},
 		{
 		  type: "BUILD",
-		  state: "CLOSE_INDEPENDENT_NODE",
+		  state: "INDEPENDENT_NODE_CLOSED",
 		  vector: { origin: { x: 0, y: 17 }, target: { x: 0, y: 17 } }
 		}
 	];
@@ -304,7 +304,7 @@ function parseIndependentNodeWithImplicitAttributeWithSpacesTest() {
 		},
 		{
 		  type: "BUILD",
-		  state: "CLOSE_INDEPENDENT_NODE",
+		  state: "INDEPENDENT_NODE_CLOSED",
 		  vector: { origin: { x: 0, y: 20 }, target: { x: 0, y: 20 } }
 		}
 	];
@@ -367,7 +367,7 @@ function parseExplicitAttributeTest() {
 		},
 		{
 		  type: "BUILD",
-		  state: "CLOSE_ATTRIBUTE_DECLARATION",
+		  state: "ATTRIBUTE_DECLARATION_CLOSE",
 		  vector: { origin: { x: 0, y: 23 }, target: { x: 0, y: 23 } }
 		},
 		{
@@ -377,7 +377,7 @@ function parseExplicitAttributeTest() {
 		},
 		{
 		  type: "BUILD",
-		  state: "CLOSE_INDEPENDENT_NODE",
+		  state: "INDEPENDENT_NODE_CLOSED",
 		  vector: { origin: { x: 0, y: 25 }, target: { x: 0, y: 25 } }
 		}
 	];
@@ -438,7 +438,7 @@ function parseExplicitAttributeWithSpacesTest() {
 		},
 		{
 		  type: "BUILD",
-		  state: "CLOSE_ATTRIBUTE_DECLARATION",
+		  state: "ATTRIBUTE_DECLARATION_CLOSE",
 		  vector: { origin: { x: 0, y: 24 }, target: { x: 0, y: 24 } }
 		},
 		{
@@ -453,7 +453,7 @@ function parseExplicitAttributeWithSpacesTest() {
 		},
 		{
 		  type: "BUILD",
-		  state: "CLOSE_INDEPENDENT_NODE",
+		  state: "INDEPENDENT_NODE_CLOSED",
 		  vector: { origin: { x: 0, y: 28 }, target: { x: 0, y: 28 } }
 		}
 	];
@@ -491,7 +491,7 @@ function parseNodeInjectionsTest() {
 		},
 		{
 		  type: "BUILD",
-		  state: "NODE_CLOSE",
+		  state: "NODE_CLOSED",
 		  vector: { origin: { x: 0, y: 6 }, target: { x: 0, y: 6 } }
 		},
 		{ type: "INJECT", index: 0, state: "DESCENDANT_INJECTION" },
@@ -502,17 +502,17 @@ function parseNodeInjectionsTest() {
 		},
 		{
 		  type: "BUILD",
-		  state: "NODE_CLOSER",
+		  state: "CLOSE_NODE_SLASH",
 		  vector: { origin: { x: 1, y: 1 }, target: { x: 1, y: 1 } }
 		},
 		{
 		  type: "BUILD",
-		  state: "TAGNAME_CLOSE",
+		  state: "CLOSE_TAGNAME",
 		  vector: { origin: { x: 1, y: 2 }, target: { x: 1, y: 6 } }
 		},
 		{
 		  type: "BUILD",
-		  state: "CLOSE_NODE_CLOSER",
+		  state: "CLOSE_NODE_CLOSED",
 		  vector: { origin: { x: 1, y: 7 }, target: { x: 1, y: 7 } }
 		}
 	];
@@ -569,7 +569,7 @@ function parseNodeWithAttributeInjectionsTest() {
 		{ type: "INJECT", index: 0, state: "ATTRIBUTE_INJECTION" },
 		{
 		  type: "BUILD",
-		  state: "CLOSE_ATTRIBUTE_DECLARATION",
+		  state: "ATTRIBUTE_DECLARATION_CLOSE",
 		  vector: { origin: { x: 1, y: 0 }, target: { x: 1, y: 0 } }
 		},
 		{
@@ -579,7 +579,7 @@ function parseNodeWithAttributeInjectionsTest() {
 		},
 		{
 		  type: "BUILD",
-		  state: "CLOSE_INDEPENDENT_NODE",
+		  state: "INDEPENDENT_NODE_CLOSED",
 		  vector: { origin: { x: 1, y: 2 }, target: { x: 1, y: 2 } }
 		}
 	];
@@ -626,7 +626,7 @@ function parseNodeWithAttributeMapInjectionsTest() {
 		},
 		{
 		  type: "BUILD",
-		  state: "CLOSE_INDEPENDENT_NODE",
+		  state: "INDEPENDENT_NODE_CLOSED",
 		  vector: { origin: { x: 1, y: 1 }, target: { x: 1, y: 1 } }
 		}
 	];
@@ -684,7 +684,7 @@ function parseCommentTest() {
 		},
 		{
 		  type: "BUILD",
-		  state: "NODE_CLOSE",
+		  state: "NODE_CLOSED",
 		  vector: { origin: { x: 0, y: 19 }, target: { x: 0, y: 19 } }
 		}
 	];
@@ -800,7 +800,7 @@ function parseNestedTemplateWithInjectionsTest() {
 		},
 		{
 		  type: "BUILD",
-		  state: "NODE_CLOSE",
+		  state: "NODE_CLOSED",
 		  vector: { origin: { x: 1, y: 18 }, target: { x: 1, y: 18 } }
 		},
 		{ type: "INJECT", index: 1, state: "DESCENDANT_INJECTION" },
@@ -816,7 +816,7 @@ function parseNestedTemplateWithInjectionsTest() {
 		},
 		{
 		  type: "BUILD",
-		  state: "NODE_CLOSE",
+		  state: "NODE_CLOSED",
 		  vector: { origin: { x: 2, y: 5 }, target: { x: 2, y: 5 } }
 		},
 		{
@@ -831,17 +831,17 @@ function parseNestedTemplateWithInjectionsTest() {
 		},
 		{
 		  type: "BUILD",
-		  state: "NODE_CLOSER",
+		  state: "CLOSE_NODE_SLASH",
 		  vector: { origin: { x: 2, y: 10 }, target: { x: 2, y: 10 } }
 		},
 		{
 		  type: "BUILD",
-		  state: "TAGNAME_CLOSE",
+		  state: "CLOSE_TAGNAME",
 		  vector: { origin: { x: 2, y: 11 }, target: { x: 2, y: 14 } }
 		},
 		{
 		  type: "BUILD",
-		  state: "CLOSE_NODE_CLOSER",
+		  state: "CLOSE_NODE_CLOSED",
 		  vector: { origin: { x: 2, y: 15 }, target: { x: 2, y: 15 } }
 		},
 		{
@@ -867,7 +867,7 @@ function parseNestedTemplateWithInjectionsTest() {
 		{ type: "INJECT", index: 2, state: "ATTRIBUTE_INJECTION_MAP" },
 		{
 		  type: "BUILD",
-		  state: "NODE_CLOSE",
+		  state: "NODE_CLOSED",
 		  vector: { origin: { x: 3, y: 0 }, target: { x: 3, y: 0 } }
 		},
 		{ type: "INJECT", index: 3, state: "DESCENDANT_INJECTION" },
@@ -878,17 +878,17 @@ function parseNestedTemplateWithInjectionsTest() {
 		},
 		{
 		  type: "BUILD",
-		  state: "NODE_CLOSER",
+		  state: "CLOSE_NODE_SLASH",
 		  vector: { origin: { x: 4, y: 1 }, target: { x: 4, y: 1 } }
 		},
 		{
 		  type: "BUILD",
-		  state: "TAGNAME_CLOSE",
+		  state: "CLOSE_TAGNAME",
 		  vector: { origin: { x: 4, y: 2 }, target: { x: 4, y: 4 } }
 		},
 		{
 		  type: "BUILD",
-		  state: "CLOSE_NODE_CLOSER",
+		  state: "CLOSE_NODE_CLOSED",
 		  vector: { origin: { x: 4, y: 5 }, target: { x: 4, y: 5 } }
 		},
 		{
@@ -928,7 +928,7 @@ function parseNestedTemplateWithInjectionsTest() {
 		},
 		{
 		  type: "BUILD",
-		  state: "CLOSE_ATTRIBUTE_DECLARATION",
+		  state: "ATTRIBUTE_DECLARATION_CLOSE",
 		  vector: { origin: { x: 4, y: 30 }, target: { x: 4, y: 30 } }
 		},
 		{
@@ -943,7 +943,7 @@ function parseNestedTemplateWithInjectionsTest() {
 		},
 		{
 		  type: "BUILD",
-		  state: "CLOSE_INDEPENDENT_NODE",
+		  state: "INDEPENDENT_NODE_CLOSED",
 		  vector: { origin: { x: 4, y: 33 }, target: { x: 4, y: 33 } }
 		},
 		{
@@ -963,7 +963,7 @@ function parseNestedTemplateWithInjectionsTest() {
 		},
 		{
 		  type: "BUILD",
-		  state: "NODE_CLOSE",
+		  state: "NODE_CLOSED",
 		  vector: { origin: { x: 4, y: 45 }, target: { x: 4, y: 45 } }
 		},
 		{
@@ -978,17 +978,17 @@ function parseNestedTemplateWithInjectionsTest() {
 		},
 		{
 		  type: "BUILD",
-		  state: "NODE_CLOSER",
+		  state: "CLOSE_NODE_SLASH",
 		  vector: { origin: { x: 4, y: 49 }, target: { x: 4, y: 49 } }
 		},
 		{
 		  type: "BUILD",
-		  state: "TAGNAME_CLOSE",
+		  state: "CLOSE_TAGNAME",
 		  vector: { origin: { x: 4, y: 50 }, target: { x: 4, y: 54 } }
 		},
 		{
 		  type: "BUILD",
-		  state: "CLOSE_NODE_CLOSER",
+		  state: "CLOSE_NODE_CLOSED",
 		  vector: { origin: { x: 4, y: 55 }, target: { x: 4, y: 55 } }
 		},
 		{
@@ -1009,17 +1009,17 @@ function parseNestedTemplateWithInjectionsTest() {
 		},
 		{
 		  type: "BUILD",
-		  state: "NODE_CLOSER",
+		  state: "CLOSE_NODE_SLASH",
 		  vector: { origin: { x: 5, y: 5 }, target: { x: 5, y: 5 } }
 		},
 		{
 		  type: "BUILD",
-		  state: "TAGNAME_CLOSE",
+		  state: "CLOSE_TAGNAME",
 		  vector: { origin: { x: 5, y: 6 }, target: { x: 5, y: 9 } }
 		},
 		{
 		  type: "BUILD",
-		  state: "CLOSE_NODE_CLOSER",
+		  state: "CLOSE_NODE_CLOSED",
 		  vector: { origin: { x: 5, y: 10 }, target: { x: 5, y: 10 } }
 		},
 		{
