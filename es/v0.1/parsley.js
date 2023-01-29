@@ -262,6 +262,12 @@ function parse(template, builder, prev = INITIAL) {
                     index: prevTarget.x,
                     state
                 });
+            } else {
+                builder.push({
+                    type: "ERROR",
+                    state: prevState,
+                    vector: create(origin, origin)
+                });
             }
         }
         prevTarget.x = origin.x;

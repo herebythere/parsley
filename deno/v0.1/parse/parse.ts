@@ -85,6 +85,12 @@ function parse(
       const state = injectionMap.get(prevState);
       if (state) {
         builder.push({ type: "INJECT", index: prevTarget.x, state });
+      } else {
+        builder.push({
+          type: "ERROR",
+          state: prevState,
+          vector: create(origin, origin),
+        });
       }
     }
 
