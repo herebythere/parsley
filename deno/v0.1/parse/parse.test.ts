@@ -3,7 +3,6 @@ import type { BuilderInterface, BuildStep } from "../type_flyweight/parse.ts";
 
 import { parse } from "./parse.ts";
 import { samestuff } from "../test_deps.ts";
-import { createFromTemplate } from "../text_vector/text_vector.ts";
 
 const title = "** parse tests **";
 const runTestsAsynchronously = true;

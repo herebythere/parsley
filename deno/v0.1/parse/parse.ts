@@ -25,20 +25,27 @@ function parse(
   let currState: string = prevState;
 
   const origin = { x: 0, y: 0 };
-  const prevPos = { x: 0, y: 0 };
   const prevOrigin = { x: 0, y: 0 };
+  const prevTarget = { x: 0, y: 0 };
 
   // iterate across text
   do {
     const char = getChar(template, origin);
-    if (char === undefined) return;
+    if (char === undefined) {
+      builder.push({
+        type: "ERROR",
+        state: currState,
+        vector: create(origin, origin),
+      });
+      return;
+    }
 
     // skip empty strings or state swap
     if (char !== "") {
       prevState = currState;
-      currState = routes[prevState]?.[char];
-      if (currState === undefined) {
-        currState = routes[prevState]?.["DEFAULT"] ?? "ERROR";
+      const route = routes[prevState];
+      if (route) {
+        currState = route[char] ?? route["DEFAULT"];
       }
       if (currState === "ERROR") {
         builder.push({
@@ -55,7 +62,7 @@ function parse(
       builder.push({
         type: "BUILD",
         state: prevState,
-        vector: create(prevOrigin, prevPos),
+        vector: create(prevOrigin, prevTarget),
       });
 
       prevOrigin.x = origin.x;
@@ -63,27 +70,33 @@ function parse(
     }
 
     // inject
-    if (prevPos.x < origin.x) {
+    if (prevTarget.x < origin.x) {
       if (prevState === "TEXT") {
         builder.push({
           type: "BUILD",
           state: "TEXT",
-          vector: create(prevOrigin, prevPos),
+          vector: create(prevOrigin, prevTarget),
         });
 
         prevState = currState;
         prevOrigin.x = origin.x;
         prevOrigin.y = origin.y;
       }
-      const injstate = injectionMap.get(prevState);
-      if (injstate) {
-        builder.push({ type: "INJECT", index: prevPos.x, state: injstate });
+      const state = injectionMap.get(prevState);
+      if (state) {
+        builder.push({ type: "INJECT", index: prevTarget.x, state });
+      } else {
+        builder.push({
+          type: "ERROR",
+          state: prevState,
+          vector: create(origin, origin),
+        });
       }
     }
 
     // set previous
-    prevPos.x = origin.x;
-    prevPos.y = origin.y;
+    prevTarget.x = origin.x;
+    prevTarget.y = origin.y;
   } while (increment(template, origin));
 
   // get tail end

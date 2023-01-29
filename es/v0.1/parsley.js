@@ -2,6 +2,46 @@
 // deno-lint-ignore-file
 // This code was bundled using `deno bundle` and it's not recommended to edit it manually
 
+const DEFAULT_POSITION = {
+    x: 0,
+    y: 0
+};
+function increment(template, position) {
+    const templateLength = template.length - 1;
+    if (position.x > templateLength) return;
+    const chunk = template[position.x];
+    if (chunk === undefined) return;
+    const chunkLength = chunk.length - 1;
+    if (position.x >= templateLength && position.y >= chunkLength) return;
+    position.y += 1;
+    if (position.y > chunkLength) {
+        position.x += 1;
+        position.y = 0;
+    }
+    return position;
+}
+function getChar(template, position) {
+    const str = template[position.x];
+    if (str === undefined) return;
+    if (str.length === 0) return str;
+    return str[position.y];
+}
+function create(origin = DEFAULT_POSITION, target = origin) {
+    return {
+        origin: {
+            ...origin
+        },
+        target: {
+            ...target
+        }
+    };
+}
+function getText(template, vector) {
+    const origin = vector.origin;
+    let templateText = template[origin.x];
+    if (templateText === undefined) return;
+    return templateText.substr(origin.y, vector.target.y - origin.y + 1);
+}
 const NODE = "NODE";
 const ATTRIBUTE = "ATTRIBUTE";
 const ATTRIBUTE_VALUE = "ATTRIBUTE_VALUE";
@@ -124,40 +164,6 @@ const routes = {
         DEFAULT: ERROR
     }
 };
-const DEFAULT_POSITION = {
-    x: 0,
-    y: 0
-};
-function increment(template, position) {
-    const templateLength = template.length - 1;
-    if (position.x > templateLength) return;
-    const chunk = template[position.x];
-    if (chunk === undefined) return;
-    const chunkLength = chunk.length - 1;
-    if (position.x >= templateLength && position.y >= chunkLength) return;
-    position.y += 1;
-    if (position.y > chunkLength) {
-        position.x += 1;
-        position.y = 0;
-    }
-    return position;
-}
-function getChar(template, position) {
-    const str = template[position.x];
-    if (str === undefined) return;
-    if (str.length === 0) return str;
-    return str[position.y];
-}
-function create(origin = DEFAULT_POSITION, target = origin) {
-    return {
-        origin: {
-            ...origin
-        },
-        target: {
-            ...target
-        }
-    };
-}
 const injectionMap = new Map([
     [
         "ATTRIBUTE_DECLARATION",
@@ -196,22 +202,29 @@ function parse(template, builder, prev = INITIAL) {
         x: 0,
         y: 0
     };
-    const prevPos = {
+    const prevOrigin = {
         x: 0,
         y: 0
     };
-    const prevOrigin = {
+    const prevTarget = {
         x: 0,
         y: 0
     };
     do {
         const __char = getChar(template, origin);
-        if (__char === undefined) return;
+        if (__char === undefined) {
+            builder.push({
+                type: "ERROR",
+                state: currState,
+                vector: create(origin, origin)
+            });
+            return;
+        }
         if (__char !== "") {
             prevState = currState;
-            currState = routes[prevState]?.[__char];
-            if (currState === undefined) {
-                currState = routes[prevState]?.["DEFAULT"] ?? "ERROR";
+            const route = routes[prevState];
+            if (route) {
+                currState = route[__char] ?? route["DEFAULT"];
             }
             if (currState === "ERROR") {
                 builder.push({
@@ -226,33 +239,39 @@ function parse(template, builder, prev = INITIAL) {
             builder.push({
                 type: "BUILD",
                 state: prevState,
-                vector: create(prevOrigin, prevPos)
+                vector: create(prevOrigin, prevTarget)
             });
             prevOrigin.x = origin.x;
             prevOrigin.y = origin.y;
         }
-        if (prevPos.x < origin.x) {
+        if (prevTarget.x < origin.x) {
             if (prevState === "TEXT") {
                 builder.push({
                     type: "BUILD",
                     state: "TEXT",
-                    vector: create(prevOrigin, prevPos)
+                    vector: create(prevOrigin, prevTarget)
                 });
                 prevState = currState;
                 prevOrigin.x = origin.x;
                 prevOrigin.y = origin.y;
             }
-            const injstate = injectionMap.get(prevState);
-            if (injstate) {
+            const state = injectionMap.get(prevState);
+            if (state) {
                 builder.push({
                     type: "INJECT",
-                    index: prevPos.x,
-                    state: injstate
+                    index: prevTarget.x,
+                    state
+                });
+            } else {
+                builder.push({
+                    type: "ERROR",
+                    state: prevState,
+                    vector: create(origin, origin)
                 });
             }
         }
-        prevPos.x = origin.x;
-        prevPos.y = origin.y;
+        prevTarget.x = origin.x;
+        prevTarget.y = origin.y;
     }while (increment(template, origin))
     if (prevState === currState) return;
     builder.push({
@@ -261,4 +280,5 @@ function parse(template, builder, prev = INITIAL) {
         vector: create(origin, origin)
     });
 }
+export { getText as getText };
 export { parse as parse };

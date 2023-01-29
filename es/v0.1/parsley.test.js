@@ -54,20 +54,6 @@ function create(origin = DEFAULT_POSITION, target = origin) {
         }
     };
 }
-function createFromTemplate(template) {
-    const x = template.length - 1;
-    const y = template[x].length - 1;
-    return {
-        origin: {
-            x: 0,
-            y: 0
-        },
-        target: {
-            x,
-            y
-        }
-    };
-}
 function copy(vector) {
     return {
         origin: {
@@ -148,19 +134,16 @@ function copyTextVector() {
 function incrementTextVector() {
     const assertions = [];
     const expectedResults = {
-        origin: {
-            x: 0,
-            y: 1
-        },
-        target: {
-            x: 0,
-            y: 4
-        }
+        x: 0,
+        y: 1
     };
     const structureRender = testTextInterpolator`hello`;
-    const vector = createFromTemplate(structureRender);
-    increment(structureRender, vector.origin);
-    if (!samestuff(expectedResults, vector)) {
+    const origin = {
+        x: 0,
+        y: 0
+    };
+    increment(structureRender, origin);
+    if (!samestuff(expectedResults, origin)) {
         assertions.push("unexpected results found.");
     }
     return assertions;
@@ -168,23 +151,20 @@ function incrementTextVector() {
 function incrementMultiTextVector() {
     const assertions = [];
     const expectedResults = {
-        origin: {
-            x: 1,
-            y: 2
-        },
-        target: {
-            x: 1,
-            y: 13
-        }
+        x: 1,
+        y: 2
     };
     const structureRender = testTextInterpolator`hey${"world"}, how are you?`;
-    const vector = createFromTemplate(structureRender);
-    increment(structureRender, vector.origin);
-    increment(structureRender, vector.origin);
-    increment(structureRender, vector.origin);
-    increment(structureRender, vector.origin);
-    increment(structureRender, vector.origin);
-    if (!samestuff(expectedResults, vector)) {
+    const origin = {
+        x: 0,
+        y: 0
+    };
+    increment(structureRender, origin);
+    increment(structureRender, origin);
+    increment(structureRender, origin);
+    increment(structureRender, origin);
+    increment(structureRender, origin);
+    if (!samestuff(expectedResults, origin)) {
         assertions.push("unexpected results found.");
     }
     return assertions;
@@ -192,24 +172,21 @@ function incrementMultiTextVector() {
 function incrementEmptyTextVector() {
     const assertions = [];
     const expectedResults = {
-        origin: {
-            x: 3,
-            y: 0
-        },
-        target: {
-            x: 3,
-            y: -1
-        }
+        x: 3,
+        y: 0
     };
     const structureRender = testTextInterpolator`${"hey"}${"world"}${"!!"}`;
-    const vector = createFromTemplate(structureRender);
-    increment(structureRender, vector.origin);
-    increment(structureRender, vector.origin);
-    increment(structureRender, vector.origin);
-    if (increment(structureRender, vector.origin) !== undefined) {
+    const origin = {
+        x: 0,
+        y: 0
+    };
+    increment(structureRender, origin);
+    increment(structureRender, origin);
+    increment(structureRender, origin);
+    if (increment(structureRender, origin) !== undefined) {
         assertions.push("should not return after traversed");
     }
-    if (!samestuff(expectedResults, vector)) {
+    if (!samestuff(expectedResults, origin)) {
         assertions.push("unexpected results found.");
     }
     return assertions;
@@ -217,22 +194,19 @@ function incrementEmptyTextVector() {
 function incrementTextVectorTooFar() {
     const assertions = [];
     const expectedResults = {
-        origin: {
-            x: 1,
-            y: 13
-        },
-        target: {
-            x: 1,
-            y: 13
-        }
+        x: 1,
+        y: 13
     };
     const structureRender = testTextInterpolator`hey${"world"}, how are you?`;
-    const vector = createFromTemplate(structureRender);
+    const origin = {
+        x: 0,
+        y: 0
+    };
     let safety = 0;
-    while(increment(structureRender, vector.origin) && safety < 20){
+    while(increment(structureRender, origin) && safety < 20){
         safety += 1;
     }
-    if (!samestuff(expectedResults, vector)) {
+    if (!samestuff(expectedResults, origin)) {
         assertions.push("unexpected results found.");
     }
     return assertions;
@@ -474,22 +448,29 @@ function parse(template, builder, prev = INITIAL) {
         x: 0,
         y: 0
     };
-    const prevPos = {
+    const prevOrigin = {
         x: 0,
         y: 0
     };
-    const prevOrigin = {
+    const prevTarget = {
         x: 0,
         y: 0
     };
     do {
         const __char = getChar(template, origin);
-        if (__char === undefined) return;
+        if (__char === undefined) {
+            builder.push({
+                type: "ERROR",
+                state: currState,
+                vector: create(origin, origin)
+            });
+            return;
+        }
         if (__char !== "") {
             prevState = currState;
-            currState = routes[prevState]?.[__char];
-            if (currState === undefined) {
-                currState = routes[prevState]?.["DEFAULT"] ?? "ERROR";
+            const route = routes[prevState];
+            if (route) {
+                currState = route[__char] ?? route["DEFAULT"];
             }
             if (currState === "ERROR") {
                 builder.push({
@@ -504,33 +485,39 @@ function parse(template, builder, prev = INITIAL) {
             builder.push({
                 type: "BUILD",
                 state: prevState,
-                vector: create(prevOrigin, prevPos)
+                vector: create(prevOrigin, prevTarget)
             });
             prevOrigin.x = origin.x;
             prevOrigin.y = origin.y;
         }
-        if (prevPos.x < origin.x) {
+        if (prevTarget.x < origin.x) {
             if (prevState === "TEXT") {
                 builder.push({
                     type: "BUILD",
                     state: "TEXT",
-                    vector: create(prevOrigin, prevPos)
+                    vector: create(prevOrigin, prevTarget)
                 });
                 prevState = currState;
                 prevOrigin.x = origin.x;
                 prevOrigin.y = origin.y;
             }
-            const injstate = injectionMap.get(prevState);
-            if (injstate) {
+            const state = injectionMap.get(prevState);
+            if (state) {
                 builder.push({
                     type: "INJECT",
-                    index: prevPos.x,
-                    state: injstate
+                    index: prevTarget.x,
+                    state
+                });
+            } else {
+                builder.push({
+                    type: "ERROR",
+                    state: prevState,
+                    vector: create(origin, origin)
                 });
             }
         }
-        prevPos.x = origin.x;
-        prevPos.y = origin.y;
+        prevTarget.x = origin.x;
+        prevTarget.y = origin.y;
     }while (increment(template, origin))
     if (prevState === currState) return;
     builder.push({
