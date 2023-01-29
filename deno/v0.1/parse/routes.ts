@@ -7,7 +7,7 @@ const NODE = "NODE";
 const ATTRIBUTE = "ATTRIBUTE"
 const ATTRIBUTE_VALUE = "ATTRIBUTE_VALUE";
 const TEXT = "TEXT";
-const ERROR = "ERROR";
+const ERROR_STRING = "ERROR_STRING";
 const NODE_SPACE = "NODE_SPACE";
 const NODE_CLOSED = "NODE_CLOSED";
 const INDEPENDENT_NODE = "INDEPENDENT_NODE";
@@ -26,16 +26,16 @@ const routes: Routes = {
   },
   // NODE
   NODE: {
-    " ": ERROR,
+    " ": ERROR_STRING,
     "\n": NODE,
     "\t": NODE,
     "/": "CLOSE_NODE_SLASH",
-    ">": ERROR,
+    ">": ERROR_STRING,
     "-": "COMMENT_0",
     DEFAULT: "TAGNAME",
   },
   CLOSE_NODE_SLASH: {
-    " ": ERROR,
+    " ": ERROR_STRING,
     DEFAULT: CLOSE_TAGNAME,
   },
   TAGNAME: {
@@ -112,7 +112,7 @@ const routes: Routes = {
   // comments
   COMMENT_0: {
     "-": "COMMENT_1",
-    DEFAULT: ERROR,
+    DEFAULT: ERROR_STRING,
   },
   COMMENT_1: {
     "-": "COMMENT_CLOSE",
@@ -124,7 +124,7 @@ const routes: Routes = {
   },
   COMMENT_CLOSE: {
     "-": "COMMENT_CLOSE_1",
-    DEFAULT: ERROR,
+    DEFAULT: ERROR_STRING,
   },
   COMMENT_CLOSE_1: {
     ">": NODE_CLOSED,

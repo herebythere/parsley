@@ -1,37 +1,14 @@
 # Parsley
 
-Dynamically maintain XML documents like
-[DOM](https://github.com/taylor-vann/parsley-dom).
-
-unminimized and uncompressed < 39kb
-
-## TODO
-
-** Make Template independent of render strucutre or other structures
-
-user supplies hooks
-
-BUILDER TO HOOKS VECTOR TO TEXT WRITER
+Create custom XML documents.
 
 ## Abstract
 
-Parsley is a portable meta-library that generates libraries to create different
-kinds of documents!
+Parsley is a portable library
 
 ## About
 
-Parsley is an XML factory that generates APIs to create custom document
-structures.
-
-Parsley can build interfaces to represent:
-
-- Screenplays
-- Game Dialog
-- World Objects in ThreeJS
-- Geodatabase XML
-- Application resources
-- Historical Records
-- DOM & SVG
+Parsley is an XML parser helps create custom document structures.
 
 ## Install
 

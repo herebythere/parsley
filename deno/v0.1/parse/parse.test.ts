@@ -1062,6 +1062,9 @@ const tests = [
 
   // comments
   parseCommentTest,
+  
+  // errors
+  // parseErrorTest,
 
   // fail safes
   parseEmptyTest,
@@ -1078,4 +1081,4 @@ const unitTestParse = {
   runTestsAsynchronously,
 };
 
-export { unitTestParse };
+export { unitTestParse };0
