@@ -23,7 +23,7 @@ function parse(
 ) {
   let prevState: string = prev;
   let currState: string = prevState;
-  
+
   const origin = { x: 0, y: 0 };
   const prevPos = { ...origin };
   const prevOrigin = { ...origin };

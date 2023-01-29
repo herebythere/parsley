@@ -685,18 +685,18 @@ function parseErrorTest() {
   const assertions = [];
   const testVector = testTextInterpolator`< a>`;
   const expectedResults: BuildStep[] = [
-		{
-		  type: "BUILD",
-		  state: "INITIAL",
-		  vector: { origin: { x: 0, y: 0 }, target: { x: 0, y: 0 } }
-		},
-		{
-		  type: "ERROR",
-		  state: "NODE",
-		  vector: { origin: { x: 0, y: 1 }, target: { x: 0, y: 1 } }
-		}
-	];
-  
+    {
+      type: "BUILD",
+      state: "INITIAL",
+      vector: { origin: { x: 0, y: 0 }, target: { x: 0, y: 0 } },
+    },
+    {
+      type: "ERROR",
+      state: "NODE",
+      vector: { origin: { x: 0, y: 1 }, target: { x: 0, y: 1 } },
+    },
+  ];
+
   const stack: BuildStep[] = [];
 
   parse(testVector, stack);
@@ -712,23 +712,23 @@ function parseCloseNodeErrorTest() {
   const assertions = [];
   const testVector = testTextInterpolator`</ a>`;
   const expectedResults: BuildStep[] = [
-		{
-		  type: "BUILD",
-		  state: "INITIAL",
-		  vector: { origin: { x: 0, y: 0 }, target: { x: 0, y: 0 } }
-		},
-		{
-		  type: "BUILD",
-		  state: "NODE",
-		  vector: { origin: { x: 0, y: 0 }, target: { x: 0, y: 0 } }
-		},
-		{
-		  type: "ERROR",
-		  state: "CLOSE_NODE_SLASH",
-		  vector: { origin: { x: 0, y: 2 }, target: { x: 0, y: 2 } }
-		}
-	];
-  
+    {
+      type: "BUILD",
+      state: "INITIAL",
+      vector: { origin: { x: 0, y: 0 }, target: { x: 0, y: 0 } },
+    },
+    {
+      type: "BUILD",
+      state: "NODE",
+      vector: { origin: { x: 0, y: 0 }, target: { x: 0, y: 0 } },
+    },
+    {
+      type: "ERROR",
+      state: "CLOSE_NODE_SLASH",
+      vector: { origin: { x: 0, y: 2 }, target: { x: 0, y: 2 } },
+    },
+  ];
+
   const stack: BuildStep[] = [];
 
   parse(testVector, stack);
@@ -744,22 +744,22 @@ function parseCommentErrorTest() {
   const assertions = [];
   const testVector = testTextInterpolator`<- `;
   const expectedResults: BuildStep[] = [
-		{
-		  type: "BUILD",
-		  state: "INITIAL",
-		  vector: { origin: { x: 0, y: 0 }, target: { x: 0, y: 0 } }
-		},
-		{
-		  type: "BUILD",
-		  state: "NODE",
-		  vector: { origin: { x: 0, y: 0 }, target: { x: 0, y: 0 } }
-		},
-		{
-		  type: "ERROR",
-		  state: "COMMENT_0",
-		  vector: { origin: { x: 0, y: 2 }, target: { x: 0, y: 2 } }
-		}
-	];
+    {
+      type: "BUILD",
+      state: "INITIAL",
+      vector: { origin: { x: 0, y: 0 }, target: { x: 0, y: 0 } },
+    },
+    {
+      type: "BUILD",
+      state: "NODE",
+      vector: { origin: { x: 0, y: 0 }, target: { x: 0, y: 0 } },
+    },
+    {
+      type: "ERROR",
+      state: "COMMENT_0",
+      vector: { origin: { x: 0, y: 2 }, target: { x: 0, y: 2 } },
+    },
+  ];
 
   const stack: BuildStep[] = [];
 
@@ -776,43 +776,43 @@ function parseCloseCommentErrorTest() {
   const assertions = [];
   const testVector = testTextInterpolator`<-- -- `;
   const expectedResults: BuildStep[] = [
-		{
-		  type: "BUILD",
-		  state: "INITIAL",
-		  vector: { origin: { x: 0, y: 0 }, target: { x: 0, y: 0 } }
-		},
-		{
-		  type: "BUILD",
-		  state: "NODE",
-		  vector: { origin: { x: 0, y: 0 }, target: { x: 0, y: 0 } }
-		},
-		{
-		  type: "BUILD",
-		  state: "COMMENT_0",
-		  vector: { origin: { x: 0, y: 1 }, target: { x: 0, y: 1 } }
-		},
-		{
-		  type: "BUILD",
-		  state: "COMMENT_1",
-		  vector: { origin: { x: 0, y: 2 }, target: { x: 0, y: 2 } }
-		},
-		{
-		  type: "BUILD",
-		  state: "COMMENT",
-		  vector: { origin: { x: 0, y: 3 }, target: { x: 0, y: 3 } }
-		},
-		{
-		  type: "BUILD",
-		  state: "COMMENT_CLOSE",
-		  vector: { origin: { x: 0, y: 4 }, target: { x: 0, y: 4 } }
-		},
-		{
-		  type: "ERROR",
-		  state: "COMMENT_CLOSE_1",
-		  vector: { origin: { x: 0, y: 6 }, target: { x: 0, y: 6 } }
-		}
-	];
-  
+    {
+      type: "BUILD",
+      state: "INITIAL",
+      vector: { origin: { x: 0, y: 0 }, target: { x: 0, y: 0 } },
+    },
+    {
+      type: "BUILD",
+      state: "NODE",
+      vector: { origin: { x: 0, y: 0 }, target: { x: 0, y: 0 } },
+    },
+    {
+      type: "BUILD",
+      state: "COMMENT_0",
+      vector: { origin: { x: 0, y: 1 }, target: { x: 0, y: 1 } },
+    },
+    {
+      type: "BUILD",
+      state: "COMMENT_1",
+      vector: { origin: { x: 0, y: 2 }, target: { x: 0, y: 2 } },
+    },
+    {
+      type: "BUILD",
+      state: "COMMENT",
+      vector: { origin: { x: 0, y: 3 }, target: { x: 0, y: 3 } },
+    },
+    {
+      type: "BUILD",
+      state: "COMMENT_CLOSE",
+      vector: { origin: { x: 0, y: 4 }, target: { x: 0, y: 4 } },
+    },
+    {
+      type: "ERROR",
+      state: "COMMENT_CLOSE_1",
+      vector: { origin: { x: 0, y: 6 }, target: { x: 0, y: 6 } },
+    },
+  ];
+
   const stack: BuildStep[] = [];
 
   parse(testVector, stack);
@@ -823,7 +823,6 @@ function parseCloseCommentErrorTest() {
 
   return assertions;
 }
-
 
 // fail safes
 
