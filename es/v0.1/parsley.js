@@ -202,26 +202,32 @@ function parse(template, builder, delta) {
                 delta.state = routes[delta.prevState]?.["DEFAULT"] ?? "ERROR";
             }
             if (delta.state === "ERROR") {
+                const vector = create(delta.origin, delta.prevPos);
+                builder.push({
+                    type: "ERROR",
+                    state: delta.prevState,
+                    vector
+                });
                 return;
             }
         }
         if (delta.prevState !== delta.state) {
-            const vector = create(delta.origin, delta.prevPos);
+            const vector1 = create(delta.origin, delta.prevPos);
             builder.push({
                 type: "BUILD",
                 state: delta.prevState,
-                vector
+                vector: vector1
             });
             delta.origin.x = delta.vector.origin.x;
             delta.origin.y = delta.vector.origin.y;
         }
         if (delta.prevPos.x < delta.vector.origin.x) {
             if (delta.prevState === "TEXT") {
-                const vector1 = create(delta.origin, delta.prevPos);
+                const vector2 = create(delta.origin, delta.prevPos);
                 builder.push({
                     type: "BUILD",
                     state: "TEXT",
-                    vector: vector1
+                    vector: vector2
                 });
                 delta.prevState = delta.state;
                 delta.origin.x = delta.vector.origin.x;
@@ -238,13 +244,13 @@ function parse(template, builder, delta) {
         }
         delta.prevPos.x = delta.vector.origin.x;
         delta.prevPos.y = delta.vector.origin.y;
-    }while (delta.state !== "ERROR" && incrementOrigin(template, delta.vector))
-    if (delta.prevState === delta.state || delta.state === "ERROR") return;
-    const vector2 = create(delta.origin, delta.origin);
+    }while (incrementOrigin(template, delta.vector))
+    if (delta.prevState === delta.state) return;
+    const vector3 = create(delta.origin, delta.origin);
     builder.push({
         type: "BUILD",
         state: delta.state,
-        vector: vector2
+        vector: vector3
     });
 }
 export { parse as parse };

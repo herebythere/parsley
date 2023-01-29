@@ -21,7 +21,13 @@ interface InjectionStep {
   index: number;
 }
 
-type BuildStep = NodeStep | InjectionStep;
+interface ErrorStep {
+  type: "ERROR";
+  state: string;
+  vector: Vector;
+}
+
+type BuildStep = NodeStep | InjectionStep | ErrorStep;
 
 interface BuilderInterface {
   push(buildStep: BuildStep): void;
