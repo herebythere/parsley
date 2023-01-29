@@ -195,6 +195,12 @@ const injectionMap = new Map([
     ]
 ]);
 const INITIAL = "INITIAL";
+const TEXT1 = "TEXT";
+const ERROR1 = "ERROR";
+const DEFAULT = "DEFAULT";
+const BUILD = "BUILD";
+const INJECT = "INJECT";
+const EMPTY = "";
 function parse(template, builder, prev = INITIAL) {
     let prevState = prev;
     let currState = prevState;
@@ -212,23 +218,15 @@ function parse(template, builder, prev = INITIAL) {
     };
     do {
         const __char = getChar(template, origin);
-        if (__char === undefined) {
-            builder.push({
-                type: "ERROR",
-                state: currState,
-                vector: create(origin, origin)
-            });
-            return;
-        }
-        if (__char !== "") {
+        if (__char !== undefined && __char !== EMPTY) {
             prevState = currState;
             const route = routes[prevState];
             if (route) {
-                currState = route[__char] ?? route["DEFAULT"];
+                currState = route[__char] ?? route[DEFAULT];
             }
-            if (currState === "ERROR") {
+            if (currState === ERROR1) {
                 builder.push({
-                    type: "ERROR",
+                    type: ERROR1,
                     state: prevState,
                     vector: create(origin, origin)
                 });
@@ -237,7 +235,7 @@ function parse(template, builder, prev = INITIAL) {
         }
         if (prevState !== currState) {
             builder.push({
-                type: "BUILD",
+                type: BUILD,
                 state: prevState,
                 vector: create(prevOrigin, prevTarget)
             });
@@ -245,10 +243,10 @@ function parse(template, builder, prev = INITIAL) {
             prevOrigin.y = origin.y;
         }
         if (prevTarget.x < origin.x) {
-            if (prevState === "TEXT") {
+            if (prevState === TEXT1) {
                 builder.push({
-                    type: "BUILD",
-                    state: "TEXT",
+                    type: BUILD,
+                    state: TEXT1,
                     vector: create(prevOrigin, prevTarget)
                 });
                 prevState = currState;
@@ -258,13 +256,13 @@ function parse(template, builder, prev = INITIAL) {
             const state = injectionMap.get(prevState);
             if (state) {
                 builder.push({
-                    type: "INJECT",
+                    type: INJECT,
                     index: prevTarget.x,
                     state
                 });
             } else {
                 builder.push({
-                    type: "ERROR",
+                    type: ERROR1,
                     state: prevState,
                     vector: create(origin, origin)
                 });
@@ -275,7 +273,7 @@ function parse(template, builder, prev = INITIAL) {
     }while (increment(template, origin))
     if (prevState === currState) return;
     builder.push({
-        type: "BUILD",
+        type: BUILD,
         state: currState,
         vector: create(origin, origin)
     });

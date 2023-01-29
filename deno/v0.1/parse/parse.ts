@@ -15,6 +15,12 @@ const injectionMap = new Map([
 ]);
 
 const INITIAL = "INITIAL";
+const TEXT = "TEXT";
+const ERROR = "ERROR";
+const DEFAULT = "DEFAULT";
+const BUILD = "BUILD";
+const INJECT = "INJECT";
+const EMPTY = "";
 
 function parse(
   template: TemplateStringsArray,
@@ -30,26 +36,17 @@ function parse(
 
   // iterate across text
   do {
-    const char = getChar(template, origin);
-    if (char === undefined) {
-      builder.push({
-        type: "ERROR",
-        state: currState,
-        vector: create(origin, origin),
-      });
-      return;
-    }
-
     // skip empty strings or state swap
-    if (char !== "") {
+    const char = getChar(template, origin);
+    if (char !== undefined && char !== EMPTY) {
       prevState = currState;
       const route = routes[prevState];
       if (route) {
-        currState = route[char] ?? route["DEFAULT"];
+        currState = route[char] ?? route[DEFAULT];
       }
-      if (currState === "ERROR") {
+      if (currState === ERROR) {
         builder.push({
-          type: "ERROR",
+          type: ERROR,
           state: prevState,
           vector: create(origin, origin),
         });
@@ -60,7 +57,7 @@ function parse(
     // build
     if (prevState !== currState) {
       builder.push({
-        type: "BUILD",
+        type: BUILD,
         state: prevState,
         vector: create(prevOrigin, prevTarget),
       });
@@ -71,10 +68,10 @@ function parse(
 
     // inject
     if (prevTarget.x < origin.x) {
-      if (prevState === "TEXT") {
+      if (prevState === TEXT) {
         builder.push({
-          type: "BUILD",
-          state: "TEXT",
+          type: BUILD,
+          state: TEXT,
           vector: create(prevOrigin, prevTarget),
         });
 
@@ -84,10 +81,10 @@ function parse(
       }
       const state = injectionMap.get(prevState);
       if (state) {
-        builder.push({ type: "INJECT", index: prevTarget.x, state });
+        builder.push({ type: INJECT, index: prevTarget.x, state });
       } else {
         builder.push({
-          type: "ERROR",
+          type: ERROR,
           state: prevState,
           vector: create(origin, origin),
         });
@@ -102,7 +99,7 @@ function parse(
   // get tail end
   if (prevState === currState) return;
   builder.push({
-    type: "BUILD",
+    type: BUILD,
     state: currState,
     vector: create(origin, origin),
   });
