@@ -12,22 +12,17 @@ import {
   incrementOrigin,
 } from "./text_vector.ts";
 
-type TextTextInterpolator = <I>(
+function testTextInterpolator<I>(
   templateArray: TemplateStringsArray,
   ...injections: I[]
-) => TemplateStringsArray;
-
-const testTextInterpolator: TextTextInterpolator = (
-  templateArray,
-  ...injections
-) => {
+) {
   return templateArray;
 };
 
 const title = "text_vector";
 const runTestsAsynchronously = true;
 
-const createTextVector = () => {
+function createTextVector() {
   const assertions = [];
 
   const expectedResults = {
@@ -44,7 +39,7 @@ const createTextVector = () => {
   return assertions;
 };
 
-const createTextVectorFromPosition = () => {
+function createTextVectorFromPosition() {
   const assertions = [];
 
   const expectedResults = {
@@ -64,7 +59,7 @@ const createTextVectorFromPosition = () => {
   return assertions;
 };
 
-const copyTextVector = () => {
+function copyTextVector() {
   const assertions = [];
 
   const expectedResults = {
@@ -80,7 +75,7 @@ const copyTextVector = () => {
   return assertions;
 };
 
-const incrementTextVector = () => {
+function incrementTextVector() {
   const assertions = [];
 
   const expectedResults = {
@@ -100,7 +95,7 @@ const incrementTextVector = () => {
   return assertions;
 };
 
-const incrementMultiTextVector = () => {
+function incrementMultiTextVector() {
   const assertions = [];
 
   const expectedResults = {
@@ -124,7 +119,7 @@ const incrementMultiTextVector = () => {
   return assertions;
 };
 
-const incrementEmptyTextVector = () => {
+function incrementEmptyTextVector() {
   const assertions = [];
 
   const expectedResults = {
@@ -150,7 +145,7 @@ const incrementEmptyTextVector = () => {
   return assertions;
 };
 
-const incrementTextVectorTooFar = () => {
+function incrementTextVectorTooFar() {
   const assertions = [];
 
   const expectedResults = {
@@ -174,7 +169,7 @@ const incrementTextVectorTooFar = () => {
   return assertions;
 };
 
-const testGetTextReturnsActualText = () => {
+function testGetTextReturnsActualText() {
   const expectedResult = "world";
   const assertions = [];
 
@@ -198,7 +193,7 @@ const testGetTextReturnsActualText = () => {
   return assertions;
 };
 
-const testGetTextOverTemplate = () => {
+function testGetTextOverTemplate() {
   const expectedResult = "how";
   const assertions = [];
 
@@ -223,7 +218,7 @@ const testGetTextOverTemplate = () => {
   return assertions;
 };
 
-const testGetTextLastChunkTemplate = () => {
+function testGetTextLastChunkTemplate() {
   const expectedResult = "buster";
   const assertions = [];
 

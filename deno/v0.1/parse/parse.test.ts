@@ -7,20 +7,13 @@ import { samestuff } from "../test_deps.ts";
 import { createFromTemplate } from "../text_vector/text_vector.ts";
 
 
-const INITIAL = "INITIAL";
-
 const title = "** parse tests **";
 const runTestsAsynchronously = true;
 
-type TextTextInterpolator = <I>(
+function testTextInterpolator<I>(
   templateArray: TemplateStringsArray,
   ...injections: I[]
-) => TemplateStringsArray;
-
-const testTextInterpolator: TextTextInterpolator = (
-  templateArray,
-  ...injections
-) => {
+) {
   return templateArray;
 };
 

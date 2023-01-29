@@ -87,11 +87,11 @@ function getText(template, vector) {
     if (templateText === undefined) return;
     return templateText.substr(origin.y, vector.target.y - origin.y + 1);
 }
-const testTextInterpolator = (templateArray, ...injections)=>{
+function testTextInterpolator(templateArray, ...injections) {
     return templateArray;
-};
+}
 const title = "text_vector";
-const createTextVector = ()=>{
+function createTextVector() {
     const assertions = [];
     const expectedResults = {
         origin: {
@@ -108,8 +108,8 @@ const createTextVector = ()=>{
         assertions.push("unexpected results found.");
     }
     return assertions;
-};
-const createTextVectorFromPosition = ()=>{
+}
+function createTextVectorFromPosition() {
     const assertions = [];
     const expectedResults = {
         origin: {
@@ -129,8 +129,8 @@ const createTextVectorFromPosition = ()=>{
         assertions.push("unexpected results found.");
     }
     return assertions;
-};
-const copyTextVector = ()=>{
+}
+function copyTextVector() {
     const assertions = [];
     const expectedResults = {
         origin: {
@@ -147,8 +147,8 @@ const copyTextVector = ()=>{
         assertions.push("unexpected results found.");
     }
     return assertions;
-};
-const incrementTextVector = ()=>{
+}
+function incrementTextVector() {
     const assertions = [];
     const expectedResults = {
         origin: {
@@ -167,8 +167,8 @@ const incrementTextVector = ()=>{
         assertions.push("unexpected results found.");
     }
     return assertions;
-};
-const incrementMultiTextVector = ()=>{
+}
+function incrementMultiTextVector() {
     const assertions = [];
     const expectedResults = {
         origin: {
@@ -191,8 +191,8 @@ const incrementMultiTextVector = ()=>{
         assertions.push("unexpected results found.");
     }
     return assertions;
-};
-const incrementEmptyTextVector = ()=>{
+}
+function incrementEmptyTextVector() {
     const assertions = [];
     const expectedResults = {
         origin: {
@@ -216,8 +216,8 @@ const incrementEmptyTextVector = ()=>{
         assertions.push("unexpected results found.");
     }
     return assertions;
-};
-const incrementTextVectorTooFar = ()=>{
+}
+function incrementTextVectorTooFar() {
     const assertions = [];
     const expectedResults = {
         origin: {
@@ -239,8 +239,8 @@ const incrementTextVectorTooFar = ()=>{
         assertions.push("unexpected results found.");
     }
     return assertions;
-};
-const testGetTextReturnsActualText = ()=>{
+}
+function testGetTextReturnsActualText() {
     const expectedResult = "world";
     const assertions = [];
     const structureRender = testTextInterpolator`hey world, how are you?`;
@@ -259,8 +259,8 @@ const testGetTextReturnsActualText = ()=>{
         assertions.push("text should say 'world'");
     }
     return assertions;
-};
-const testGetTextOverTemplate = ()=>{
+}
+function testGetTextOverTemplate() {
     const expectedResult = "how";
     const assertions = [];
     const structureRender = testTextInterpolator`hey ${"world"}, how ${"are"} you?`;
@@ -279,8 +279,8 @@ const testGetTextOverTemplate = ()=>{
         assertions.push("text should say 'world'");
     }
     return assertions;
-};
-const testGetTextLastChunkTemplate = ()=>{
+}
+function testGetTextLastChunkTemplate() {
     const expectedResult = "buster";
     const assertions = [];
     const structureRender = testTextInterpolator`hey ${"world"}, how ${"are"} you ${"doing"} buster?`;
@@ -299,7 +299,7 @@ const testGetTextLastChunkTemplate = ()=>{
         assertions.push("text should say 'world'");
     }
     return assertions;
-};
+}
 const tests = [
     createTextVector,
     createTextVectorFromPosition,
@@ -542,9 +542,9 @@ function parse(template, builder, delta) {
     });
 }
 const title1 = "** parse tests **";
-const testTextInterpolator1 = (templateArray, ...injections)=>{
+function testTextInterpolator1(templateArray, ...injections) {
     return templateArray;
-};
+}
 function parseNodeTest() {
     const assertions = [];
     const testVector = testTextInterpolator1`<hello>`;
