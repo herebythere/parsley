@@ -212,14 +212,20 @@ function parse(template, builder, prev = INITIAL) {
     };
     do {
         const __char = getChar(template, origin);
-        if (__char === undefined) return;
+        if (__char === undefined) {
+            builder.push({
+                type: "ERROR",
+                state: currState,
+                vector: create(origin, origin)
+            });
+            return;
+        }
         if (__char !== "") {
             prevState = currState;
             const route = routes[prevState];
             if (route) {
                 currState = route[__char] ?? route["DEFAULT"];
             }
-            currState = route[__char] ?? route["DEFAULT"];
             if (currState === "ERROR") {
                 builder.push({
                     type: "ERROR",

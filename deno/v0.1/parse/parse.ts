@@ -31,7 +31,14 @@ function parse(
   // iterate across text
   do {
     const char = getChar(template, origin);
-    if (char === undefined) return;
+    if (char === undefined) {
+      builder.push({
+        type: "ERROR",
+        state: currState,
+        vector: create(origin, origin),
+      });
+      return;
+    }
  
     // skip empty strings or state swap
     if (char !== "") {
@@ -40,7 +47,6 @@ function parse(
       if (route) {
          currState = route[char] ?? route["DEFAULT"];
       }
-      currState = route[char] ?? route["DEFAULT"];
       if (currState === "ERROR") {
         builder.push({
           type: "ERROR",
