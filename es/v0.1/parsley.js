@@ -197,10 +197,12 @@ function parse(template, builder, prev = INITIAL) {
         y: 0
     };
     const prevPos = {
-        ...origin
+        x: 0,
+        y: 0
     };
     const prevOrigin = {
-        ...origin
+        x: 0,
+        y: 0
     };
     do {
         const __char = getChar(template, origin);
