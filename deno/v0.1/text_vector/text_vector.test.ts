@@ -67,8 +67,8 @@ function copyTextVector() {
     target: { x: 2, y: 3 },
   };
 
-  const copiedVector = copy(expectedResults);
-  if (!samestuff(expectedResults, copiedVector)) {
+  const vector = copy(expectedResults);
+  if (!samestuff(expectedResults, vector)) {
     assertions.push("unexpected results found.");
   }
 
