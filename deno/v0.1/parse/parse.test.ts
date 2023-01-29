@@ -2,7 +2,7 @@ import type { Vector } from "../type_flyweight/text_vector.ts";
 import type { BuilderInterface, BuildStep } from "../type_flyweight/parse.ts";
 import type { Delta } from "../type_flyweight/parse.ts";
 
-import { createDelta, parse } from "./parse.ts";
+import { parse } from "./parse.ts";
 import { samestuff } from "../test_deps.ts";
 import { createFromTemplate } from "../text_vector/text_vector.ts";
 
@@ -44,7 +44,7 @@ function parseNodeTest() {
   ];
 
   const stack: BuildStep[] = [];
-  parse(testVector, stack, createDelta());
+  parse(testVector, stack);
 
   if (!samestuff(expectedResults, stack)) {
     assertions.push("stack does not match expected results");
@@ -90,7 +90,7 @@ function parseNodeWithImplicitAttributeTest() {
   ];
 
   const stack: BuildStep[] = [];
-  parse(testVector, stack, createDelta());
+  parse(testVector, stack);
 
   if (!samestuff(expectedResults, stack)) {
     assertions.push("stack does not match expected results");
@@ -141,7 +141,7 @@ function parseNodeWithImplicitAttributeWithSpacesTest() {
   ];
 
   const stack: BuildStep[] = [];
-  parse(testVector, stack, createDelta());
+  parse(testVector, stack);
 
   if (!samestuff(expectedResults, stack)) {
     assertions.push("stack does not match expected results");
@@ -184,7 +184,7 @@ function parseIndependentNodeTest() {
   ];
 
   const stack: BuildStep[] = [];
-  parse(testVector, stack, createDelta());
+  parse(testVector, stack);
 
   if (!samestuff(expectedResults, stack)) {
     assertions.push("stack does not match expected results");
@@ -235,7 +235,7 @@ function parseIndependentNodeWithImplicitAttributeTest() {
   ];
 
   const stack: BuildStep[] = [];
-  parse(testVector, stack, createDelta());
+  parse(testVector, stack);
 
   if (!samestuff(expectedResults, stack)) {
     assertions.push("stack does not match expected results");
@@ -291,7 +291,7 @@ function parseIndependentNodeWithImplicitAttributeWithSpacesTest() {
   ];
 
   const stack: BuildStep[] = [];
-  parse(testVector, stack, createDelta());
+  parse(testVector, stack);
 
   if (!samestuff(expectedResults, stack)) {
     assertions.push("stack does not match expected results");
@@ -364,7 +364,7 @@ function parseExplicitAttributeTest() {
   ];
 
   const stack: BuildStep[] = [];
-  parse(testVector, stack, createDelta());
+  parse(testVector, stack);
 
   if (!samestuff(expectedResults, stack)) {
     assertions.push("stack does not match expected results");
@@ -440,7 +440,7 @@ function parseExplicitAttributeWithSpacesTest() {
   ];
 
   const stack: BuildStep[] = [];
-  parse(testVector, stack, createDelta());
+  parse(testVector, stack);
 
   if (!samestuff(expectedResults, stack)) {
     assertions.push("stack does not match expected results");
@@ -499,7 +499,7 @@ function parseNodeInjectionsTest() {
   ];
 
   const stack: BuildStep[] = [];
-  parse(testVector, stack, createDelta());
+  parse(testVector, stack);
 
   if (!samestuff(expectedResults, stack)) {
     assertions.push("stack does not match expected results");
@@ -566,7 +566,7 @@ function parseNodeWithAttributeInjectionsTest() {
   ];
 
   const stack: BuildStep[] = [];
-  parse(testVector, stack, createDelta());
+  parse(testVector, stack);
 
   if (!samestuff(expectedResults, stack)) {
     assertions.push("stack does not match expected results");
@@ -613,7 +613,7 @@ function parseNodeWithAttributeMapInjectionsTest() {
   ];
 
   const stack: BuildStep[] = [];
-  parse(testVector, stack, createDelta());
+  parse(testVector, stack);
 
   if (!samestuff(expectedResults, stack)) {
     assertions.push("stack does not match expected results");
@@ -671,7 +671,7 @@ function parseCommentTest() {
   ];
 
   const stack: BuildStep[] = [];
-  parse(testVector, stack, createDelta());
+  parse(testVector, stack);
 
   if (!samestuff(expectedResults, stack)) {
     assertions.push("stack does not match expected results");
@@ -689,7 +689,7 @@ function parseEmptyTest() {
 
   const stack: BuildStep[] = [];
 
-  parse(testVector, stack, createDelta());
+  parse(testVector, stack);
 
   if (!samestuff(expectedResults, stack)) {
     assertions.push("stack does not match expected results");
@@ -707,7 +707,7 @@ function parseEmptyWithInjectionTest() {
 
   const stack: BuildStep[] = [];
 
-  parse(testVector, stack, createDelta());
+  parse(testVector, stack);
 
   if (!samestuff(expectedResults, stack)) {
     assertions.push("stack does not match expected results");
@@ -727,7 +727,7 @@ function parseEmptyWithMultipleInjectionsTest() {
 
   const stack: BuildStep[] = [];
 
-  parse(testVector, stack, createDelta());
+  parse(testVector, stack);
 
   if (!samestuff(expectedResults, stack)) {
     assertions.push("stack does not match expected results");
@@ -1013,7 +1013,7 @@ function parseNestedTemplateWithInjectionsTest() {
 
   const stack: BuildStep[] = [];
 
-  parse(testVector, stack, createDelta());
+  parse(testVector, stack);
   if (!samestuff(expectedResults, stack)) {
     assertions.push("stack does not match expected results");
   }

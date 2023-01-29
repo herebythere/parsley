@@ -69,13 +69,6 @@ function copy(vector: Vector): Vector {
   };
 }
 
-function incrementOrigin(
-  template: TemplateStringsArray,
-  vector: Vector,
-): Vector | undefined {
-  if (increment(template, vector.origin)) return vector;
-}
-
 function getText(
   template: TemplateStringsArray,
   vector: Vector,
@@ -87,4 +80,4 @@ function getText(
   return templateText.substr(origin.y, vector.target.y - origin.y + 1);
 }
 
-export { copy, create, createFromTemplate, getChar, getText, incrementOrigin };
+export { copy, create, createFromTemplate, getChar, getText, increment };

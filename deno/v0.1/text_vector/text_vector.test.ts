@@ -9,7 +9,7 @@ import {
   create,
   createFromTemplate,
   getText,
-  incrementOrigin,
+  increment,
 } from "./text_vector.ts";
 
 function testTextInterpolator<I>(
@@ -86,7 +86,7 @@ function incrementTextVector() {
   const structureRender = testTextInterpolator`hello`;
   const vector: Vector = createFromTemplate(structureRender);
 
-  incrementOrigin(structureRender, vector);
+  increment(structureRender, vector.origin);
 
   if (!samestuff(expectedResults, vector)) {
     assertions.push("unexpected results found.");
@@ -106,11 +106,11 @@ function incrementMultiTextVector() {
   const structureRender = testTextInterpolator`hey${"world"}, how are you?`;
   const vector: Vector = createFromTemplate(structureRender);
 
-  incrementOrigin(structureRender, vector);
-  incrementOrigin(structureRender, vector);
-  incrementOrigin(structureRender, vector);
-  incrementOrigin(structureRender, vector);
-  incrementOrigin(structureRender, vector);
+  increment(structureRender, vector.origin);
+  increment(structureRender, vector.origin);
+  increment(structureRender, vector.origin);
+  increment(structureRender, vector.origin);
+  increment(structureRender, vector.origin);
 
   if (!samestuff(expectedResults, vector)) {
     assertions.push("unexpected results found.");
@@ -130,11 +130,11 @@ function incrementEmptyTextVector() {
   const structureRender = testTextInterpolator`${"hey"}${"world"}${"!!"}`;
   const vector: Vector = createFromTemplate(structureRender);
 
-  incrementOrigin(structureRender, vector);
-  incrementOrigin(structureRender, vector);
-  incrementOrigin(structureRender, vector);
+  increment(structureRender, vector.origin);
+  increment(structureRender, vector.origin);
+  increment(structureRender, vector.origin);
 
-  if (incrementOrigin(structureRender, vector) !== undefined) {
+  if (increment(structureRender, vector.origin) !== undefined) {
     assertions.push("should not return after traversed");
   }
 
@@ -154,15 +154,15 @@ function incrementTextVectorTooFar() {
   };
 
   const structureRender = testTextInterpolator`hey${"world"}, how are you?`;
-  const results: Vector = createFromTemplate(structureRender);
+  const vector: Vector = createFromTemplate(structureRender);
 
   const MAX_DEPTH = 20;
   let safety = 0;
-  while (incrementOrigin(structureRender, results) && safety < MAX_DEPTH) {
+  while (increment(structureRender, vector.origin) && safety < MAX_DEPTH) {
     safety += 1;
   }
 
-  if (!samestuff(expectedResults, results)) {
+  if (!samestuff(expectedResults, vector)) {
     assertions.push("unexpected results found.");
   }
 

@@ -2,11 +2,7 @@ import type { BuilderInterface, Delta } from "../type_flyweight/parse.ts";
 import type { Vector } from "../type_flyweight/text_vector.ts";
 
 import { routes } from "./routes.ts";
-import {
-  create,
-  getChar,
-  incrementOrigin,
-} from "../text_vector/text_vector.ts";
+import { create, getChar, increment } from "../text_vector/text_vector.ts";
 
 const injectionMap = new Map([
   ["ATTRIBUTE_DECLARATION", "ATTRIBUTE_INJECTION"],
@@ -20,80 +16,83 @@ const injectionMap = new Map([
 
 const INITIAL = "INITIAL";
 
-function createDelta(): Delta {
-  return {
-    prevPos: { x: 0, y: 0 },
-    origin: { x: 0, y: 0 },
-    vector: create(),
-    prevState: INITIAL,
-    state: INITIAL,
-  };
-}
-
 function parse(
   template: TemplateStringsArray,
   builder: BuilderInterface,
-  delta: Delta,
+  prev: string = INITIAL,
 ) {
+  let prevState: string = prev;
+  let currState: string = prevState;
+  
+  const origin = { x: 0, y: 0 };
+  const prevPos = { ...origin };
+  const prevOrigin = { ...origin };
+
   // iterate across text
   do {
-    const char = getChar(template, delta.vector.origin);
+    const char = getChar(template, origin);
     if (char === undefined) return;
 
     // skip empty strings or state swap
     if (char !== "") {
-      delta.prevState = delta.state;
-      delta.state = routes[delta.prevState]?.[char];
-      if (delta.state === undefined) {
-        delta.state = routes[delta.prevState]?.["DEFAULT"] ?? "ERROR";
+      prevState = currState;
+      currState = routes[prevState]?.[char];
+      if (currState === undefined) {
+        currState = routes[prevState]?.["DEFAULT"] ?? "ERROR";
       }
-      if (delta.state === "ERROR") {
-        const vector = create(delta.origin, delta.prevPos);
-      	builder.push({ type: "ERROR", state: delta.prevState, vector });
+      if (currState === "ERROR") {
+        builder.push({
+          type: "ERROR",
+          state: prevState,
+          vector: create(origin, prevPos),
+        });
         return;
       }
     }
 
     // build
-    if (delta.prevState !== delta.state) {
-      const vector = create(delta.origin, delta.prevPos);
-      builder.push({ type: "BUILD", state: delta.prevState, vector });
+    if (prevState !== currState) {
+      builder.push({
+        type: "BUILD",
+        state: prevState,
+        vector: create(prevOrigin, prevPos),
+      });
 
-      delta.origin.x = delta.vector.origin.x;
-      delta.origin.y = delta.vector.origin.y;
+      prevOrigin.x = origin.x;
+      prevOrigin.y = origin.y;
     }
 
     // inject
-    if (delta.prevPos.x < delta.vector.origin.x) {
-      if (delta.prevState === "TEXT") {
-        const vector = create(delta.origin, delta.prevPos);
-        builder.push({ type: "BUILD", state: "TEXT", vector });
+    if (prevPos.x < origin.x) {
+      if (prevState === "TEXT") {
+        builder.push({
+          type: "BUILD",
+          state: "TEXT",
+          vector: create(prevOrigin, prevPos),
+        });
 
-        delta.prevState = delta.state;
-        delta.origin.x = delta.vector.origin.x;
-        delta.origin.y = delta.vector.origin.y;
+        prevState = currState;
+        prevOrigin.x = origin.x;
+        prevOrigin.y = origin.y;
       }
-
-      const state = injectionMap.get(delta.prevState);
-      if (state) {
-        builder.push({ type: "INJECT", index: delta.prevPos.x, state });
+      const injstate = injectionMap.get(prevState);
+      if (injstate) {
+        builder.push({ type: "INJECT", index: prevPos.x, state: injstate });
       }
     }
 
     // set previous
-    delta.prevPos.x = delta.vector.origin.x;
-    delta.prevPos.y = delta.vector.origin.y;
-  } while (incrementOrigin(template, delta.vector));
+    prevPos.x = origin.x;
+    prevPos.y = origin.y;
+  } while (increment(template, origin));
 
   // get tail end
-  if (delta.prevState === delta.state) return;
-
-  const vector = create(delta.origin, delta.origin);
+  if (prevState === currState) return;
   builder.push({
     type: "BUILD",
-    state: delta.state,
-    vector,
+    state: currState,
+    vector: create(origin, origin),
   });
 }
 
-export { createDelta, parse };
+export { parse };
