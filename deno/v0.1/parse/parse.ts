@@ -34,9 +34,9 @@ function parse<I>(
 		  delta.prevStat = delta.state;
 		  delta.state = routes[delta.prevState]?.[char];
 		  if (delta.state === undefined) {
-		    delta.state = routes[delta.prevState]?.["DEFAULT"] ?? "ERROR_STRING";
+		    delta.state = routes[delta.prevState]?.["DEFAULT"] ?? "ERROR";
 		  }
-		  if (delta.state === "ERROR_STRING") return;
+		  if (delta.state === "ERROR") return;
     }
     
     // build
@@ -68,10 +68,10 @@ function parse<I>(
     // set previous
     delta.prevPos.x = delta.vector.origin.x;
     delta.prevPos.y = delta.vector.origin.y;
-  } while (delta.state !== "ERROR_STRING" && incrementOrigin(template, delta.vector));
+  } while (delta.state !== "ERROR" && incrementOrigin(template, delta.vector));
 
   // get tail end
-  if (delta.prevState === delta.state || delta.state === "ERROR_STRING") return;
+  if (delta.prevState === delta.state || delta.state === "ERROR") return;
   
   const vector = create(delta.origin, delta.origin);
   builder.push({

@@ -1,5 +1,5 @@
 // brian taylor vann
-// routers
+// routes
 
 import type { Routes } from "../type_flyweight/parse.ts";
 
@@ -7,7 +7,7 @@ const NODE = "NODE";
 const ATTRIBUTE = "ATTRIBUTE"
 const ATTRIBUTE_VALUE = "ATTRIBUTE_VALUE";
 const TEXT = "TEXT";
-const ERROR_STRING = "ERROR_STRING";
+const ERROR = "ERROR";
 const NODE_SPACE = "NODE_SPACE";
 const NODE_CLOSED = "NODE_CLOSED";
 const INDEPENDENT_NODE = "INDEPENDENT_NODE";
@@ -26,16 +26,16 @@ const routes: Routes = {
   },
   // NODE
   NODE: {
-    " ": ERROR_STRING,
+    " ": ERROR,
     "\n": NODE,
     "\t": NODE,
     "/": "CLOSE_NODE_SLASH",
-    ">": ERROR_STRING,
+    ">": ERROR,
     "-": "COMMENT_0",
     DEFAULT: "TAGNAME",
   },
   CLOSE_NODE_SLASH: {
-    " ": ERROR_STRING,
+    " ": ERROR,
     DEFAULT: CLOSE_TAGNAME,
   },
   TAGNAME: {
@@ -112,7 +112,7 @@ const routes: Routes = {
   // comments
   COMMENT_0: {
     "-": "COMMENT_1",
-    DEFAULT: ERROR_STRING,
+    DEFAULT: ERROR,
   },
   COMMENT_1: {
     "-": "COMMENT_CLOSE",
@@ -124,7 +124,7 @@ const routes: Routes = {
   },
   COMMENT_CLOSE: {
     "-": "COMMENT_CLOSE_1",
-    DEFAULT: ERROR_STRING,
+    DEFAULT: ERROR,
   },
   COMMENT_CLOSE_1: {
     ">": NODE_CLOSED,
