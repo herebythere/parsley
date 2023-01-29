@@ -33,12 +33,4 @@ interface BuilderInterface {
   push(buildStep: BuildStep): void;
 }
 
-interface Delta {
-  prevPos: Position;
-  origin: Position;
-  prevState: string;
-  state: string;
-  vector: Vector;
-}
-
-export type { BuilderInterface, BuildStep, Delta, Routes };
+export type { BuilderInterface, BuildStep, Routes };
