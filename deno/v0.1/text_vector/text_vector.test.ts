@@ -1,10 +1,9 @@
-import type { Vector } from "../type_flyweight/text_vector.ts";
+import type { Position, Vector } from "../type_flyweight/text_vector.ts";
 
 import { samestuff } from "../test_deps.ts";
 import {
   copy,
   create,
-  createFromTemplate,
   getText,
   increment,
 } from "./text_vector.ts";
@@ -75,17 +74,14 @@ function copyTextVector() {
 function incrementTextVector() {
   const assertions = [];
 
-  const expectedResults = {
-    origin: { x: 0, y: 1 },
-    target: { x: 0, y: 4 },
-  };
+  const expectedResults = { x: 0, y: 1 };
 
   const structureRender = testTextInterpolator`hello`;
-  const vector: Vector = createFromTemplate(structureRender);
+  const origin: Position = { x: 0, y: 0 };
 
-  increment(structureRender, vector.origin);
+  increment(structureRender, origin);
 
-  if (!samestuff(expectedResults, vector)) {
+  if (!samestuff(expectedResults, origin)) {
     assertions.push("unexpected results found.");
   }
 
@@ -95,21 +91,18 @@ function incrementTextVector() {
 function incrementMultiTextVector() {
   const assertions = [];
 
-  const expectedResults = {
-    origin: { x: 1, y: 2 },
-    target: { x: 1, y: 13 },
-  };
+  const expectedResults = { x: 1, y: 2 };
 
   const structureRender = testTextInterpolator`hey${"world"}, how are you?`;
-  const vector: Vector = createFromTemplate(structureRender);
+  const origin: Position = { x: 0, y: 0 };
 
-  increment(structureRender, vector.origin);
-  increment(structureRender, vector.origin);
-  increment(structureRender, vector.origin);
-  increment(structureRender, vector.origin);
-  increment(structureRender, vector.origin);
+  increment(structureRender, origin);
+  increment(structureRender, origin);
+  increment(structureRender, origin);
+  increment(structureRender, origin);
+  increment(structureRender, origin);
 
-  if (!samestuff(expectedResults, vector)) {
+  if (!samestuff(expectedResults, origin)) {
     assertions.push("unexpected results found.");
   }
 
@@ -119,23 +112,20 @@ function incrementMultiTextVector() {
 function incrementEmptyTextVector() {
   const assertions = [];
 
-  const expectedResults = {
-    origin: { x: 3, y: 0 },
-    target: { x: 3, y: -1 },
-  };
+  const expectedResults = { x: 3, y: 0 };
 
   const structureRender = testTextInterpolator`${"hey"}${"world"}${"!!"}`;
-  const vector: Vector = createFromTemplate(structureRender);
+  const origin: Position = { x: 0, y: 0 };
 
-  increment(structureRender, vector.origin);
-  increment(structureRender, vector.origin);
-  increment(structureRender, vector.origin);
+  increment(structureRender, origin);
+  increment(structureRender, origin);
+  increment(structureRender, origin);
 
-  if (increment(structureRender, vector.origin) !== undefined) {
+  if (increment(structureRender, origin) !== undefined) {
     assertions.push("should not return after traversed");
   }
 
-  if (!samestuff(expectedResults, vector)) {
+  if (!samestuff(expectedResults, origin)) {
     assertions.push("unexpected results found.");
   }
 
@@ -145,21 +135,18 @@ function incrementEmptyTextVector() {
 function incrementTextVectorTooFar() {
   const assertions = [];
 
-  const expectedResults = {
-    origin: { x: 1, y: 13 },
-    target: { x: 1, y: 13 },
-  };
+  const expectedResults = { x: 1, y: 13 };
 
   const structureRender = testTextInterpolator`hey${"world"}, how are you?`;
-  const vector: Vector = createFromTemplate(structureRender);
+  const origin: Position = { x: 0, y: 0 };
 
   const MAX_DEPTH = 20;
   let safety = 0;
-  while (increment(structureRender, vector.origin) && safety < MAX_DEPTH) {
+  while (increment(structureRender, origin) && safety < MAX_DEPTH) {
     safety += 1;
   }
 
-  if (!samestuff(expectedResults, vector)) {
+  if (!samestuff(expectedResults, origin)) {
     assertions.push("unexpected results found.");
   }
 

@@ -49,16 +49,6 @@ function create(
   };
 }
 
-function createFromTemplate(template: TemplateStringsArray): Vector {
-  const x = template.length - 1;
-  const y = template[x].length - 1;
-
-  return {
-    origin: { x: 0, y: 0 },
-    target: { x, y },
-  };
-}
-
 function copy(vector: Vector): Vector {
   return {
     origin: { ...vector.origin },
@@ -77,4 +67,4 @@ function getText(
   return templateText.substr(origin.y, vector.target.y - origin.y + 1);
 }
 
-export { copy, create, createFromTemplate, getChar, getText, increment };
+export { copy, create, getChar, getText, increment };
