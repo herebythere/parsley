@@ -3,30 +3,6 @@
 
 import type { Position, Vector } from "../type_flyweight/text_vector.ts";
 
-
-type IncrementPos = (
-  template: TemplateStringsArray,
-  position: Position,
-) => Position | undefined;
-
-type GetChar = (
-  template: TemplateStringsArray,
-  position: Position,
-) => string | undefined;
-
-type GetText = (
-  template: TemplateStringsArray,
-  vector: Vector,
-) => string | undefined;
-
-type Create = (origin?: Position, target?: Position) => Vector;
-type Copy = (vector: Vector) => Vector;
-
-type Increment = (
-  template: TemplateStringsArray,
-  vector: Vector,
-) => Vector | undefined;
-
 const DEFAULT_POSITION: Position = {
   x: 0,
   y: 0,
