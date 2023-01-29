@@ -121,7 +121,7 @@ const routes = {
     },
     COMMENT_CLOSE_1: {
         ">": NODE_CLOSED,
-        DEFAULT: "COMMENT"
+        DEFAULT: ERROR
     }
 };
 const DEFAULT_POSITION = {
@@ -215,7 +215,7 @@ function parse(template, builder, prev = INITIAL) {
                 builder.push({
                     type: "ERROR",
                     state: prevState,
-                    vector: create(origin, prevPos)
+                    vector: create(origin, origin)
                 });
                 return;
             }

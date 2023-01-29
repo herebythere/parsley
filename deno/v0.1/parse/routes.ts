@@ -125,7 +125,7 @@ const routes: Routes = {
   },
   COMMENT_CLOSE_1: {
     ">": NODE_CLOSED,
-    DEFAULT: "COMMENT",
+    DEFAULT: ERROR,
   },
 };
 

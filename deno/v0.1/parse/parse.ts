@@ -1,4 +1,4 @@
-import type { BuilderInterface, Delta } from "../type_flyweight/parse.ts";
+import type { BuilderInterface } from "../type_flyweight/parse.ts";
 import type { Vector } from "../type_flyweight/text_vector.ts";
 
 import { routes } from "./routes.ts";
@@ -44,7 +44,7 @@ function parse(
         builder.push({
           type: "ERROR",
           state: prevState,
-          vector: create(origin, prevPos),
+          vector: create(origin, origin),
         });
         return;
       }

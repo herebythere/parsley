@@ -139,8 +139,8 @@ function copyTextVector() {
             y: 3
         }
     };
-    const copiedVector = copy(expectedResults);
-    if (!samestuff(expectedResults, copiedVector)) {
+    const vector = copy(expectedResults);
+    if (!samestuff(expectedResults, vector)) {
         assertions.push("unexpected results found.");
     }
     return assertions;
@@ -433,7 +433,7 @@ const routes = {
     },
     COMMENT_CLOSE_1: {
         ">": NODE_CLOSED,
-        DEFAULT: "COMMENT"
+        DEFAULT: ERROR
     }
 };
 const injectionMap = new Map([
@@ -493,7 +493,7 @@ function parse(template, builder, prev = INITIAL) {
                 builder.push({
                     type: "ERROR",
                     state: prevState,
-                    vector: create(origin, prevPos)
+                    vector: create(origin, origin)
                 });
                 return;
             }
@@ -1988,6 +1988,264 @@ function parseCommentTest() {
     }
     return assertions;
 }
+function parseErrorTest() {
+    const assertions = [];
+    const testVector = testTextInterpolator1`< a>`;
+    const expectedResults = [
+        {
+            type: "BUILD",
+            state: "INITIAL",
+            vector: {
+                origin: {
+                    x: 0,
+                    y: 0
+                },
+                target: {
+                    x: 0,
+                    y: 0
+                }
+            }
+        },
+        {
+            type: "ERROR",
+            state: "NODE",
+            vector: {
+                origin: {
+                    x: 0,
+                    y: 1
+                },
+                target: {
+                    x: 0,
+                    y: 1
+                }
+            }
+        }
+    ];
+    const stack = [];
+    parse(testVector, stack);
+    if (!samestuff(expectedResults, stack)) {
+        assertions.push("stack does not match expected results");
+    }
+    return assertions;
+}
+function parseCloseNodeErrorTest() {
+    const assertions = [];
+    const testVector = testTextInterpolator1`</ a>`;
+    const expectedResults = [
+        {
+            type: "BUILD",
+            state: "INITIAL",
+            vector: {
+                origin: {
+                    x: 0,
+                    y: 0
+                },
+                target: {
+                    x: 0,
+                    y: 0
+                }
+            }
+        },
+        {
+            type: "BUILD",
+            state: "NODE",
+            vector: {
+                origin: {
+                    x: 0,
+                    y: 0
+                },
+                target: {
+                    x: 0,
+                    y: 0
+                }
+            }
+        },
+        {
+            type: "ERROR",
+            state: "CLOSE_NODE_SLASH",
+            vector: {
+                origin: {
+                    x: 0,
+                    y: 2
+                },
+                target: {
+                    x: 0,
+                    y: 2
+                }
+            }
+        }
+    ];
+    const stack = [];
+    parse(testVector, stack);
+    if (!samestuff(expectedResults, stack)) {
+        assertions.push("stack does not match expected results");
+    }
+    return assertions;
+}
+function parseCommentErrorTest() {
+    const assertions = [];
+    const testVector = testTextInterpolator1`<- `;
+    const expectedResults = [
+        {
+            type: "BUILD",
+            state: "INITIAL",
+            vector: {
+                origin: {
+                    x: 0,
+                    y: 0
+                },
+                target: {
+                    x: 0,
+                    y: 0
+                }
+            }
+        },
+        {
+            type: "BUILD",
+            state: "NODE",
+            vector: {
+                origin: {
+                    x: 0,
+                    y: 0
+                },
+                target: {
+                    x: 0,
+                    y: 0
+                }
+            }
+        },
+        {
+            type: "ERROR",
+            state: "COMMENT_0",
+            vector: {
+                origin: {
+                    x: 0,
+                    y: 2
+                },
+                target: {
+                    x: 0,
+                    y: 2
+                }
+            }
+        }
+    ];
+    const stack = [];
+    parse(testVector, stack);
+    if (!samestuff(expectedResults, stack)) {
+        assertions.push("stack does not match expected results");
+    }
+    return assertions;
+}
+function parseCloseCommentErrorTest() {
+    const assertions = [];
+    const testVector = testTextInterpolator1`<-- -- `;
+    const expectedResults = [
+        {
+            type: "BUILD",
+            state: "INITIAL",
+            vector: {
+                origin: {
+                    x: 0,
+                    y: 0
+                },
+                target: {
+                    x: 0,
+                    y: 0
+                }
+            }
+        },
+        {
+            type: "BUILD",
+            state: "NODE",
+            vector: {
+                origin: {
+                    x: 0,
+                    y: 0
+                },
+                target: {
+                    x: 0,
+                    y: 0
+                }
+            }
+        },
+        {
+            type: "BUILD",
+            state: "COMMENT_0",
+            vector: {
+                origin: {
+                    x: 0,
+                    y: 1
+                },
+                target: {
+                    x: 0,
+                    y: 1
+                }
+            }
+        },
+        {
+            type: "BUILD",
+            state: "COMMENT_1",
+            vector: {
+                origin: {
+                    x: 0,
+                    y: 2
+                },
+                target: {
+                    x: 0,
+                    y: 2
+                }
+            }
+        },
+        {
+            type: "BUILD",
+            state: "COMMENT",
+            vector: {
+                origin: {
+                    x: 0,
+                    y: 3
+                },
+                target: {
+                    x: 0,
+                    y: 3
+                }
+            }
+        },
+        {
+            type: "BUILD",
+            state: "COMMENT_CLOSE",
+            vector: {
+                origin: {
+                    x: 0,
+                    y: 4
+                },
+                target: {
+                    x: 0,
+                    y: 4
+                }
+            }
+        },
+        {
+            type: "ERROR",
+            state: "COMMENT_CLOSE_1",
+            vector: {
+                origin: {
+                    x: 0,
+                    y: 6
+                },
+                target: {
+                    x: 0,
+                    y: 6
+                }
+            }
+        }
+    ];
+    const stack = [];
+    parse(testVector, stack);
+    if (!samestuff(expectedResults, stack)) {
+        assertions.push("stack does not match expected results");
+    }
+    return assertions;
+}
 function parseEmptyTest() {
     const assertions = [];
     const testVector = testTextInterpolator1``;
@@ -2818,6 +3076,10 @@ const tests1 = [
     parseNodeWithAttributeInjectionsTest,
     parseNodeWithAttributeMapInjectionsTest,
     parseCommentTest,
+    parseErrorTest,
+    parseCloseNodeErrorTest,
+    parseCommentErrorTest,
+    parseCloseCommentErrorTest,
     parseEmptyTest,
     parseEmptyWithInjectionTest,
     parseEmptyWithMultipleInjectionsTest,
