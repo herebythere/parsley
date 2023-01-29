@@ -3,8 +3,6 @@ export type {
   BuilderInterface,
   BuildStep,
   Delta,
-  InjectionStep,
-  NodeStep,
   Routes,
 } from "./type_flyweight/parse.ts";
 

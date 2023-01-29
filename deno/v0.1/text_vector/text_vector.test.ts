@@ -2,7 +2,6 @@
 // text vector
 
 import type { Vector } from "../type_flyweight/text_vector.ts";
-import type { Template } from "../type_flyweight/template.ts";
 
 import { samestuff } from "../test_deps.ts";
 import {
@@ -16,13 +15,13 @@ import {
 type TextTextInterpolator = <I>(
   templateArray: TemplateStringsArray,
   ...injections: I[]
-) => Template<I>;
+) => TemplateStringsArray;
 
 const testTextInterpolator: TextTextInterpolator = (
   templateArray,
   ...injections
 ) => {
-  return { templateArray, injections };
+  return templateArray;
 };
 
 const title = "text_vector";

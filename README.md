@@ -1,46 +1,64 @@
 # Parsley
 
-Create custom XML documents.
-
-## Abstract
-
-Parsley is a portable library
+XML parser
 
 ## About
 
-Parsley is an XML parser helps create custom document structures.
+Parsley provides the build steps of an xml document.
+
+It helps build documents from custom xml langauges.
 
 ## Install
 
 Clone this repository and copy a version into your codebase.
 
-#### Deno
-
-Import `v0.1` into a deno project.
+### Deno
 
 ```ts
-import { Chunk } from "https://raw.githubusercontent.com/taylor-vann/parsley/main/v0.1/src/parsley.ts";
+import { parse } from "https://raw.githubusercontent.com/taylor-vann/parsley/main/deno/v0.1/mod.ts";
 ```
-
-// N Node // A Attributables // P Params // S State
 
 ## How to use
 
-Parsley contructs interactive documents from XML through an external interface.
+Parsely relies on three interfaces:
+- `Template` has properties 
+- `Builder` accepts build steps and
+- `Delta`
 
-The
-[hooks interface](https://github.com/taylor-vann/parsley-dom/blob/main/v0.1/src/hooks/hooks.ts)
-in [Parsley-dom](https://github.com/taylor-vann/parsley-dom) uses Parsley to
-maintain document structure.
+### Templates
 
-## Plans
+Parsley expects an template interface including an array of xml and an array of injections.
 
-Parsley is written in Typescript.
+```
+Template {
+	template: []string
+	injections: []unknown
+}
+```
 
-But it's a completely portable set of abstractions ready to be implemented in
-other languages.
+### Builder
 
-Rust and C# are the most likely next targets.
+Parsley uses a builder interface to 
+
+```
+Builder {
+	push(step: BuildStep) {
+		...
+	}
+}
+```
+
+### Parse
+
+```
+parse(
+	template: Template,
+	builder: Builder,
+	delta: Delta,
+): void
+```
+
+
 
 ## License
 

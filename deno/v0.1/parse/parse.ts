@@ -1,5 +1,5 @@
 import type { BuilderInterface, Delta } from "../type_flyweight/parse.ts";
-import type { Template } from "../type_flyweight/template.ts";
+import type { Vector } from "../type_flyweight/text_vector.ts";
 
 import { routes } from "./routes.ts";
 import {
@@ -19,8 +19,20 @@ const injectionMap = new Map([
 	["TEXT", "DESCENDANT_INJECTION"],
 ]);
 
-function parse<I>(
-  template: Template<I>,
+const INITIAL = "INITIAL";
+
+function createDelta(): Delta {
+  return {
+    prevPos: { x: 0, y: 0 },
+    origin: { x: 0, y: 0 },
+    vector: create(),
+    prevState: INITIAL,
+    state: INITIAL,
+  };
+}
+
+function parse(
+  template: TemplateStringsArray,
   builder: BuilderInterface,
   delta: Delta,
 ) {
@@ -31,12 +43,16 @@ function parse<I>(
     
     // skip empty strings or state swap
 		if (char !== "") {
-		  delta.prevStat = delta.state;
+		  delta.prevState = delta.state;
 		  delta.state = routes[delta.prevState]?.[char];
 		  if (delta.state === undefined) {
 		    delta.state = routes[delta.prevState]?.["DEFAULT"] ?? "ERROR";
 		  }
-		  if (delta.state === "ERROR") return;
+		  if (delta.state === "ERROR") {
+		  	return;
+		  }
+		  
+		  // return on error
     }
     
     // build
@@ -81,4 +97,4 @@ function parse<I>(
   });
 }
 
-export { parse };
+export { parse, createDelta };

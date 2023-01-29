@@ -128,10 +128,10 @@ const DEFAULT_POSITION = {
     x: 0,
     y: 0
 };
-const increment = (template, position)=>{
-    const templateLength = template.templateArray.length - 1;
+function increment(template, position) {
+    const templateLength = template.length - 1;
     if (position.x > templateLength) return;
-    const chunk = template.templateArray[position.x];
+    const chunk = template[position.x];
     if (chunk === undefined) return;
     const chunkLength = chunk.length - 1;
     if (position.x >= templateLength && position.y >= chunkLength) return;
@@ -141,24 +141,26 @@ const increment = (template, position)=>{
         position.y = 0;
     }
     return position;
-};
-const getChar = (template, position)=>{
-    const str = template.templateArray[position.x];
+}
+function getChar(template, position) {
+    const str = template[position.x];
     if (str === undefined) return;
     if (str.length === 0) return str;
     return str[position.y];
-};
-const create = (origin = DEFAULT_POSITION, target = origin)=>({
+}
+function create(origin = DEFAULT_POSITION, target = origin) {
+    return {
         origin: {
             ...origin
         },
         target: {
             ...target
         }
-    });
-const incrementOrigin = (template, vector)=>{
+    };
+}
+function incrementOrigin(template, vector) {
     if (increment(template, vector.origin)) return vector;
-};
+}
 const injectionMap = new Map([
     [
         "ATTRIBUTE_DECLARATION",
@@ -199,7 +201,9 @@ function parse(template, builder, delta) {
             if (delta.state === undefined) {
                 delta.state = routes[delta.prevState]?.["DEFAULT"] ?? "ERROR";
             }
-            if (delta.state === "ERROR") return;
+            if (delta.state === "ERROR") {
+                return;
+            }
         }
         if (delta.prevState !== delta.state) {
             const vector = create(delta.origin, delta.prevPos);

@@ -24,10 +24,10 @@ const DEFAULT_POSITION = {
     x: 0,
     y: 0
 };
-const increment = (template, position)=>{
-    const templateLength = template.templateArray.length - 1;
+function increment(template, position) {
+    const templateLength = template.length - 1;
     if (position.x > templateLength) return;
-    const chunk = template.templateArray[position.x];
+    const chunk = template[position.x];
     if (chunk === undefined) return;
     const chunkLength = chunk.length - 1;
     if (position.x >= templateLength && position.y >= chunkLength) return;
@@ -37,25 +37,26 @@ const increment = (template, position)=>{
         position.y = 0;
     }
     return position;
-};
-const getChar = (template, position)=>{
-    const str = template.templateArray[position.x];
+}
+function getChar(template, position) {
+    const str = template[position.x];
     if (str === undefined) return;
     if (str.length === 0) return str;
     return str[position.y];
-};
-const create = (origin = DEFAULT_POSITION, target = origin)=>({
+}
+function create(origin = DEFAULT_POSITION, target = origin) {
+    return {
         origin: {
             ...origin
         },
         target: {
             ...target
         }
-    });
-const createFromTemplate = (template)=>{
-    const { templateArray  } = template;
-    const x = templateArray.length - 1;
-    const y = templateArray[x].length - 1;
+    };
+}
+function createFromTemplate(template) {
+    const x = template.length - 1;
+    const y = template[x].length - 1;
     return {
         origin: {
             x: 0,
@@ -66,8 +67,8 @@ const createFromTemplate = (template)=>{
             y
         }
     };
-};
-const copy = (vector)=>{
+}
+function copy(vector) {
     return {
         origin: {
             ...vector.origin
@@ -76,21 +77,18 @@ const copy = (vector)=>{
             ...vector.target
         }
     };
-};
-const incrementOrigin = (template, vector)=>{
+}
+function incrementOrigin(template, vector) {
     if (increment(template, vector.origin)) return vector;
-};
-const getText = (template, vector)=>{
+}
+function getText(template, vector) {
     const origin = vector.origin;
-    let templateText = template.templateArray[origin.x];
+    let templateText = template[origin.x];
     if (templateText === undefined) return;
     return templateText.substr(origin.y, vector.target.y - origin.y + 1);
-};
+}
 const testTextInterpolator = (templateArray, ...injections)=>{
-    return {
-        templateArray,
-        injections
-    };
+    return templateArray;
 };
 const title = "text_vector";
 const createTextVector = ()=>{
@@ -471,6 +469,22 @@ const injectionMap = new Map([
         "DESCENDANT_INJECTION"
     ]
 ]);
+const INITIAL = "INITIAL";
+function createDelta() {
+    return {
+        prevPos: {
+            x: 0,
+            y: 0
+        },
+        origin: {
+            x: 0,
+            y: 0
+        },
+        vector: create(),
+        prevState: INITIAL,
+        state: INITIAL
+    };
+}
 function parse(template, builder, delta) {
     do {
         const __char = getChar(template, delta.vector.origin);
@@ -481,7 +495,9 @@ function parse(template, builder, delta) {
             if (delta.state === undefined) {
                 delta.state = routes[delta.prevState]?.["DEFAULT"] ?? "ERROR";
             }
-            if (delta.state === "ERROR") return;
+            if (delta.state === "ERROR") {
+                return;
+            }
         }
         if (delta.prevState !== delta.state) {
             const vector = create(delta.origin, delta.prevPos);
@@ -525,29 +541,10 @@ function parse(template, builder, delta) {
         vector: vector2
     });
 }
-const INITIAL = "INITIAL";
 const title1 = "** parse tests **";
 const testTextInterpolator1 = (templateArray, ...injections)=>{
-    return {
-        templateArray,
-        injections
-    };
+    return templateArray;
 };
-function createDelta(vector) {
-    return {
-        prevPos: {
-            x: 0,
-            y: 0
-        },
-        origin: {
-            x: 0,
-            y: 0
-        },
-        vector,
-        prevState: INITIAL,
-        state: INITIAL
-    };
-}
 function parseNodeTest() {
     const assertions = [];
     const testVector = testTextInterpolator1`<hello>`;
@@ -610,7 +607,7 @@ function parseNodeTest() {
         }
     ];
     const stack = [];
-    parse(testVector, stack, createDelta(createFromTemplate(testVector)));
+    parse(testVector, stack, createDelta());
     if (!samestuff(expectedResults, stack)) {
         assertions.push("stack does not match expected results");
     }
@@ -706,7 +703,7 @@ function parseNodeWithImplicitAttributeTest() {
         }
     ];
     const stack = [];
-    parse(testVector, stack, createDelta(createFromTemplate(testVector)));
+    parse(testVector, stack, createDelta());
     if (!samestuff(expectedResults, stack)) {
         assertions.push("stack does not match expected results");
     }
@@ -816,7 +813,7 @@ function parseNodeWithImplicitAttributeWithSpacesTest() {
         }
     ];
     const stack = [];
-    parse(testVector, stack, createDelta(createFromTemplate(testVector)));
+    parse(testVector, stack, createDelta());
     if (!samestuff(expectedResults, stack)) {
         assertions.push("stack does not match expected results");
     }
@@ -898,7 +895,7 @@ function parseIndependentNodeTest() {
         }
     ];
     const stack = [];
-    parse(testVector, stack, createDelta(createFromTemplate(testVector)));
+    parse(testVector, stack, createDelta());
     if (!samestuff(expectedResults, stack)) {
         assertions.push("stack does not match expected results");
     }
@@ -1008,7 +1005,7 @@ function parseIndependentNodeWithImplicitAttributeTest() {
         }
     ];
     const stack = [];
-    parse(testVector, stack, createDelta(createFromTemplate(testVector)));
+    parse(testVector, stack, createDelta());
     if (!samestuff(expectedResults, stack)) {
         assertions.push("stack does not match expected results");
     }
@@ -1132,7 +1129,7 @@ function parseIndependentNodeWithImplicitAttributeWithSpacesTest() {
         }
     ];
     const stack = [];
-    parse(testVector, stack, createDelta(createFromTemplate(testVector)));
+    parse(testVector, stack, createDelta());
     if (!samestuff(expectedResults, stack)) {
         assertions.push("stack does not match expected results");
     }
@@ -1298,7 +1295,7 @@ function parseExplicitAttributeTest() {
         }
     ];
     const stack = [];
-    parse(testVector, stack, createDelta(createFromTemplate(testVector)));
+    parse(testVector, stack, createDelta());
     if (!samestuff(expectedResults, stack)) {
         assertions.push("stack does not match expected results");
     }
@@ -1478,7 +1475,7 @@ function parseExplicitAttributeWithSpacesTest() {
         }
     ];
     const stack = [];
-    parse(testVector, stack, createDelta(createFromTemplate(testVector)));
+    parse(testVector, stack, createDelta());
     if (!samestuff(expectedResults, stack)) {
         assertions.push("stack does not match expected results");
     }
@@ -1607,7 +1604,7 @@ function parseNodeInjectionsTest() {
         }
     ];
     const stack = [];
-    parse(testVector, stack, createDelta(createFromTemplate(testVector)));
+    parse(testVector, stack, createDelta());
     if (!samestuff(expectedResults, stack)) {
         assertions.push("stack does not match expected results");
     }
@@ -1764,7 +1761,7 @@ function parseNodeWithAttributeInjectionsTest() {
         }
     ];
     const stack = [];
-    parse(testVector, stack, createDelta(createFromTemplate(testVector)));
+    parse(testVector, stack, createDelta());
     if (!samestuff(expectedResults, stack)) {
         assertions.push("stack does not match expected results");
     }
@@ -1865,7 +1862,7 @@ function parseNodeWithAttributeMapInjectionsTest() {
         }
     ];
     const stack = [];
-    parse(testVector, stack, createDelta(createFromTemplate(testVector)));
+    parse(testVector, stack, createDelta());
     if (!samestuff(expectedResults, stack)) {
         assertions.push("stack does not match expected results");
     }
@@ -1989,7 +1986,7 @@ function parseCommentTest() {
         }
     ];
     const stack = [];
-    parse(testVector, stack, createDelta(createFromTemplate(testVector)));
+    parse(testVector, stack, createDelta());
     if (!samestuff(expectedResults, stack)) {
         assertions.push("stack does not match expected results");
     }
@@ -2000,7 +1997,7 @@ function parseEmptyTest() {
     const testVector = testTextInterpolator1``;
     const expectedResults = [];
     const stack = [];
-    parse(testVector, stack, createDelta(createFromTemplate(testVector)));
+    parse(testVector, stack, createDelta());
     if (!samestuff(expectedResults, stack)) {
         assertions.push("stack does not match expected results");
     }
@@ -2017,7 +2014,7 @@ function parseEmptyWithInjectionTest() {
         }
     ];
     const stack = [];
-    parse(testVector, stack, createDelta(createFromTemplate(testVector)));
+    parse(testVector, stack, createDelta());
     if (!samestuff(expectedResults, stack)) {
         assertions.push("stack does not match expected results");
     }
@@ -2044,7 +2041,7 @@ function parseEmptyWithMultipleInjectionsTest() {
         }
     ];
     const stack = [];
-    parse(testVector, stack, createDelta(createFromTemplate(testVector)));
+    parse(testVector, stack, createDelta());
     if (!samestuff(expectedResults, stack)) {
         assertions.push("stack does not match expected results");
     }
@@ -2806,7 +2803,7 @@ function parseNestedTemplateWithInjectionsTest() {
         }
     ];
     const stack = [];
-    parse(testVector, stack, createDelta(createFromTemplate(testVector)));
+    parse(testVector, stack, createDelta());
     if (!samestuff(expectedResults, stack)) {
         assertions.push("stack does not match expected results");
     }
@@ -2835,6 +2832,7 @@ const unitTestParse = {
     tests: tests1,
     runTestsAsynchronously: true
 };
+0;
 const testCollections = [
     unitTestTextVector,
     unitTestParse

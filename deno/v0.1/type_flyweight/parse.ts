@@ -39,7 +39,5 @@ export type {
   BuilderInterface,
   BuildStep,
   Delta,
-  InjectionStep,
-  NodeStep,
   Routes,
 };
