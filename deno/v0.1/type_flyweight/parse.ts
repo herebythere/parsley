@@ -35,9 +35,4 @@ interface Delta {
   vector: Vector;
 }
 
-export type {
-  BuilderInterface,
-  BuildStep,
-  Delta,
-  Routes,
-};
+export type { BuilderInterface, BuildStep, Delta, Routes };

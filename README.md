@@ -21,13 +21,15 @@ import { parse } from "https://raw.githubusercontent.com/taylor-vann/parsley/mai
 ## How to use
 
 Parsely relies on three interfaces:
-- `Template` has properties 
+
+- `Template` has properties
 - `Builder` accepts build steps and
 - `Delta`
 
 ### Templates
 
-Parsley expects an template interface including an array of xml and an array of injections.
+Parsley expects an template interface including an array of xml and an array of
+injections.
 
 ```
 Template {
@@ -38,7 +40,7 @@ Template {
 
 ### Builder
 
-Parsley uses a builder interface to 
+Parsley uses a builder interface to
 
 ```
 Builder {
@@ -57,8 +59,6 @@ parse(
 	delta: Delta,
 ): void
 ```
-
-
 
 ## License
 

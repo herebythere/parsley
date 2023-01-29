@@ -17,7 +17,7 @@ function testTextInterpolator<I>(
   ...injections: I[]
 ) {
   return templateArray;
-};
+}
 
 const title = "text_vector";
 const runTestsAsynchronously = true;
@@ -37,7 +37,7 @@ function createTextVector() {
   }
 
   return assertions;
-};
+}
 
 function createTextVectorFromPosition() {
   const assertions = [];
@@ -57,7 +57,7 @@ function createTextVectorFromPosition() {
   }
 
   return assertions;
-};
+}
 
 function copyTextVector() {
   const assertions = [];
@@ -73,7 +73,7 @@ function copyTextVector() {
   }
 
   return assertions;
-};
+}
 
 function incrementTextVector() {
   const assertions = [];
@@ -93,7 +93,7 @@ function incrementTextVector() {
   }
 
   return assertions;
-};
+}
 
 function incrementMultiTextVector() {
   const assertions = [];
@@ -117,7 +117,7 @@ function incrementMultiTextVector() {
   }
 
   return assertions;
-};
+}
 
 function incrementEmptyTextVector() {
   const assertions = [];
@@ -143,7 +143,7 @@ function incrementEmptyTextVector() {
   }
 
   return assertions;
-};
+}
 
 function incrementTextVectorTooFar() {
   const assertions = [];
@@ -167,7 +167,7 @@ function incrementTextVectorTooFar() {
   }
 
   return assertions;
-};
+}
 
 function testGetTextReturnsActualText() {
   const expectedResult = "world";
@@ -191,7 +191,7 @@ function testGetTextReturnsActualText() {
   }
 
   return assertions;
-};
+}
 
 function testGetTextOverTemplate() {
   const expectedResult = "how";
@@ -216,7 +216,7 @@ function testGetTextOverTemplate() {
   }
 
   return assertions;
-};
+}
 
 function testGetTextLastChunkTemplate() {
   const expectedResult = "buster";
@@ -241,7 +241,7 @@ function testGetTextLastChunkTemplate() {
   }
 
   return assertions;
-};
+}
 
 const tests = [
   createTextVector,

@@ -8,15 +8,14 @@ import {
   incrementOrigin,
 } from "../text_vector/text_vector.ts";
 
-
 const injectionMap = new Map([
-	["ATTRIBUTE_DECLARATION", "ATTRIBUTE_INJECTION"],
-	["INDEPENDENT_NODE_CLOSED", "DESCENDANT_INJECTION"],
-	["NODE_CLOSED", "DESCENDANT_INJECTION"],
-	["INITIAL", "DESCENDANT_INJECTION"],
-	["NODE_SPACE", "ATTRIBUTE_INJECTION_MAP"],
-	["TAGNAME", "ATTRIBUTE_INJECTION_MAP"],
-	["TEXT", "DESCENDANT_INJECTION"],
+  ["ATTRIBUTE_DECLARATION", "ATTRIBUTE_INJECTION"],
+  ["INDEPENDENT_NODE_CLOSED", "DESCENDANT_INJECTION"],
+  ["NODE_CLOSED", "DESCENDANT_INJECTION"],
+  ["INITIAL", "DESCENDANT_INJECTION"],
+  ["NODE_SPACE", "ATTRIBUTE_INJECTION_MAP"],
+  ["TAGNAME", "ATTRIBUTE_INJECTION_MAP"],
+  ["TEXT", "DESCENDANT_INJECTION"],
 ]);
 
 const INITIAL = "INITIAL";
@@ -40,21 +39,21 @@ function parse(
   do {
     const char = getChar(template, delta.vector.origin);
     if (char === undefined) return;
-    
+
     // skip empty strings or state swap
-		if (char !== "") {
-		  delta.prevState = delta.state;
-		  delta.state = routes[delta.prevState]?.[char];
-		  if (delta.state === undefined) {
-		    delta.state = routes[delta.prevState]?.["DEFAULT"] ?? "ERROR";
-		  }
-		  if (delta.state === "ERROR") {
-		  	return;
-		  }
-		  
-		  // return on error
+    if (char !== "") {
+      delta.prevState = delta.state;
+      delta.state = routes[delta.prevState]?.[char];
+      if (delta.state === undefined) {
+        delta.state = routes[delta.prevState]?.["DEFAULT"] ?? "ERROR";
+      }
+      if (delta.state === "ERROR") {
+        return;
+      }
+
+      // return on error
     }
-    
+
     // build
     if (delta.prevState !== delta.state) {
       const vector = create(delta.origin, delta.prevPos);
@@ -88,7 +87,7 @@ function parse(
 
   // get tail end
   if (delta.prevState === delta.state || delta.state === "ERROR") return;
-  
+
   const vector = create(delta.origin, delta.origin);
   builder.push({
     type: "BUILD",
@@ -97,4 +96,4 @@ function parse(
   });
 }
 
-export { parse, createDelta };
+export { createDelta, parse };

@@ -4,7 +4,7 @@
 import type { Routes } from "../type_flyweight/parse.ts";
 
 const NODE = "NODE";
-const ATTRIBUTE = "ATTRIBUTE"
+const ATTRIBUTE = "ATTRIBUTE";
 const ATTRIBUTE_VALUE = "ATTRIBUTE_VALUE";
 const TEXT = "TEXT";
 const ERROR = "ERROR";
