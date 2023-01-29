@@ -1,6 +1,3 @@
-// brian taylor vann
-// routes
-
 import type { Routes } from "../type_flyweight/parse.ts";
 
 const NODE = "NODE";

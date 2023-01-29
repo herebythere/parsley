@@ -1,6 +1,3 @@
-// brian taylor vann
-// text vector
-
 import type { Position, Vector } from "../type_flyweight/text_vector.ts";
 
 const DEFAULT_POSITION: Position = {

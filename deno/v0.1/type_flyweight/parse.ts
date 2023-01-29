@@ -1,6 +1,3 @@
-// brian taylor vann
-// skeleton crawl types
-
 import type { Position, Vector } from "./text_vector.ts";
 
 type RouterMap = Record<string, string> & {

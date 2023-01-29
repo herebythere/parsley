@@ -1,6 +1,3 @@
-// brian taylor vann
-// text vector types
-
 interface Position {
   x: number; // chunk
   y: number; // postition

@@ -1,6 +1,3 @@
-// brian taylor vann
-// text vector
-
 import type { Vector } from "../type_flyweight/text_vector.ts";
 
 import { samestuff } from "../test_deps.ts";
