@@ -25,8 +25,8 @@ function parse(
   let currState: string = prevState;
 
   const origin = { x: 0, y: 0 };
-  const prevPos = { ...origin };
-  const prevOrigin = { ...origin };
+  const prevPos = { x: 0, y: 0 };
+  const prevOrigin = { x: 0, y: 0 };
 
   // iterate across text
   do {
