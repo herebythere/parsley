@@ -1,8 +1,4 @@
-// brian taylor vann
-// text vector
-
 import type { Vector } from "../type_flyweight/text_vector.ts";
-import type { Template } from "../type_flyweight/template.ts";
 
 import { samestuff } from "../test_deps.ts";
 import {
@@ -10,25 +6,20 @@ import {
   create,
   createFromTemplate,
   getText,
-  incrementOrigin,
+  increment,
 } from "./text_vector.ts";
 
-type TextTextInterpolator = <I>(
+function testTextInterpolator<I>(
   templateArray: TemplateStringsArray,
   ...injections: I[]
-) => Template<I>;
-
-const testTextInterpolator: TextTextInterpolator = (
-  templateArray,
-  ...injections
-) => {
-  return { templateArray, injections };
-};
+) {
+  return templateArray;
+}
 
 const title = "text_vector";
 const runTestsAsynchronously = true;
 
-const createTextVector = () => {
+function createTextVector() {
   const assertions = [];
 
   const expectedResults = {
@@ -43,9 +34,9 @@ const createTextVector = () => {
   }
 
   return assertions;
-};
+}
 
-const createTextVectorFromPosition = () => {
+function createTextVectorFromPosition() {
   const assertions = [];
 
   const expectedResults = {
@@ -63,9 +54,9 @@ const createTextVectorFromPosition = () => {
   }
 
   return assertions;
-};
+}
 
-const copyTextVector = () => {
+function copyTextVector() {
   const assertions = [];
 
   const expectedResults = {
@@ -73,15 +64,15 @@ const copyTextVector = () => {
     target: { x: 2, y: 3 },
   };
 
-  const copiedVector = copy(expectedResults);
-  if (!samestuff(expectedResults, copiedVector)) {
+  const vector = copy(expectedResults);
+  if (!samestuff(expectedResults, vector)) {
     assertions.push("unexpected results found.");
   }
 
   return assertions;
-};
+}
 
-const incrementTextVector = () => {
+function incrementTextVector() {
   const assertions = [];
 
   const expectedResults = {
@@ -92,16 +83,16 @@ const incrementTextVector = () => {
   const structureRender = testTextInterpolator`hello`;
   const vector: Vector = createFromTemplate(structureRender);
 
-  incrementOrigin(structureRender, vector);
+  increment(structureRender, vector.origin);
 
   if (!samestuff(expectedResults, vector)) {
     assertions.push("unexpected results found.");
   }
 
   return assertions;
-};
+}
 
-const incrementMultiTextVector = () => {
+function incrementMultiTextVector() {
   const assertions = [];
 
   const expectedResults = {
@@ -112,20 +103,20 @@ const incrementMultiTextVector = () => {
   const structureRender = testTextInterpolator`hey${"world"}, how are you?`;
   const vector: Vector = createFromTemplate(structureRender);
 
-  incrementOrigin(structureRender, vector);
-  incrementOrigin(structureRender, vector);
-  incrementOrigin(structureRender, vector);
-  incrementOrigin(structureRender, vector);
-  incrementOrigin(structureRender, vector);
+  increment(structureRender, vector.origin);
+  increment(structureRender, vector.origin);
+  increment(structureRender, vector.origin);
+  increment(structureRender, vector.origin);
+  increment(structureRender, vector.origin);
 
   if (!samestuff(expectedResults, vector)) {
     assertions.push("unexpected results found.");
   }
 
   return assertions;
-};
+}
 
-const incrementEmptyTextVector = () => {
+function incrementEmptyTextVector() {
   const assertions = [];
 
   const expectedResults = {
@@ -136,11 +127,11 @@ const incrementEmptyTextVector = () => {
   const structureRender = testTextInterpolator`${"hey"}${"world"}${"!!"}`;
   const vector: Vector = createFromTemplate(structureRender);
 
-  incrementOrigin(structureRender, vector);
-  incrementOrigin(structureRender, vector);
-  incrementOrigin(structureRender, vector);
+  increment(structureRender, vector.origin);
+  increment(structureRender, vector.origin);
+  increment(structureRender, vector.origin);
 
-  if (incrementOrigin(structureRender, vector) !== undefined) {
+  if (increment(structureRender, vector.origin) !== undefined) {
     assertions.push("should not return after traversed");
   }
 
@@ -149,9 +140,9 @@ const incrementEmptyTextVector = () => {
   }
 
   return assertions;
-};
+}
 
-const incrementTextVectorTooFar = () => {
+function incrementTextVectorTooFar() {
   const assertions = [];
 
   const expectedResults = {
@@ -160,22 +151,22 @@ const incrementTextVectorTooFar = () => {
   };
 
   const structureRender = testTextInterpolator`hey${"world"}, how are you?`;
-  const results: Vector = createFromTemplate(structureRender);
+  const vector: Vector = createFromTemplate(structureRender);
 
   const MAX_DEPTH = 20;
   let safety = 0;
-  while (incrementOrigin(structureRender, results) && safety < MAX_DEPTH) {
+  while (increment(structureRender, vector.origin) && safety < MAX_DEPTH) {
     safety += 1;
   }
 
-  if (!samestuff(expectedResults, results)) {
+  if (!samestuff(expectedResults, vector)) {
     assertions.push("unexpected results found.");
   }
 
   return assertions;
-};
+}
 
-const testGetTextReturnsActualText = () => {
+function testGetTextReturnsActualText() {
   const expectedResult = "world";
   const assertions = [];
 
@@ -197,9 +188,9 @@ const testGetTextReturnsActualText = () => {
   }
 
   return assertions;
-};
+}
 
-const testGetTextOverTemplate = () => {
+function testGetTextOverTemplate() {
   const expectedResult = "how";
   const assertions = [];
 
@@ -222,9 +213,9 @@ const testGetTextOverTemplate = () => {
   }
 
   return assertions;
-};
+}
 
-const testGetTextLastChunkTemplate = () => {
+function testGetTextLastChunkTemplate() {
   const expectedResult = "buster";
   const assertions = [];
 
@@ -247,7 +238,7 @@ const testGetTextLastChunkTemplate = () => {
   }
 
   return assertions;
-};
+}
 
 const tests = [
   createTextVector,

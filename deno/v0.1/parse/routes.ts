@@ -1,10 +1,7 @@
-// brian taylor vann
-// routers
-
 import type { Routes } from "../type_flyweight/parse.ts";
 
 const NODE = "NODE";
-const ATTRIBUTE = "ATTRIBUTE"
+const ATTRIBUTE = "ATTRIBUTE";
 const ATTRIBUTE_VALUE = "ATTRIBUTE_VALUE";
 const TEXT = "TEXT";
 const ERROR = "ERROR";
@@ -128,7 +125,7 @@ const routes: Routes = {
   },
   COMMENT_CLOSE_1: {
     ">": NODE_CLOSED,
-    DEFAULT: "COMMENT",
+    DEFAULT: ERROR,
   },
 };
 

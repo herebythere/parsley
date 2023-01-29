@@ -1,69 +1,64 @@
 # Parsley
 
-Dynamically maintain XML documents like
-[DOM](https://github.com/taylor-vann/parsley-dom).
-
-unminimized and uncompressed < 39kb
-
-## TODO
-
-** Make Template independent of render strucutre or other structures
-
-user supplies hooks
-
-BUILDER TO HOOKS VECTOR TO TEXT WRITER
-
-## Abstract
-
-Parsley is a portable meta-library that generates libraries to create different
-kinds of documents!
+XML parser
 
 ## About
 
-Parsley is an XML factory that generates APIs to create custom document
-structures.
+Parsley provides the build steps of an xml document.
 
-Parsley can build interfaces to represent:
-
-- Screenplays
-- Game Dialog
-- World Objects in ThreeJS
-- Geodatabase XML
-- Application resources
-- Historical Records
-- DOM & SVG
+It helps build documents from custom xml langauges.
 
 ## Install
 
 Clone this repository and copy a version into your codebase.
 
-#### Deno
-
-Import `v0.1` into a deno project.
+### Deno
 
 ```ts
-import { Chunk } from "https://raw.githubusercontent.com/taylor-vann/parsley/main/v0.1/src/parsley.ts";
+import { parse } from "https://raw.githubusercontent.com/taylor-vann/parsley/main/deno/v0.1/mod.ts";
 ```
-
-// N Node // A Attributables // P Params // S State
 
 ## How to use
 
-Parsley contructs interactive documents from XML through an external interface.
+Parsely relies on three interfaces:
 
-The
-[hooks interface](https://github.com/taylor-vann/parsley-dom/blob/main/v0.1/src/hooks/hooks.ts)
-in [Parsley-dom](https://github.com/taylor-vann/parsley-dom) uses Parsley to
-maintain document structure.
+- `Template` has properties
+- `Builder` accepts build steps and
+- `Delta`
 
-## Plans
+### Templates
 
-Parsley is written in Typescript.
+Parsley expects an template interface including an array of xml and an array of
+injections.
 
-But it's a completely portable set of abstractions ready to be implemented in
-other languages.
+```
+Template {
+	template: []string
+	injections: []unknown
+}
+```
 
-Rust and C# are the most likely next targets.
+### Builder
+
+Parsley uses a builder interface to
+
+```
+Builder {
+	push(step: BuildStep) {
+		...
+	}
+}
+```
+
+### Parse
+
+```
+parse(
+	template: Template,
+	builder: Builder,
+	delta: Delta,
+): void
+```
 
 ## License
 

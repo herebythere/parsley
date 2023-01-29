@@ -121,17 +121,17 @@ const routes = {
     },
     COMMENT_CLOSE_1: {
         ">": NODE_CLOSED,
-        DEFAULT: "COMMENT"
+        DEFAULT: ERROR
     }
 };
 const DEFAULT_POSITION = {
     x: 0,
     y: 0
 };
-const increment = (template, position)=>{
-    const templateLength = template.templateArray.length - 1;
+function increment(template, position) {
+    const templateLength = template.length - 1;
     if (position.x > templateLength) return;
-    const chunk = template.templateArray[position.x];
+    const chunk = template[position.x];
     if (chunk === undefined) return;
     const chunkLength = chunk.length - 1;
     if (position.x >= templateLength && position.y >= chunkLength) return;
@@ -141,24 +141,23 @@ const increment = (template, position)=>{
         position.y = 0;
     }
     return position;
-};
-const getChar = (template, position)=>{
-    const str = template.templateArray[position.x];
+}
+function getChar(template, position) {
+    const str = template[position.x];
     if (str === undefined) return;
     if (str.length === 0) return str;
     return str[position.y];
-};
-const create = (origin = DEFAULT_POSITION, target = origin)=>({
+}
+function create(origin = DEFAULT_POSITION, target = origin) {
+    return {
         origin: {
             ...origin
         },
         target: {
             ...target
         }
-    });
-const incrementOrigin = (template, vector)=>{
-    if (increment(template, vector.origin)) return vector;
-};
+    };
+}
 const injectionMap = new Map([
     [
         "ATTRIBUTE_DECLARATION",
@@ -189,58 +188,75 @@ const injectionMap = new Map([
         "DESCENDANT_INJECTION"
     ]
 ]);
-function parse(template, builder, delta) {
+const INITIAL = "INITIAL";
+function parse(template, builder, prev = INITIAL) {
+    let prevState = prev;
+    let currState = prevState;
+    const origin = {
+        x: 0,
+        y: 0
+    };
+    const prevPos = {
+        ...origin
+    };
+    const prevOrigin = {
+        ...origin
+    };
     do {
-        const __char = getChar(template, delta.vector.origin);
+        const __char = getChar(template, origin);
         if (__char === undefined) return;
         if (__char !== "") {
-            delta.prevState = delta.state;
-            delta.state = routes[delta.prevState]?.[__char];
-            if (delta.state === undefined) {
-                delta.state = routes[delta.prevState]?.["DEFAULT"] ?? "ERROR";
+            prevState = currState;
+            currState = routes[prevState]?.[__char];
+            if (currState === undefined) {
+                currState = routes[prevState]?.["DEFAULT"] ?? "ERROR";
             }
-            if (delta.state === "ERROR") return;
+            if (currState === "ERROR") {
+                builder.push({
+                    type: "ERROR",
+                    state: prevState,
+                    vector: create(origin, origin)
+                });
+                return;
+            }
         }
-        if (delta.prevState !== delta.state) {
-            const vector = create(delta.origin, delta.prevPos);
+        if (prevState !== currState) {
             builder.push({
                 type: "BUILD",
-                state: delta.prevState,
-                vector
+                state: prevState,
+                vector: create(prevOrigin, prevPos)
             });
-            delta.origin.x = delta.vector.origin.x;
-            delta.origin.y = delta.vector.origin.y;
+            prevOrigin.x = origin.x;
+            prevOrigin.y = origin.y;
         }
-        if (delta.prevPos.x < delta.vector.origin.x) {
-            if (delta.prevState === "TEXT") {
-                const vector1 = create(delta.origin, delta.prevPos);
+        if (prevPos.x < origin.x) {
+            if (prevState === "TEXT") {
                 builder.push({
                     type: "BUILD",
                     state: "TEXT",
-                    vector: vector1
+                    vector: create(prevOrigin, prevPos)
                 });
-                delta.prevState = delta.state;
-                delta.origin.x = delta.vector.origin.x;
-                delta.origin.y = delta.vector.origin.y;
+                prevState = currState;
+                prevOrigin.x = origin.x;
+                prevOrigin.y = origin.y;
             }
-            const state = injectionMap.get(delta.prevState);
-            if (state) {
+            const injstate = injectionMap.get(prevState);
+            if (injstate) {
                 builder.push({
                     type: "INJECT",
-                    index: delta.prevPos.x,
-                    state
+                    index: prevPos.x,
+                    state: injstate
                 });
             }
         }
-        delta.prevPos.x = delta.vector.origin.x;
-        delta.prevPos.y = delta.vector.origin.y;
-    }while (delta.state !== "ERROR" && incrementOrigin(template, delta.vector))
-    if (delta.prevState === delta.state || delta.state === "ERROR") return;
-    const vector2 = create(delta.origin, delta.origin);
+        prevPos.x = origin.x;
+        prevPos.y = origin.y;
+    }while (increment(template, origin))
+    if (prevState === currState) return;
     builder.push({
         type: "BUILD",
-        state: delta.state,
-        vector: vector2
+        state: currState,
+        vector: create(origin, origin)
     });
 }
 export { parse as parse };

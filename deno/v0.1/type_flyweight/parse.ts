@@ -1,6 +1,3 @@
-// brian taylor vann
-// skeleton crawl types
-
 import type { Position, Vector } from "./text_vector.ts";
 
 type RouterMap = Record<string, string> & {
@@ -21,25 +18,16 @@ interface InjectionStep {
   index: number;
 }
 
-type BuildStep = NodeStep | InjectionStep;
+interface ErrorStep {
+  type: "ERROR";
+  state: string;
+  vector: Vector;
+}
+
+type BuildStep = NodeStep | InjectionStep | ErrorStep;
 
 interface BuilderInterface {
   push(buildStep: BuildStep): void;
 }
 
-interface Delta {
-  prevPos: Position;
-  origin: Position;
-  prevState: string;
-  state: string;
-  vector: Vector;
-}
-
-export type {
-  BuilderInterface,
-  BuildStep,
-  Delta,
-  InjectionStep,
-  NodeStep,
-  Routes,
-};
+export type { BuilderInterface, BuildStep, Routes };
