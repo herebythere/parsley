@@ -27,7 +27,7 @@ function parse(
   const origin = { x: 0, y: 0 };
   const prevOrigin = { x: 0, y: 0 };
   const prevTarget = { x: 0, y: 0 };
-  
+
   // iterate across text
   do {
     const char = getChar(template, origin);
@@ -39,13 +39,13 @@ function parse(
       });
       return;
     }
- 
+
     // skip empty strings or state swap
     if (char !== "") {
       prevState = currState;
       const route = routes[prevState];
       if (route) {
-         currState = route[char] ?? route["DEFAULT"];
+        currState = route[char] ?? route["DEFAULT"];
       }
       if (currState === "ERROR") {
         builder.push({

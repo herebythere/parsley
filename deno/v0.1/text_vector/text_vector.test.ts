@@ -1,12 +1,7 @@
 import type { Position, Vector } from "../type_flyweight/text_vector.ts";
 
 import { samestuff } from "../test_deps.ts";
-import {
-  copy,
-  create,
-  getText,
-  increment,
-} from "./text_vector.ts";
+import { copy, create, getText, increment } from "./text_vector.ts";
 
 function testTextInterpolator<I>(
   templateArray: TemplateStringsArray,
