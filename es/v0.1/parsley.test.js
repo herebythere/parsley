@@ -289,15 +289,27 @@ const unitTestTextVector = {
     runTestsAsynchronously: true
 };
 const NODE = "NODE";
+const TAGNAME = "TAGNAME";
 const ATTRIBUTE = "ATTRIBUTE";
+const ATTRIBUTE_SETTER = "ATTRIBUTE_SETTER";
+const ATTRIBUTE_DECLARATION = "ATTRIBUTE_DECLARATION";
 const ATTRIBUTE_VALUE = "ATTRIBUTE_VALUE";
+const ATTRIBUTE_DECLARATION_CLOSE = "ATTRIBUTE_DECLARATION_CLOSE";
 const TEXT = "TEXT";
 const ERROR = "ERROR";
 const NODE_SPACE = "NODE_SPACE";
 const NODE_CLOSED = "NODE_CLOSED";
 const INDEPENDENT_NODE = "INDEPENDENT_NODE";
 const INDEPENDENT_NODE_CLOSED = "INDEPENDENT_NODE_CLOSED";
+const CLOSE_NODE_SLASH = "CLOSE_NODE_SLASH";
 const CLOSE_TAGNAME = "CLOSE_TAGNAME";
+const CLOSE_NODE_SPACE = "CLOSE_NODE_SPACE";
+const CLOSE_NODE_CLOSED = "CLOSE_NODE_CLOSED";
+const COMMENT_0 = "COMMENT_0";
+const COMMENT_1 = "COMMENT_1";
+const COMMENT = "COMMENT";
+const COMMENT_CLOSE_0 = "COMMENT_CLOSE_0";
+const COMMENT_CLOSE_1 = "COMMENT_CLOSE_1";
 const routes = {
     INITIAL: {
         "<": NODE,
@@ -311,10 +323,10 @@ const routes = {
         " ": ERROR,
         "\n": NODE,
         "\t": NODE,
-        "/": "CLOSE_NODE_SLASH",
+        "/": CLOSE_NODE_SLASH,
         ">": ERROR,
-        "-": "COMMENT_0",
-        DEFAULT: "TAGNAME"
+        "-": COMMENT_0,
+        DEFAULT: TAGNAME
     },
     CLOSE_NODE_SLASH: {
         " ": ERROR,
@@ -326,17 +338,18 @@ const routes = {
         "\n": NODE_SPACE,
         "\t": NODE_SPACE,
         "/": INDEPENDENT_NODE,
-        DEFAULT: "TAGNAME"
+        DEFAULT: TAGNAME
     },
     CLOSE_TAGNAME: {
-        ">": "CLOSE_NODE_CLOSED",
-        " ": "CLOSE_NODE_SPACE",
-        "\n": "CLOSE_NODE_SPACE",
+        ">": CLOSE_NODE_CLOSED,
+        " ": CLOSE_NODE_SPACE,
+        "\n": CLOSE_NODE_SPACE,
+        "\t": CLOSE_NODE_SPACE,
         DEFAULT: CLOSE_TAGNAME
     },
     CLOSE_NODE_SPACE: {
-        ">": "CLOSE_NODE_CLOSED",
-        DEFAULT: "CLOSE_NODE_SPACE"
+        ">": CLOSE_NODE_CLOSED,
+        DEFAULT: CLOSE_NODE_SPACE
     },
     INDEPENDENT_NODE: {
         ">": INDEPENDENT_NODE_CLOSED,
@@ -366,22 +379,22 @@ const routes = {
         " ": NODE_SPACE,
         "\n": NODE_SPACE,
         "\t": NODE_SPACE,
-        "=": "ATTRIBUTE_SETTER",
+        "=": ATTRIBUTE_SETTER,
         ">": NODE_CLOSED,
         "/": INDEPENDENT_NODE,
         DEFAULT: ATTRIBUTE
     },
     ATTRIBUTE_SETTER: {
-        '"': "ATTRIBUTE_DECLARATION",
+        '"': ATTRIBUTE_DECLARATION,
         "\n": NODE_SPACE,
         DEFAULT: NODE_SPACE
     },
     ATTRIBUTE_DECLARATION: {
-        '"': "ATTRIBUTE_DECLARATION_CLOSE",
+        '"': ATTRIBUTE_DECLARATION_CLOSE,
         DEFAULT: ATTRIBUTE_VALUE
     },
     ATTRIBUTE_VALUE: {
-        '"': "ATTRIBUTE_DECLARATION_CLOSE",
+        '"': ATTRIBUTE_DECLARATION_CLOSE,
         DEFAULT: ATTRIBUTE_VALUE
     },
     ATTRIBUTE_DECLARATION_CLOSE: {
@@ -390,19 +403,20 @@ const routes = {
         DEFAULT: NODE_SPACE
     },
     COMMENT_0: {
-        "-": "COMMENT_1",
+        "-": COMMENT_1,
         DEFAULT: ERROR
     },
     COMMENT_1: {
-        "-": "COMMENT_CLOSE",
-        DEFAULT: "COMMENT"
+        "-": COMMENT_CLOSE_0,
+        DEFAULT: COMMENT
     },
     COMMENT: {
-        "-": "COMMENT_CLOSE",
-        DEFAULT: "COMMENT"
+        "-": COMMENT_CLOSE_0,
+        ">": ERROR,
+        DEFAULT: COMMENT
     },
-    COMMENT_CLOSE: {
-        "-": "COMMENT_CLOSE_1",
+    COMMENT_CLOSE_0: {
+        "-": COMMENT_CLOSE_1,
         DEFAULT: ERROR
     },
     COMMENT_CLOSE_1: {
@@ -500,19 +514,19 @@ function parse(template, builder, prev = INITIAL) {
                 prevOrigin.y = origin.y;
             }
             const state = injectionMap.get(prevState);
-            if (state) {
-                builder.push({
-                    type: INJECT,
-                    index: prevTarget.x,
-                    state
-                });
-            } else {
+            if (state === undefined) {
                 builder.push({
                     type: ERROR1,
                     state: prevState,
                     vector: create(origin, origin)
                 });
+                return;
             }
+            builder.push({
+                type: INJECT,
+                index: prevTarget.x,
+                state
+            });
         }
         prevTarget.x = origin.x;
         prevTarget.y = origin.y;
@@ -1927,7 +1941,7 @@ function parseCommentTest() {
         },
         {
             type: "BUILD",
-            state: "COMMENT_CLOSE",
+            state: "COMMENT_CLOSE_0",
             vector: {
                 origin: {
                     x: 0,
@@ -2199,7 +2213,7 @@ function parseCloseCommentErrorTest() {
         },
         {
             type: "BUILD",
-            state: "COMMENT_CLOSE",
+            state: "COMMENT_CLOSE_0",
             vector: {
                 origin: {
                     x: 0,

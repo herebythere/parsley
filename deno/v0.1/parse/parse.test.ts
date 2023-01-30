@@ -653,7 +653,7 @@ function parseCommentTest() {
     },
     {
       type: "BUILD",
-      state: "COMMENT_CLOSE",
+      state: "COMMENT_CLOSE_0",
       vector: { origin: { x: 0, y: 17 }, target: { x: 0, y: 17 } },
     },
     {
@@ -802,7 +802,7 @@ function parseCloseCommentErrorTest() {
     },
     {
       type: "BUILD",
-      state: "COMMENT_CLOSE",
+      state: "COMMENT_CLOSE_0",
       vector: { origin: { x: 0, y: 4 }, target: { x: 0, y: 4 } },
     },
     {

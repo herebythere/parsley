@@ -22,6 +22,9 @@ const BUILD = "BUILD";
 const INJECT = "INJECT";
 const EMPTY = "";
 
+// return false for error?
+// make buildre cacellable?
+
 function parse(
   template: TemplateStringsArray,
   builder: BuilderInterface,
@@ -31,6 +34,8 @@ function parse(
   let currState: string = prevState;
 
   const origin = { x: 0, y: 0 };
+  const textOrigin = { x: 0, y: 0 };
+  const textTarget = { x: 0, y: 0 };
   const prevOrigin = { x: 0, y: 0 };
   const prevTarget = { x: 0, y: 0 };
 
@@ -80,15 +85,15 @@ function parse(
         prevOrigin.y = origin.y;
       }
       const state = injectionMap.get(prevState);
-      if (state) {
-        builder.push({ type: INJECT, index: prevTarget.x, state });
-      } else {
+      if (state === undefined) {
         builder.push({
           type: ERROR,
           state: prevState,
           vector: create(origin, origin),
         });
+        return;
       }
+      builder.push({ type: INJECT, index: prevTarget.x, state });
     }
 
     // set previous

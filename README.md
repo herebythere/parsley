@@ -1,12 +1,14 @@
 # Parsley
 
-XML parser
+a good enough XML parser
 
 ## About
 
 Parsley provides the build steps of an xml document.
 
 It helps build documents from custom xml langauges.
+
+Parsley does not follow xml spec. However, xml-compliant documents will be successfully parsed.
 
 ## Install
 
