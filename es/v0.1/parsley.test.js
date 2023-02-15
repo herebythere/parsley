@@ -303,6 +303,12 @@ const NODE_CLOSED = "NODE_CLOSED";
 const NODE_SPACE = "NODE_SPACE";
 const TAGNAME = "TAGNAME";
 const TEXT = "TEXT";
+const ATTRIBUTE_INJECTION = "ATTRIBUTE_INJECTION";
+const DESCENDANT_INJECTION = "DESCENDANT_INJECTION";
+const ATTRIBUTE_INJECTION_MAP = "ATTRIBUTE_INJECTION_MAP";
+const INITIAL = "INITIAL";
+const BUILD = "BUILD";
+const INJECT = "INJECT";
 const routes = {
     INITIAL: {
         "<": NODE,
@@ -395,45 +401,42 @@ const routes = {
         DEFAULT: NODE_SPACE
     }
 };
+const DEFAULT = "DEFAULT";
+const EMPTY = "";
 const injectionMap = new Map([
     [
-        "ATTRIBUTE_DECLARATION",
-        "ATTRIBUTE_INJECTION"
+        ATTRIBUTE_DECLARATION,
+        ATTRIBUTE_INJECTION
     ],
     [
-        "ATTRIBUTE_VALUE",
-        "ATTRIBUTE_INJECTION"
+        ATTRIBUTE_VALUE,
+        ATTRIBUTE_INJECTION
     ],
     [
-        "INDEPENDENT_NODE_CLOSED",
-        "DESCENDANT_INJECTION"
+        INDEPENDENT_NODE_CLOSED,
+        DESCENDANT_INJECTION
     ],
     [
-        "NODE_CLOSED",
-        "DESCENDANT_INJECTION"
+        NODE_CLOSED,
+        DESCENDANT_INJECTION
     ],
     [
-        "INITIAL",
-        "DESCENDANT_INJECTION"
+        INITIAL,
+        DESCENDANT_INJECTION
     ],
     [
-        "NODE_SPACE",
-        "ATTRIBUTE_INJECTION_MAP"
+        NODE_SPACE,
+        ATTRIBUTE_INJECTION_MAP
     ],
     [
-        "TAGNAME",
-        "ATTRIBUTE_INJECTION_MAP"
+        TAGNAME,
+        ATTRIBUTE_INJECTION_MAP
     ],
     [
-        "TEXT",
-        "DESCENDANT_INJECTION"
+        TEXT,
+        DESCENDANT_INJECTION
     ]
 ]);
-const INITIAL = "INITIAL";
-const DEFAULT = "DEFAULT";
-const BUILD = "BUILD";
-const INJECT = "INJECT";
-const EMPTY = "";
 function parse(template, builder, prev = INITIAL) {
     let prevState = prev;
     let currState = prevState;

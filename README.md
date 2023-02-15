@@ -26,13 +26,10 @@ import { parse, getText } from "https://raw.githubusercontent.com/herebythere/pa
 
 Every build step in a `Template` is passed as an agurment to `Builder.step()` until an error is found.
 
-A template is defined with the following API:
+A template is simply an array of strings:
 
 ```
-Template<T> {
-	templateStringsArray: []string,
-	injections: []T,
-}
+Template: []string
 ```
 
 ### Builder
@@ -42,7 +39,7 @@ Parsely relies on a user provided `Builder` structure with the following api:
 ```
 Builder {
 	push(step: BuildStep) {
-		...
+		... react to build step
 	}
 }
 ```
@@ -58,6 +55,28 @@ parse(
 	template: Template,
 	builder: Builder,
 ): void
+```
+
+### Limitations
+
+Parsley provides limited support for xml syntax:
+
+- comments are not supported
+- misplaced template injections are ignored
+
+As in, the following template demonstrates three valid injections:
+
+String interpolation:
+
+```
+["<element", "attribute=", "/>", "</element>"]
+}
+```
+
+String formatting:
+
+```
+"<element %s attribute="%s"/>%s</element>"
 ```
 
 ## License

@@ -18,7 +18,7 @@ import {
   NODE_SPACE,
   TAGNAME,
   TEXT,
-} from "../type_flyweight/parse.ts";
+} from "../type_flyweight/constants.ts";
 
 const routes: Routes = {
   INITIAL: {

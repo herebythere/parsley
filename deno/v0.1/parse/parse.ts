@@ -1,26 +1,23 @@
 import type { BuilderInterface } from "../type_flyweight/parse.ts";
 import type { Position } from "../type_flyweight/text_vector.ts";
 
-import { ATTRIBUTE_VALUE, ERROR, TEXT } from "../type_flyweight/parse.ts";
+import { ATTRIBUTE_VALUE,ATTRIBUTE_DECLARATION,INDEPENDENT_NODE_CLOSED,NODE_CLOSED, NODE_SPACE, TAGNAME,ATTRIBUTE_INJECTION,ATTRIBUTE_INJECTION_MAP,DESCENDANT_INJECTION, ERROR, TEXT, BUILD, INJECT, INITIAL } from "../type_flyweight/constants.ts";
 import { routes } from "./routes.ts";
 import { create, getChar, increment } from "../text_vector/text_vector.ts";
 
-const injectionMap = new Map([
-  ["ATTRIBUTE_DECLARATION", "ATTRIBUTE_INJECTION"],
-  ["ATTRIBUTE_VALUE", "ATTRIBUTE_INJECTION"],
-  ["INDEPENDENT_NODE_CLOSED", "DESCENDANT_INJECTION"],
-  ["NODE_CLOSED", "DESCENDANT_INJECTION"],
-  ["INITIAL", "DESCENDANT_INJECTION"],
-  ["NODE_SPACE", "ATTRIBUTE_INJECTION_MAP"],
-  ["TAGNAME", "ATTRIBUTE_INJECTION_MAP"],
-  ["TEXT", "DESCENDANT_INJECTION"],
-]);
-
-const INITIAL = "INITIAL";
 const DEFAULT = "DEFAULT";
-const BUILD = "BUILD";
-const INJECT = "INJECT";
 const EMPTY = "";
+
+const injectionMap = new Map([
+  [ATTRIBUTE_DECLARATION, ATTRIBUTE_INJECTION],
+  [ATTRIBUTE_VALUE, ATTRIBUTE_INJECTION],
+  [INDEPENDENT_NODE_CLOSED, DESCENDANT_INJECTION],
+  [NODE_CLOSED, DESCENDANT_INJECTION],
+  [INITIAL, DESCENDANT_INJECTION],
+  [NODE_SPACE, ATTRIBUTE_INJECTION_MAP],
+  [TAGNAME, ATTRIBUTE_INJECTION_MAP],
+  [TEXT, DESCENDANT_INJECTION],
+]);
 
 function parse(
   template: TemplateStringsArray,
