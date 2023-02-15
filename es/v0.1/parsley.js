@@ -8,9 +8,7 @@ const DEFAULT_POSITION = {
 };
 function increment(template, position) {
     const templateLength = template.length - 1;
-    if (position.x > templateLength) return;
     const chunk = template[position.x];
-    if (chunk === undefined) return;
     const chunkLength = chunk.length - 1;
     if (position.x >= templateLength && position.y >= chunkLength) return;
     position.y += 1;
@@ -22,8 +20,7 @@ function increment(template, position) {
 }
 function getChar(template, position) {
     const str = template[position.x];
-    if (str === undefined) return;
-    if (str.length === 0) return str;
+    if (str === undefined || str.length === 0) return;
     return str[position.y];
 }
 function create(origin = DEFAULT_POSITION, target = origin) {
@@ -39,31 +36,27 @@ function create(origin = DEFAULT_POSITION, target = origin) {
 function getText(template, vector) {
     const origin = vector.origin;
     let templateText = template[origin.x];
-    if (templateText === undefined) return;
-    return templateText.substr(origin.y, vector.target.y - origin.y + 1);
+    if (templateText) {
+        return templateText.substr(origin.y, vector.target.y - origin.y + 1);
+    }
 }
-const NODE = "NODE";
-const TAGNAME = "TAGNAME";
 const ATTRIBUTE = "ATTRIBUTE";
-const ATTRIBUTE_SETTER = "ATTRIBUTE_SETTER";
 const ATTRIBUTE_DECLARATION = "ATTRIBUTE_DECLARATION";
-const ATTRIBUTE_VALUE = "ATTRIBUTE_VALUE";
 const ATTRIBUTE_DECLARATION_CLOSE = "ATTRIBUTE_DECLARATION_CLOSE";
-const TEXT = "TEXT";
-const ERROR = "ERROR";
-const NODE_SPACE = "NODE_SPACE";
-const NODE_CLOSED = "NODE_CLOSED";
-const INDEPENDENT_NODE = "INDEPENDENT_NODE";
-const INDEPENDENT_NODE_CLOSED = "INDEPENDENT_NODE_CLOSED";
+const ATTRIBUTE_SETTER = "ATTRIBUTE_SETTER";
+const ATTRIBUTE_VALUE = "ATTRIBUTE_VALUE";
 const CLOSE_NODE_SLASH = "CLOSE_NODE_SLASH";
-const CLOSE_TAGNAME = "CLOSE_TAGNAME";
 const CLOSE_NODE_SPACE = "CLOSE_NODE_SPACE";
 const CLOSE_NODE_CLOSED = "CLOSE_NODE_CLOSED";
-const COMMENT_0 = "COMMENT_0";
-const COMMENT_1 = "COMMENT_1";
-const COMMENT = "COMMENT";
-const COMMENT_CLOSE_0 = "COMMENT_CLOSE_0";
-const COMMENT_CLOSE_1 = "COMMENT_CLOSE_1";
+const CLOSE_TAGNAME = "CLOSE_TAGNAME";
+const ERROR = "ERROR";
+const INDEPENDENT_NODE = "INDEPENDENT_NODE";
+const INDEPENDENT_NODE_CLOSED = "INDEPENDENT_NODE_CLOSED";
+const NODE = "NODE";
+const NODE_CLOSED = "NODE_CLOSED";
+const NODE_SPACE = "NODE_SPACE";
+const TAGNAME = "TAGNAME";
+const TEXT = "TEXT";
 const routes = {
     INITIAL: {
         "<": NODE,
@@ -79,7 +72,6 @@ const routes = {
         "\t": NODE,
         "/": CLOSE_NODE_SLASH,
         ">": ERROR,
-        "-": COMMENT_0,
         DEFAULT: TAGNAME
     },
     CLOSE_NODE_SLASH: {
@@ -155,32 +147,15 @@ const routes = {
         ">": INDEPENDENT_NODE_CLOSED,
         "/": INDEPENDENT_NODE,
         DEFAULT: NODE_SPACE
-    },
-    COMMENT_0: {
-        "-": COMMENT_1,
-        DEFAULT: ERROR
-    },
-    COMMENT_1: {
-        "-": COMMENT_CLOSE_0,
-        DEFAULT: COMMENT
-    },
-    COMMENT: {
-        "-": COMMENT_CLOSE_0,
-        ">": ERROR,
-        DEFAULT: COMMENT
-    },
-    COMMENT_CLOSE_0: {
-        "-": COMMENT_CLOSE_1,
-        DEFAULT: ERROR
-    },
-    COMMENT_CLOSE_1: {
-        ">": NODE_CLOSED,
-        DEFAULT: ERROR
     }
 };
 const injectionMap = new Map([
     [
         "ATTRIBUTE_DECLARATION",
+        "ATTRIBUTE_INJECTION"
+    ],
+    [
+        "ATTRIBUTE_VALUE",
         "ATTRIBUTE_INJECTION"
     ],
     [
@@ -209,8 +184,6 @@ const injectionMap = new Map([
     ]
 ]);
 const INITIAL = "INITIAL";
-const TEXT1 = "TEXT";
-const ERROR1 = "ERROR";
 const DEFAULT = "DEFAULT";
 const BUILD = "BUILD";
 const INJECT = "INJECT";
@@ -238,14 +211,6 @@ function parse(template, builder, prev = INITIAL) {
             if (route) {
                 currState = route[__char] ?? route[DEFAULT];
             }
-            if (currState === ERROR1) {
-                builder.push({
-                    type: ERROR1,
-                    state: prevState,
-                    vector: create(origin, origin)
-                });
-                return;
-            }
         }
         if (prevState !== currState) {
             builder.push({
@@ -257,35 +222,37 @@ function parse(template, builder, prev = INITIAL) {
             prevOrigin.y = origin.y;
         }
         if (prevTarget.x < origin.x) {
-            if (prevState === TEXT1) {
+            if (prevState === TEXT || prevState === ATTRIBUTE_VALUE) {
                 builder.push({
                     type: BUILD,
-                    state: TEXT1,
+                    state: prevState,
                     vector: create(prevOrigin, prevTarget)
                 });
-                prevState = currState;
                 prevOrigin.x = origin.x;
                 prevOrigin.y = origin.y;
             }
             const state = injectionMap.get(prevState);
             if (state === undefined) {
+                currState = ERROR;
+            } else {
                 builder.push({
-                    type: ERROR1,
-                    state: prevState,
-                    vector: create(origin, origin)
+                    type: INJECT,
+                    index: prevTarget.x,
+                    state
                 });
-                return;
             }
-            builder.push({
-                type: INJECT,
-                index: prevTarget.x,
-                state
-            });
         }
         prevTarget.x = origin.x;
         prevTarget.y = origin.y;
-    }while (increment(template, origin))
+    }while (increment(template, origin) && currState !== ERROR)
     if (prevState === currState) return;
+    if (currState === ERROR) {
+        builder.push({
+            type: ERROR,
+            vector: create(origin, origin)
+        });
+        return;
+    }
     builder.push({
         type: BUILD,
         state: currState,
@@ -294,3 +261,4 @@ function parse(template, builder, prev = INITIAL) {
 }
 export { getText as getText };
 export { parse as parse };
+export { NODE as NODE, TAGNAME as TAGNAME, ATTRIBUTE as ATTRIBUTE, ATTRIBUTE_SETTER as ATTRIBUTE_SETTER, ATTRIBUTE_DECLARATION as ATTRIBUTE_DECLARATION, ATTRIBUTE_VALUE as ATTRIBUTE_VALUE, ATTRIBUTE_DECLARATION_CLOSE as ATTRIBUTE_DECLARATION_CLOSE, TEXT as TEXT, ERROR as ERROR, NODE_SPACE as NODE_SPACE, NODE_CLOSED as NODE_CLOSED, INDEPENDENT_NODE as INDEPENDENT_NODE, INDEPENDENT_NODE_CLOSED as INDEPENDENT_NODE_CLOSED, CLOSE_NODE_SLASH as CLOSE_NODE_SLASH, CLOSE_TAGNAME as CLOSE_TAGNAME, CLOSE_NODE_SPACE as CLOSE_NODE_SPACE, CLOSE_NODE_CLOSED as CLOSE_NODE_CLOSED };

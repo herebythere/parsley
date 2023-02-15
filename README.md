@@ -1,6 +1,6 @@
 # Parsley
 
-a good enough XML parser
+A good enough XML parser
 
 ## About
 
@@ -9,6 +9,12 @@ Parsley provides the build steps of an xml document.
 It helps build documents from custom xml langauges.
 
 Parsley does not follow xml spec. However, xml-compliant documents will be successfully parsed.
+
+# TODO
+
+- add injection state to the routes map
+- simplify code base where possible
+
 
 ## Install
 
@@ -34,10 +40,7 @@ Parsley expects an template interface including an array of xml and an array of
 injections.
 
 ```
-Template {
-	template: []string
-	injections: []unknown
-}
+[]string
 ```
 
 ### Builder
