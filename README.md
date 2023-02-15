@@ -8,13 +8,13 @@ Parsley provides the build steps of an xml document.
 
 It helps build documents from custom xml langauges.
 
-Parsley does not follow xml spec. However, xml-compliant documents will be successfully parsed.
+Parsley does not follow xml spec. However, xml-compliant documents will be
+successfully parsed.
 
 # TODO
 
 - add injection state to the routes map
 - simplify code base where possible
-
 
 ## Install
 

@@ -29,7 +29,7 @@ function getChar(
 ): string | undefined {
   const str = template[position.x];
   if (str === undefined || str.length === 0) return;
-  
+
   return str[position.y];
 }
 
@@ -57,7 +57,7 @@ function getText(
   const origin = vector.origin;
   let templateText = template[origin.x];
   if (templateText) {
-  	return templateText.substr(origin.y, vector.target.y - origin.y + 1);
+    return templateText.substr(origin.y, vector.target.y - origin.y + 1);
   }
 }
 

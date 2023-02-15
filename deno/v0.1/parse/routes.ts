@@ -1,24 +1,24 @@
 import type { Routes } from "../type_flyweight/parse.ts";
 
 import {
-	NODE,
-	TAGNAME,
-	ATTRIBUTE,
-	ATTRIBUTE_SETTER,
-	ATTRIBUTE_DECLARATION,
-	ATTRIBUTE_VALUE,
-	ATTRIBUTE_DECLARATION_CLOSE,
-	TEXT,
-	ERROR,
-	NODE_SPACE,
-	NODE_CLOSED,
-	INDEPENDENT_NODE,
-	INDEPENDENT_NODE_CLOSED,
-	CLOSE_NODE_SLASH,
-	CLOSE_TAGNAME,
-	CLOSE_NODE_SPACE,
-	CLOSE_NODE_CLOSED,
-} from "../type_flyweight/parse.ts"
+  ATTRIBUTE,
+  ATTRIBUTE_DECLARATION,
+  ATTRIBUTE_DECLARATION_CLOSE,
+  ATTRIBUTE_SETTER,
+  ATTRIBUTE_VALUE,
+  CLOSE_NODE_CLOSED,
+  CLOSE_NODE_SLASH,
+  CLOSE_NODE_SPACE,
+  CLOSE_TAGNAME,
+  ERROR,
+  INDEPENDENT_NODE,
+  INDEPENDENT_NODE_CLOSED,
+  NODE,
+  NODE_CLOSED,
+  NODE_SPACE,
+  TAGNAME,
+  TEXT,
+} from "../type_flyweight/parse.ts";
 
 const routes: Routes = {
   INITIAL: {
@@ -117,4 +117,4 @@ const routes: Routes = {
   },
 };
 
-export { routes }
+export { routes };

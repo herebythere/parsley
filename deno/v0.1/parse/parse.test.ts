@@ -44,7 +44,7 @@ function parseNodeTest() {
 
   const stack: BuildStep[] = [];
   parse(textVector, stack);
-  
+
   if (!samestuff(expectedResults, stack)) {
     assertions.push("stack does not match expected results");
   }
@@ -578,63 +578,63 @@ function parseNodeWithAttributeInjectionsWithSpacesTest() {
   const assertions = [];
   const textVector = testTextInterpolator`<hello world="${"world"}  "/>`;
   const expectedResults: BuildStep[] = [
-		{
-		  type: "BUILD",
-		  state: "INITIAL",
-		  vector: { origin: { x: 0, y: 0 }, target: { x: 0, y: 0 } }
-		},
-		{
-		  type: "BUILD",
-		  state: "NODE",
-		  vector: { origin: { x: 0, y: 0 }, target: { x: 0, y: 0 } }
-		},
-		{
-		  type: "BUILD",
-		  state: "TAGNAME",
-		  vector: { origin: { x: 0, y: 1 }, target: { x: 0, y: 5 } }
-		},
-		{
-		  type: "BUILD",
-		  state: "NODE_SPACE",
-		  vector: { origin: { x: 0, y: 6 }, target: { x: 0, y: 6 } }
-		},
-		{
-		  type: "BUILD",
-		  state: "ATTRIBUTE",
-		  vector: { origin: { x: 0, y: 7 }, target: { x: 0, y: 11 } }
-		},
-		{
-		  type: "BUILD",
-		  state: "ATTRIBUTE_SETTER",
-		  vector: { origin: { x: 0, y: 12 }, target: { x: 0, y: 12 } }
-		},
-		{
-		  type: "BUILD",
-		  state: "ATTRIBUTE_DECLARATION",
-		  vector: { origin: { x: 0, y: 13 }, target: { x: 0, y: 13 } }
-		},
-		{ type: "INJECT", index: 0, state: "ATTRIBUTE_INJECTION" },
-		{
-		  type: "BUILD",
-		  state: "ATTRIBUTE_VALUE",
-		  vector: { origin: { x: 1, y: 0 }, target: { x: 1, y: 1 } }
-		},
-		{
-		  type: "BUILD",
-		  state: "ATTRIBUTE_DECLARATION_CLOSE",
-		  vector: { origin: { x: 1, y: 2 }, target: { x: 1, y: 2 } }
-		},
-		{
-		  type: "BUILD",
-		  state: "INDEPENDENT_NODE",
-		  vector: { origin: { x: 1, y: 3 }, target: { x: 1, y: 3 } }
-		},
-		{
-		  type: "BUILD",
-		  state: "INDEPENDENT_NODE_CLOSED",
-		  vector: { origin: { x: 1, y: 4 }, target: { x: 1, y: 4 } }
-		}
-	];
+    {
+      type: "BUILD",
+      state: "INITIAL",
+      vector: { origin: { x: 0, y: 0 }, target: { x: 0, y: 0 } },
+    },
+    {
+      type: "BUILD",
+      state: "NODE",
+      vector: { origin: { x: 0, y: 0 }, target: { x: 0, y: 0 } },
+    },
+    {
+      type: "BUILD",
+      state: "TAGNAME",
+      vector: { origin: { x: 0, y: 1 }, target: { x: 0, y: 5 } },
+    },
+    {
+      type: "BUILD",
+      state: "NODE_SPACE",
+      vector: { origin: { x: 0, y: 6 }, target: { x: 0, y: 6 } },
+    },
+    {
+      type: "BUILD",
+      state: "ATTRIBUTE",
+      vector: { origin: { x: 0, y: 7 }, target: { x: 0, y: 11 } },
+    },
+    {
+      type: "BUILD",
+      state: "ATTRIBUTE_SETTER",
+      vector: { origin: { x: 0, y: 12 }, target: { x: 0, y: 12 } },
+    },
+    {
+      type: "BUILD",
+      state: "ATTRIBUTE_DECLARATION",
+      vector: { origin: { x: 0, y: 13 }, target: { x: 0, y: 13 } },
+    },
+    { type: "INJECT", index: 0, state: "ATTRIBUTE_INJECTION" },
+    {
+      type: "BUILD",
+      state: "ATTRIBUTE_VALUE",
+      vector: { origin: { x: 1, y: 0 }, target: { x: 1, y: 1 } },
+    },
+    {
+      type: "BUILD",
+      state: "ATTRIBUTE_DECLARATION_CLOSE",
+      vector: { origin: { x: 1, y: 2 }, target: { x: 1, y: 2 } },
+    },
+    {
+      type: "BUILD",
+      state: "INDEPENDENT_NODE",
+      vector: { origin: { x: 1, y: 3 }, target: { x: 1, y: 3 } },
+    },
+    {
+      type: "BUILD",
+      state: "INDEPENDENT_NODE_CLOSED",
+      vector: { origin: { x: 1, y: 4 }, target: { x: 1, y: 4 } },
+    },
+  ];
 
   const stack: BuildStep[] = [];
   parse(textVector, stack);
@@ -648,76 +648,77 @@ function parseNodeWithAttributeInjectionsWithSpacesTest() {
 
 function parseNodeWithAttributeMultipleInjectionsWithSpacesTest() {
   const assertions = [];
-  const textVector = testTextInterpolator`<hello world="  ${"milky way"}  ${"galaxy"}   "/>`;
+  const textVector =
+    testTextInterpolator`<hello world="  ${"milky way"}  ${"galaxy"}   "/>`;
   const expectedResults: BuildStep[] = [
-		{
-		  type: "BUILD",
-		  state: "INITIAL",
-		  vector: { origin: { x: 0, y: 0 }, target: { x: 0, y: 0 } }
-		},
-		{
-		  type: "BUILD",
-		  state: "NODE",
-		  vector: { origin: { x: 0, y: 0 }, target: { x: 0, y: 0 } }
-		},
-		{
-		  type: "BUILD",
-		  state: "TAGNAME",
-		  vector: { origin: { x: 0, y: 1 }, target: { x: 0, y: 5 } }
-		},
-		{
-		  type: "BUILD",
-		  state: "NODE_SPACE",
-		  vector: { origin: { x: 0, y: 6 }, target: { x: 0, y: 6 } }
-		},
-		{
-		  type: "BUILD",
-		  state: "ATTRIBUTE",
-		  vector: { origin: { x: 0, y: 7 }, target: { x: 0, y: 11 } }
-		},
-		{
-		  type: "BUILD",
-		  state: "ATTRIBUTE_SETTER",
-		  vector: { origin: { x: 0, y: 12 }, target: { x: 0, y: 12 } }
-		},
-		{
-		  type: "BUILD",
-		  state: "ATTRIBUTE_DECLARATION",
-		  vector: { origin: { x: 0, y: 13 }, target: { x: 0, y: 13 } }
-		},
-		{
-		  type: "BUILD",
-		  state: "ATTRIBUTE_VALUE",
-		  vector: { origin: { x: 0, y: 14 }, target: { x: 0, y: 15 } }
-		},
-		{ type: "INJECT", index: 0, state: "ATTRIBUTE_INJECTION" },
-		{
-		  type: "BUILD",
-		  state: "ATTRIBUTE_VALUE",
-		  vector: { origin: { x: 1, y: 0 }, target: { x: 1, y: 1 } }
-		},
-		{ type: "INJECT", index: 1, state: "ATTRIBUTE_INJECTION" },
-		{
-		  type: "BUILD",
-		  state: "ATTRIBUTE_VALUE",
-		  vector: { origin: { x: 2, y: 0 }, target: { x: 2, y: 2 } }
-		},
-		{
-		  type: "BUILD",
-		  state: "ATTRIBUTE_DECLARATION_CLOSE",
-		  vector: { origin: { x: 2, y: 3 }, target: { x: 2, y: 3 } }
-		},
-		{
-		  type: "BUILD",
-		  state: "INDEPENDENT_NODE",
-		  vector: { origin: { x: 2, y: 4 }, target: { x: 2, y: 4 } }
-		},
-		{
-		  type: "BUILD",
-		  state: "INDEPENDENT_NODE_CLOSED",
-		  vector: { origin: { x: 2, y: 5 }, target: { x: 2, y: 5 } }
-		}
-	];
+    {
+      type: "BUILD",
+      state: "INITIAL",
+      vector: { origin: { x: 0, y: 0 }, target: { x: 0, y: 0 } },
+    },
+    {
+      type: "BUILD",
+      state: "NODE",
+      vector: { origin: { x: 0, y: 0 }, target: { x: 0, y: 0 } },
+    },
+    {
+      type: "BUILD",
+      state: "TAGNAME",
+      vector: { origin: { x: 0, y: 1 }, target: { x: 0, y: 5 } },
+    },
+    {
+      type: "BUILD",
+      state: "NODE_SPACE",
+      vector: { origin: { x: 0, y: 6 }, target: { x: 0, y: 6 } },
+    },
+    {
+      type: "BUILD",
+      state: "ATTRIBUTE",
+      vector: { origin: { x: 0, y: 7 }, target: { x: 0, y: 11 } },
+    },
+    {
+      type: "BUILD",
+      state: "ATTRIBUTE_SETTER",
+      vector: { origin: { x: 0, y: 12 }, target: { x: 0, y: 12 } },
+    },
+    {
+      type: "BUILD",
+      state: "ATTRIBUTE_DECLARATION",
+      vector: { origin: { x: 0, y: 13 }, target: { x: 0, y: 13 } },
+    },
+    {
+      type: "BUILD",
+      state: "ATTRIBUTE_VALUE",
+      vector: { origin: { x: 0, y: 14 }, target: { x: 0, y: 15 } },
+    },
+    { type: "INJECT", index: 0, state: "ATTRIBUTE_INJECTION" },
+    {
+      type: "BUILD",
+      state: "ATTRIBUTE_VALUE",
+      vector: { origin: { x: 1, y: 0 }, target: { x: 1, y: 1 } },
+    },
+    { type: "INJECT", index: 1, state: "ATTRIBUTE_INJECTION" },
+    {
+      type: "BUILD",
+      state: "ATTRIBUTE_VALUE",
+      vector: { origin: { x: 2, y: 0 }, target: { x: 2, y: 2 } },
+    },
+    {
+      type: "BUILD",
+      state: "ATTRIBUTE_DECLARATION_CLOSE",
+      vector: { origin: { x: 2, y: 3 }, target: { x: 2, y: 3 } },
+    },
+    {
+      type: "BUILD",
+      state: "INDEPENDENT_NODE",
+      vector: { origin: { x: 2, y: 4 }, target: { x: 2, y: 4 } },
+    },
+    {
+      type: "BUILD",
+      state: "INDEPENDENT_NODE_CLOSED",
+      vector: { origin: { x: 2, y: 5 }, target: { x: 2, y: 5 } },
+    },
+  ];
 
   const stack: BuildStep[] = [];
   parse(textVector, stack);
@@ -782,21 +783,21 @@ function parseErrorTest() {
   const assertions = [];
   const textVector = testTextInterpolator`< a>`;
   const expectedResults: BuildStep[] = [
-		{
-		  type: "BUILD",
-		  state: "INITIAL",
-		  vector: { origin: { x: 0, y: 0 }, target: { x: 0, y: 0 } }
-		},
-		{
-		  type: "BUILD",
-		  state: "NODE",
-		  vector: { origin: { x: 0, y: 0 }, target: { x: 0, y: 0 } }
-		},
-		{
-		  type: "ERROR",
-		  vector: { origin: { x: 0, y: 2 }, target: { x: 0, y: 2 } },
-		}
-	];
+    {
+      type: "BUILD",
+      state: "INITIAL",
+      vector: { origin: { x: 0, y: 0 }, target: { x: 0, y: 0 } },
+    },
+    {
+      type: "BUILD",
+      state: "NODE",
+      vector: { origin: { x: 0, y: 0 }, target: { x: 0, y: 0 } },
+    },
+    {
+      type: "ERROR",
+      vector: { origin: { x: 0, y: 2 }, target: { x: 0, y: 2 } },
+    },
+  ];
 
   const stack: BuildStep[] = [];
   parse(textVector, stack);
@@ -812,30 +813,30 @@ function parseCloseNodeErrorTest() {
   const assertions = [];
   const textVector = testTextInterpolator`</ a>`;
   const expectedResults: BuildStep[] = [
-		{
-		  type: "BUILD",
-		  state: "INITIAL",
-		  vector: { origin: { x: 0, y: 0 }, target: { x: 0, y: 0 } }
-		},
-		{
-		  type: "BUILD",
-		  state: "NODE",
-		  vector: { origin: { x: 0, y: 0 }, target: { x: 0, y: 0 } }
-		},
-		{
-		  type: "BUILD",
-		  state: "CLOSE_NODE_SLASH",
-		  vector: { origin: { x: 0, y: 1 }, target: { x: 0, y: 1 } }
-		},
-		{
-		  type: "ERROR",
-		  vector: { origin: { x: 0, y: 3 }, target: { x: 0, y: 3 } },
-		}
-	];
+    {
+      type: "BUILD",
+      state: "INITIAL",
+      vector: { origin: { x: 0, y: 0 }, target: { x: 0, y: 0 } },
+    },
+    {
+      type: "BUILD",
+      state: "NODE",
+      vector: { origin: { x: 0, y: 0 }, target: { x: 0, y: 0 } },
+    },
+    {
+      type: "BUILD",
+      state: "CLOSE_NODE_SLASH",
+      vector: { origin: { x: 0, y: 1 }, target: { x: 0, y: 1 } },
+    },
+    {
+      type: "ERROR",
+      vector: { origin: { x: 0, y: 3 }, target: { x: 0, y: 3 } },
+    },
+  ];
 
   const stack: BuildStep[] = [];
   parse(textVector, stack);
-	
+
   if (!samestuff(expectedResults, stack)) {
     assertions.push("stack does not match expected results");
   }

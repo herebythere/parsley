@@ -48,7 +48,7 @@ function parse(
 
     // build
     if (prevState !== currState) {
-    	// if injection state change preious state
+      // if injection state change preious state
       builder.push({
         type: BUILD,
         state: prevState,
@@ -73,25 +73,25 @@ function parse(
       }
       const state = injectionMap.get(prevState);
       if (state === undefined) {
-      	currState = ERROR;
+        currState = ERROR;
       } else {
         builder.push({ type: INJECT, index: prevTarget.x, state });
-      };
+      }
     }
 
     // set previous
     prevTarget.x = origin.x;
     prevTarget.y = origin.y;
   } while (increment(template, origin) && currState !== ERROR);
-  
-	// get tail end
-	if (prevState === currState) return;
+
+  // get tail end
+  if (prevState === currState) return;
   if (currState === ERROR) {
     builder.push({
-		  type: ERROR,
-		  vector: create(origin, origin),
-		});
-  	return;
+      type: ERROR,
+      vector: create(origin, origin),
+    });
+    return;
   }
 
   builder.push({
