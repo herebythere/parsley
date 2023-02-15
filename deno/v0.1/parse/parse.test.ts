@@ -15,9 +15,10 @@ function testTextInterpolator<I>(
 }
 
 // nodes
+
 function parseNodeTest() {
   const assertions = [];
-  const testVector = testTextInterpolator`<hello>`;
+  const textVector = testTextInterpolator`<hello>`;
   const expectedResults = [
     {
       type: "BUILD",
@@ -42,7 +43,7 @@ function parseNodeTest() {
   ];
 
   const stack: BuildStep[] = [];
-  parse(testVector, stack);
+  parse(textVector, stack);
 
   if (!samestuff(expectedResults, stack)) {
     assertions.push("stack does not match expected results");
@@ -53,7 +54,7 @@ function parseNodeTest() {
 
 function parseNodeWithImplicitAttributeTest() {
   const assertions = [];
-  const testVector = testTextInterpolator`<hello attribute>`;
+  const textVector = testTextInterpolator`<hello attribute>`;
   const expectedResults: BuildStep[] = [
     {
       type: "BUILD",
@@ -88,7 +89,7 @@ function parseNodeWithImplicitAttributeTest() {
   ];
 
   const stack: BuildStep[] = [];
-  parse(testVector, stack);
+  parse(textVector, stack);
 
   if (!samestuff(expectedResults, stack)) {
     assertions.push("stack does not match expected results");
@@ -99,7 +100,7 @@ function parseNodeWithImplicitAttributeTest() {
 
 function parseNodeWithImplicitAttributeWithSpacesTest() {
   const assertions = [];
-  const testVector = testTextInterpolator`<hello  attribute  >`;
+  const textVector = testTextInterpolator`<hello  attribute  >`;
   const expectedResults: BuildStep[] = [
     {
       type: "BUILD",
@@ -139,7 +140,7 @@ function parseNodeWithImplicitAttributeWithSpacesTest() {
   ];
 
   const stack: BuildStep[] = [];
-  parse(testVector, stack);
+  parse(textVector, stack);
 
   if (!samestuff(expectedResults, stack)) {
     assertions.push("stack does not match expected results");
@@ -152,7 +153,7 @@ function parseNodeWithImplicitAttributeWithSpacesTest() {
 
 function parseIndependentNodeTest() {
   const assertions = [];
-  const testVector = testTextInterpolator`<hello/>`;
+  const textVector = testTextInterpolator`<hello/>`;
   const expectedResults: BuildStep[] = [
     {
       type: "BUILD",
@@ -182,7 +183,7 @@ function parseIndependentNodeTest() {
   ];
 
   const stack: BuildStep[] = [];
-  parse(testVector, stack);
+  parse(textVector, stack);
 
   if (!samestuff(expectedResults, stack)) {
     assertions.push("stack does not match expected results");
@@ -193,7 +194,7 @@ function parseIndependentNodeTest() {
 
 function parseIndependentNodeWithImplicitAttributeTest() {
   const assertions = [];
-  const testVector = testTextInterpolator`<hello attribute/>`;
+  const textVector = testTextInterpolator`<hello attribute/>`;
   const expectedResults: BuildStep[] = [
     {
       type: "BUILD",
@@ -233,7 +234,7 @@ function parseIndependentNodeWithImplicitAttributeTest() {
   ];
 
   const stack: BuildStep[] = [];
-  parse(testVector, stack);
+  parse(textVector, stack);
 
   if (!samestuff(expectedResults, stack)) {
     assertions.push("stack does not match expected results");
@@ -244,7 +245,7 @@ function parseIndependentNodeWithImplicitAttributeTest() {
 
 function parseIndependentNodeWithImplicitAttributeWithSpacesTest() {
   const assertions = [];
-  const testVector = testTextInterpolator`<hello  attribute  />`;
+  const textVector = testTextInterpolator`<hello  attribute  />`;
   const expectedResults: BuildStep[] = [
     {
       type: "BUILD",
@@ -289,7 +290,7 @@ function parseIndependentNodeWithImplicitAttributeWithSpacesTest() {
   ];
 
   const stack: BuildStep[] = [];
-  parse(testVector, stack);
+  parse(textVector, stack);
 
   if (!samestuff(expectedResults, stack)) {
     assertions.push("stack does not match expected results");
@@ -302,7 +303,7 @@ function parseIndependentNodeWithImplicitAttributeWithSpacesTest() {
 
 function parseExplicitAttributeTest() {
   const assertions = [];
-  const testVector = testTextInterpolator`<hello attribute="value"/>`;
+  const textVector = testTextInterpolator`<hello attribute="value"/>`;
   const expectedResults: BuildStep[] = [
     {
       type: "BUILD",
@@ -362,7 +363,7 @@ function parseExplicitAttributeTest() {
   ];
 
   const stack: BuildStep[] = [];
-  parse(testVector, stack);
+  parse(textVector, stack);
 
   if (!samestuff(expectedResults, stack)) {
     assertions.push("stack does not match expected results");
@@ -373,7 +374,7 @@ function parseExplicitAttributeTest() {
 
 function parseExplicitAttributeWithSpacesTest() {
   const assertions = [];
-  const testVector = testTextInterpolator`<hello  attribute="value"  />`;
+  const textVector = testTextInterpolator`<hello  attribute="value"  />`;
   const expectedResults: BuildStep[] = [
     {
       type: "BUILD",
@@ -438,7 +439,7 @@ function parseExplicitAttributeWithSpacesTest() {
   ];
 
   const stack: BuildStep[] = [];
-  parse(testVector, stack);
+  parse(textVector, stack);
 
   if (!samestuff(expectedResults, stack)) {
     assertions.push("stack does not match expected results");
@@ -451,7 +452,7 @@ function parseExplicitAttributeWithSpacesTest() {
 
 function parseNodeInjectionsTest() {
   const assertions = [];
-  const testVector = testTextInterpolator`<hello>${"hi"}</hello>`;
+  const textVector = testTextInterpolator`<hello>${"hi"}</hello>`;
   const expectedResults: BuildStep[] = [
     {
       type: "BUILD",
@@ -497,7 +498,7 @@ function parseNodeInjectionsTest() {
   ];
 
   const stack: BuildStep[] = [];
-  parse(testVector, stack);
+  parse(textVector, stack);
 
   if (!samestuff(expectedResults, stack)) {
     assertions.push("stack does not match expected results");
@@ -508,7 +509,7 @@ function parseNodeInjectionsTest() {
 
 function parseNodeWithAttributeInjectionsTest() {
   const assertions = [];
-  const testVector = testTextInterpolator`<hello world="${"world"}"/>`;
+  const textVector = testTextInterpolator`<hello world="${"world"}"/>`;
   const expectedResults: BuildStep[] = [
     {
       type: "BUILD",
@@ -564,7 +565,163 @@ function parseNodeWithAttributeInjectionsTest() {
   ];
 
   const stack: BuildStep[] = [];
-  parse(testVector, stack);
+  parse(textVector, stack);
+
+  if (!samestuff(expectedResults, stack)) {
+    assertions.push("stack does not match expected results");
+  }
+
+  return assertions;
+}
+
+function parseNodeWithAttributeInjectionsWithSpacesTest() {
+  const assertions = [];
+  const textVector = testTextInterpolator`<hello world="${"world"}  "/>`;
+  const expectedResults: BuildStep[] = [
+    {
+      type: "BUILD",
+      state: "INITIAL",
+      vector: { origin: { x: 0, y: 0 }, target: { x: 0, y: 0 } },
+    },
+    {
+      type: "BUILD",
+      state: "NODE",
+      vector: { origin: { x: 0, y: 0 }, target: { x: 0, y: 0 } },
+    },
+    {
+      type: "BUILD",
+      state: "TAGNAME",
+      vector: { origin: { x: 0, y: 1 }, target: { x: 0, y: 5 } },
+    },
+    {
+      type: "BUILD",
+      state: "NODE_SPACE",
+      vector: { origin: { x: 0, y: 6 }, target: { x: 0, y: 6 } },
+    },
+    {
+      type: "BUILD",
+      state: "ATTRIBUTE",
+      vector: { origin: { x: 0, y: 7 }, target: { x: 0, y: 11 } },
+    },
+    {
+      type: "BUILD",
+      state: "ATTRIBUTE_SETTER",
+      vector: { origin: { x: 0, y: 12 }, target: { x: 0, y: 12 } },
+    },
+    {
+      type: "BUILD",
+      state: "ATTRIBUTE_DECLARATION",
+      vector: { origin: { x: 0, y: 13 }, target: { x: 0, y: 13 } },
+    },
+    { type: "INJECT", index: 0, state: "ATTRIBUTE_INJECTION" },
+    {
+      type: "BUILD",
+      state: "ATTRIBUTE_VALUE",
+      vector: { origin: { x: 1, y: 0 }, target: { x: 1, y: 1 } },
+    },
+    {
+      type: "BUILD",
+      state: "ATTRIBUTE_DECLARATION_CLOSE",
+      vector: { origin: { x: 1, y: 2 }, target: { x: 1, y: 2 } },
+    },
+    {
+      type: "BUILD",
+      state: "INDEPENDENT_NODE",
+      vector: { origin: { x: 1, y: 3 }, target: { x: 1, y: 3 } },
+    },
+    {
+      type: "BUILD",
+      state: "INDEPENDENT_NODE_CLOSED",
+      vector: { origin: { x: 1, y: 4 }, target: { x: 1, y: 4 } },
+    },
+  ];
+
+  const stack: BuildStep[] = [];
+  parse(textVector, stack);
+
+  if (!samestuff(expectedResults, stack)) {
+    assertions.push("stack does not match expected results");
+  }
+
+  return assertions;
+}
+
+function parseNodeWithAttributeMultipleInjectionsWithSpacesTest() {
+  const assertions = [];
+  const textVector =
+    testTextInterpolator`<hello world="  ${"milky way"}  ${"galaxy"}   "/>`;
+  const expectedResults: BuildStep[] = [
+    {
+      type: "BUILD",
+      state: "INITIAL",
+      vector: { origin: { x: 0, y: 0 }, target: { x: 0, y: 0 } },
+    },
+    {
+      type: "BUILD",
+      state: "NODE",
+      vector: { origin: { x: 0, y: 0 }, target: { x: 0, y: 0 } },
+    },
+    {
+      type: "BUILD",
+      state: "TAGNAME",
+      vector: { origin: { x: 0, y: 1 }, target: { x: 0, y: 5 } },
+    },
+    {
+      type: "BUILD",
+      state: "NODE_SPACE",
+      vector: { origin: { x: 0, y: 6 }, target: { x: 0, y: 6 } },
+    },
+    {
+      type: "BUILD",
+      state: "ATTRIBUTE",
+      vector: { origin: { x: 0, y: 7 }, target: { x: 0, y: 11 } },
+    },
+    {
+      type: "BUILD",
+      state: "ATTRIBUTE_SETTER",
+      vector: { origin: { x: 0, y: 12 }, target: { x: 0, y: 12 } },
+    },
+    {
+      type: "BUILD",
+      state: "ATTRIBUTE_DECLARATION",
+      vector: { origin: { x: 0, y: 13 }, target: { x: 0, y: 13 } },
+    },
+    {
+      type: "BUILD",
+      state: "ATTRIBUTE_VALUE",
+      vector: { origin: { x: 0, y: 14 }, target: { x: 0, y: 15 } },
+    },
+    { type: "INJECT", index: 0, state: "ATTRIBUTE_INJECTION" },
+    {
+      type: "BUILD",
+      state: "ATTRIBUTE_VALUE",
+      vector: { origin: { x: 1, y: 0 }, target: { x: 1, y: 1 } },
+    },
+    { type: "INJECT", index: 1, state: "ATTRIBUTE_INJECTION" },
+    {
+      type: "BUILD",
+      state: "ATTRIBUTE_VALUE",
+      vector: { origin: { x: 2, y: 0 }, target: { x: 2, y: 2 } },
+    },
+    {
+      type: "BUILD",
+      state: "ATTRIBUTE_DECLARATION_CLOSE",
+      vector: { origin: { x: 2, y: 3 }, target: { x: 2, y: 3 } },
+    },
+    {
+      type: "BUILD",
+      state: "INDEPENDENT_NODE",
+      vector: { origin: { x: 2, y: 4 }, target: { x: 2, y: 4 } },
+    },
+    {
+      type: "BUILD",
+      state: "INDEPENDENT_NODE_CLOSED",
+      vector: { origin: { x: 2, y: 5 }, target: { x: 2, y: 5 } },
+    },
+  ];
+
+  const stack: BuildStep[] = [];
+  parse(textVector, stack);
 
   if (!samestuff(expectedResults, stack)) {
     assertions.push("stack does not match expected results");
@@ -575,7 +732,7 @@ function parseNodeWithAttributeInjectionsTest() {
 
 function parseNodeWithAttributeMapInjectionsTest() {
   const assertions = [];
-  const testVector = testTextInterpolator`<hello ${"world"}/>`;
+  const textVector = testTextInterpolator`<hello ${"world"}/>`;
   const expectedResults: BuildStep[] = [
     {
       type: "BUILD",
@@ -611,65 +768,7 @@ function parseNodeWithAttributeMapInjectionsTest() {
   ];
 
   const stack: BuildStep[] = [];
-  parse(testVector, stack);
-
-  if (!samestuff(expectedResults, stack)) {
-    assertions.push("stack does not match expected results");
-  }
-
-  return assertions;
-}
-
-// comments
-
-function parseCommentTest() {
-  const assertions = [];
-  const testVector = testTextInterpolator`<-- Hello world! -->`;
-  const expectedResults: BuildStep[] = [
-    {
-      type: "BUILD",
-      state: "INITIAL",
-      vector: { origin: { x: 0, y: 0 }, target: { x: 0, y: 0 } },
-    },
-    {
-      type: "BUILD",
-      state: "NODE",
-      vector: { origin: { x: 0, y: 0 }, target: { x: 0, y: 0 } },
-    },
-    {
-      type: "BUILD",
-      state: "COMMENT_0",
-      vector: { origin: { x: 0, y: 1 }, target: { x: 0, y: 1 } },
-    },
-    {
-      type: "BUILD",
-      state: "COMMENT_1",
-      vector: { origin: { x: 0, y: 2 }, target: { x: 0, y: 2 } },
-    },
-    {
-      type: "BUILD",
-      state: "COMMENT",
-      vector: { origin: { x: 0, y: 3 }, target: { x: 0, y: 16 } },
-    },
-    {
-      type: "BUILD",
-      state: "COMMENT_CLOSE",
-      vector: { origin: { x: 0, y: 17 }, target: { x: 0, y: 17 } },
-    },
-    {
-      type: "BUILD",
-      state: "COMMENT_CLOSE_1",
-      vector: { origin: { x: 0, y: 18 }, target: { x: 0, y: 18 } },
-    },
-    {
-      type: "BUILD",
-      state: "NODE_CLOSED",
-      vector: { origin: { x: 0, y: 19 }, target: { x: 0, y: 19 } },
-    },
-  ];
-
-  const stack: BuildStep[] = [];
-  parse(testVector, stack);
+  parse(textVector, stack);
 
   if (!samestuff(expectedResults, stack)) {
     assertions.push("stack does not match expected results");
@@ -682,7 +781,7 @@ function parseCommentTest() {
 
 function parseErrorTest() {
   const assertions = [];
-  const testVector = testTextInterpolator`< a>`;
+  const textVector = testTextInterpolator`< a>`;
   const expectedResults: BuildStep[] = [
     {
       type: "BUILD",
@@ -690,15 +789,18 @@ function parseErrorTest() {
       vector: { origin: { x: 0, y: 0 }, target: { x: 0, y: 0 } },
     },
     {
-      type: "ERROR",
+      type: "BUILD",
       state: "NODE",
-      vector: { origin: { x: 0, y: 1 }, target: { x: 0, y: 1 } },
+      vector: { origin: { x: 0, y: 0 }, target: { x: 0, y: 0 } },
+    },
+    {
+      type: "ERROR",
+      vector: { origin: { x: 0, y: 2 }, target: { x: 0, y: 2 } },
     },
   ];
 
   const stack: BuildStep[] = [];
-
-  parse(testVector, stack);
+  parse(textVector, stack);
 
   if (!samestuff(expectedResults, stack)) {
     assertions.push("stack does not match expected results");
@@ -709,7 +811,7 @@ function parseErrorTest() {
 
 function parseCloseNodeErrorTest() {
   const assertions = [];
-  const testVector = testTextInterpolator`</ a>`;
+  const textVector = testTextInterpolator`</ a>`;
   const expectedResults: BuildStep[] = [
     {
       type: "BUILD",
@@ -722,99 +824,18 @@ function parseCloseNodeErrorTest() {
       vector: { origin: { x: 0, y: 0 }, target: { x: 0, y: 0 } },
     },
     {
-      type: "ERROR",
+      type: "BUILD",
       state: "CLOSE_NODE_SLASH",
-      vector: { origin: { x: 0, y: 2 }, target: { x: 0, y: 2 } },
-    },
-  ];
-
-  const stack: BuildStep[] = [];
-
-  parse(testVector, stack);
-
-  if (!samestuff(expectedResults, stack)) {
-    assertions.push("stack does not match expected results");
-  }
-
-  return assertions;
-}
-
-function parseCommentErrorTest() {
-  const assertions = [];
-  const testVector = testTextInterpolator`<- `;
-  const expectedResults: BuildStep[] = [
-    {
-      type: "BUILD",
-      state: "INITIAL",
-      vector: { origin: { x: 0, y: 0 }, target: { x: 0, y: 0 } },
-    },
-    {
-      type: "BUILD",
-      state: "NODE",
-      vector: { origin: { x: 0, y: 0 }, target: { x: 0, y: 0 } },
-    },
-    {
-      type: "ERROR",
-      state: "COMMENT_0",
-      vector: { origin: { x: 0, y: 2 }, target: { x: 0, y: 2 } },
-    },
-  ];
-
-  const stack: BuildStep[] = [];
-
-  parse(testVector, stack);
-
-  if (!samestuff(expectedResults, stack)) {
-    assertions.push("stack does not match expected results");
-  }
-
-  return assertions;
-}
-
-function parseCloseCommentErrorTest() {
-  const assertions = [];
-  const testVector = testTextInterpolator`<-- -- `;
-  const expectedResults: BuildStep[] = [
-    {
-      type: "BUILD",
-      state: "INITIAL",
-      vector: { origin: { x: 0, y: 0 }, target: { x: 0, y: 0 } },
-    },
-    {
-      type: "BUILD",
-      state: "NODE",
-      vector: { origin: { x: 0, y: 0 }, target: { x: 0, y: 0 } },
-    },
-    {
-      type: "BUILD",
-      state: "COMMENT_0",
       vector: { origin: { x: 0, y: 1 }, target: { x: 0, y: 1 } },
     },
     {
-      type: "BUILD",
-      state: "COMMENT_1",
-      vector: { origin: { x: 0, y: 2 }, target: { x: 0, y: 2 } },
-    },
-    {
-      type: "BUILD",
-      state: "COMMENT",
-      vector: { origin: { x: 0, y: 3 }, target: { x: 0, y: 3 } },
-    },
-    {
-      type: "BUILD",
-      state: "COMMENT_CLOSE",
-      vector: { origin: { x: 0, y: 4 }, target: { x: 0, y: 4 } },
-    },
-    {
       type: "ERROR",
-      state: "COMMENT_CLOSE_1",
-      vector: { origin: { x: 0, y: 6 }, target: { x: 0, y: 6 } },
+      vector: { origin: { x: 0, y: 3 }, target: { x: 0, y: 3 } },
     },
   ];
 
   const stack: BuildStep[] = [];
-
-  parse(testVector, stack);
+  parse(textVector, stack);
 
   if (!samestuff(expectedResults, stack)) {
     assertions.push("stack does not match expected results");
@@ -827,12 +848,12 @@ function parseCloseCommentErrorTest() {
 
 function parseEmptyTest() {
   const assertions = [];
-  const testVector = testTextInterpolator``;
+  const textVector = testTextInterpolator``;
   const expectedResults: BuildStep[] = [];
 
   const stack: BuildStep[] = [];
 
-  parse(testVector, stack);
+  parse(textVector, stack);
 
   if (!samestuff(expectedResults, stack)) {
     assertions.push("stack does not match expected results");
@@ -843,14 +864,13 @@ function parseEmptyTest() {
 
 function parseEmptyWithInjectionTest() {
   const assertions = [];
-  const testVector = testTextInterpolator`${"buster"}`;
+  const textVector = testTextInterpolator`${"buster"}`;
   const expectedResults: BuildStep[] = [
     { type: "INJECT", index: 0, state: "DESCENDANT_INJECTION" },
   ];
 
   const stack: BuildStep[] = [];
-
-  parse(testVector, stack);
+  parse(textVector, stack);
 
   if (!samestuff(expectedResults, stack)) {
     assertions.push("stack does not match expected results");
@@ -861,7 +881,7 @@ function parseEmptyWithInjectionTest() {
 
 function parseEmptyWithMultipleInjectionsTest() {
   const assertions = [];
-  const testVector = testTextInterpolator`${"yo"}${"buddy"}${"boi"}`;
+  const textVector = testTextInterpolator`${"yo"}${"buddy"}${"boi"}`;
   const expectedResults: BuildStep[] = [
     { type: "INJECT", index: 0, state: "DESCENDANT_INJECTION" },
     { type: "INJECT", index: 1, state: "DESCENDANT_INJECTION" },
@@ -870,7 +890,7 @@ function parseEmptyWithMultipleInjectionsTest() {
 
   const stack: BuildStep[] = [];
 
-  parse(testVector, stack);
+  parse(textVector, stack);
 
   if (!samestuff(expectedResults, stack)) {
     assertions.push("stack does not match expected results");
@@ -883,7 +903,7 @@ function parseEmptyWithMultipleInjectionsTest() {
 
 function parseNestedTemplateWithInjectionsTest() {
   const assertions = [];
-  const testVector = testTextInterpolator`${"stardust"}
+  const textVector = testTextInterpolator`${"stardust"}
   	<boop sunshine>${"yo"}<beep>hai</beep>
   		<doh ${"moonlight"}>${"buddy"}</doh><howdy starshine="darlin" />
   		<chomp>:3</chomp>
@@ -1156,7 +1176,7 @@ function parseNestedTemplateWithInjectionsTest() {
 
   const stack: BuildStep[] = [];
 
-  parse(testVector, stack);
+  parse(textVector, stack);
   if (!samestuff(expectedResults, stack)) {
     assertions.push("stack does not match expected results");
   }
@@ -1167,6 +1187,7 @@ function parseNestedTemplateWithInjectionsTest() {
 const tests = [
   // nodes
   parseNodeTest,
+
   parseNodeWithImplicitAttributeTest,
   parseNodeWithImplicitAttributeWithSpacesTest,
 
@@ -1182,16 +1203,13 @@ const tests = [
   // injections
   parseNodeInjectionsTest,
   parseNodeWithAttributeInjectionsTest,
+  parseNodeWithAttributeInjectionsWithSpacesTest,
+  parseNodeWithAttributeMultipleInjectionsWithSpacesTest,
   parseNodeWithAttributeMapInjectionsTest,
-
-  // comments
-  parseCommentTest,
 
   // errors
   parseErrorTest,
   parseCloseNodeErrorTest,
-  parseCommentErrorTest,
-  parseCloseCommentErrorTest,
 
   // fail safes
   parseEmptyTest,
@@ -1209,4 +1227,3 @@ const unitTestParse = {
 };
 
 export { unitTestParse };
-0;

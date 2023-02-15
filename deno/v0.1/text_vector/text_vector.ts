@@ -9,13 +9,8 @@ function increment(
   template: TemplateStringsArray,
   position: Position,
 ): Position | undefined {
-  // template boundaries
   const templateLength = template.length - 1;
-  if (position.x > templateLength) return;
-
   const chunk = template[position.x];
-  if (chunk === undefined) return;
-
   const chunkLength = chunk.length - 1;
   if (position.x >= templateLength && position.y >= chunkLength) return;
 
@@ -33,8 +28,7 @@ function getChar(
   position: Position,
 ): string | undefined {
   const str = template[position.x];
-  if (str === undefined) return;
-  if (str.length === 0) return str;
+  if (str === undefined || str.length === 0) return;
 
   return str[position.y];
 }
@@ -62,9 +56,9 @@ function getText(
 ): string | undefined {
   const origin = vector.origin;
   let templateText = template[origin.x];
-  if (templateText === undefined) return;
-
-  return templateText.substr(origin.y, vector.target.y - origin.y + 1);
+  if (templateText) {
+    return templateText.substr(origin.y, vector.target.y - origin.y + 1);
+  }
 }
 
 export { copy, create, getChar, getText, increment };
