@@ -445,13 +445,6 @@ function parse(template, builder, prev = INITIAL) {
         prevTarget.y = origin.y;
     }while (increment(template, origin) && currState !== ERROR)
     if (prevState === currState) return;
-    if (currState === ERROR) {
-        builder.push({
-            type: ERROR,
-            vector: create(origin, origin)
-        });
-        return;
-    }
     builder.push({
         type: BUILD,
         state: currState,

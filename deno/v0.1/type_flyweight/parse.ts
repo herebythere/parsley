@@ -18,16 +18,10 @@ interface InjectionStep {
   index: number;
 }
 
-interface ErrorStep {
-  type: "ERROR";
-  vector: Vector;
-}
-
-type BuildStep = NodeStep | InjectionStep | ErrorStep;
+type BuildStep = NodeStep | InjectionStep;
 
 interface BuilderInterface {
   push(buildStep: BuildStep): void;
 }
 
 export type { BuilderInterface, BuildStep, Routes };
-

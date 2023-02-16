@@ -4,29 +4,34 @@ A good enough XML parser
 
 ## About
 
-Parsley deserializes a subset of xml to build documents from custom xml languages.
+Parsley deserializes a subset of xml to build documents from custom xml
+languages.
 
 ## Install
 
 ### Deno
 
 ```ts
-import { parse, getText } from "https://raw.githubusercontent.com/herebythere/parsley/main/deno/v0.1/mod.ts";
+import {
+  getText,
+  parse,
+} from "https://raw.githubusercontent.com/herebythere/parsley/main/deno/v0.1/mod.ts";
 ```
 
 ### EMCAScript
 
 ```js
-import { parse, getText } from "https://raw.githubusercontent.com/herebythere/parsley/main/es/v0.1/parsley.ts";
+import {
+  getText,
+  parse,
+} from "https://raw.githubusercontent.com/herebythere/parsley/main/es/v0.1/parsley.ts";
 ```
 
 ## How to use
 
 ### Templates
 
-Every build step in a `Template` is passed as an agurment to `Builder.step()` until an error is found.
-
-A template is simply an array of strings:
+A template is an array of strings:
 
 ```
 Template: []string
@@ -48,7 +53,8 @@ Builder {
 
 Pass a `Template` and a `Builder` to `parse`.
 
-Every build step in a `Template` is passed as an agurment to `Builder.push()` until the template is successfully parsed or an error is found.
+Every build step in a `Template` is passed as an agurment to `Builder.push()`
+until the template is successfully parsed or an error is found.
 
 ```
 parse(
@@ -57,14 +63,9 @@ parse(
 ): void
 ```
 
-### Limitations
+### Injections
 
-Parsley provides limited support for xml syntax:
-
-- comments are not supported
-- misplaced template injections are ignored
-
-As in, the following template demonstrates three valid injections:
+The following template demonstrates three valid injections:
 
 String interpolation:
 
@@ -79,6 +80,13 @@ String formatting:
 "<element %s attribute="%s"/>%s</element>"
 ```
 
+### Limitations
+
+Parsley provides limited support for xml syntax:
+
+- comments are not supported
+- misplaced template injections are ignored
+
 ## License
 
-BSD 3-Clause License
+Parsley is released under the BSD 3-Clause License

@@ -1,10 +1,25 @@
 import type { BuilderInterface } from "../type_flyweight/parse.ts";
 import type { Position } from "../type_flyweight/text_vector.ts";
 
-import { ATTRIBUTE_VALUE,ATTRIBUTE_DECLARATION,INDEPENDENT_NODE_CLOSED,NODE_CLOSED, NODE_SPACE, TAGNAME,ATTRIBUTE_INJECTION,ATTRIBUTE_INJECTION_MAP,DESCENDANT_INJECTION, ERROR, TEXT, BUILD, INJECT, INITIAL, DEFAULT } from "../type_flyweight/constants.ts";
+import {
+  ATTRIBUTE_DECLARATION,
+  ATTRIBUTE_INJECTION,
+  ATTRIBUTE_INJECTION_MAP,
+  ATTRIBUTE_VALUE,
+  BUILD,
+  DEFAULT,
+  DESCENDANT_INJECTION,
+  ERROR,
+  INDEPENDENT_NODE_CLOSED,
+  INITIAL,
+  INJECT,
+  NODE_CLOSED,
+  NODE_SPACE,
+  TAGNAME,
+  TEXT,
+} from "../type_flyweight/constants.ts";
 import { routes } from "./routes.ts";
 import { create, getChar, increment } from "../text_vector/text_vector.ts";
-
 
 const EMPTY = "";
 
@@ -39,7 +54,7 @@ function parse(
       prevState = currState;
       const route = routes.get(prevState);
       if (route) {
-        currState = route.get(char) ?? route.get(DEFAULT)?? ERROR;
+        currState = route.get(char) ?? route.get(DEFAULT) ?? ERROR;
       }
     }
 
@@ -83,14 +98,6 @@ function parse(
 
   // get tail end
   if (prevState === currState) return;
-  if (currState === ERROR) {
-    builder.push({
-      type: ERROR,
-      vector: create(origin, origin),
-    });
-    return;
-  }
-
   builder.push({
     type: BUILD,
     state: currState,
