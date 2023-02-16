@@ -63,99 +63,295 @@ const ATTRIBUTE_INJECTION_MAP = "ATTRIBUTE_INJECTION_MAP";
 const INITIAL = "INITIAL";
 const BUILD = "BUILD";
 const INJECT = "INJECT";
-const routes = {
-    INITIAL: {
-        "<": NODE,
-        DEFAULT: TEXT
-    },
-    TEXT: {
-        "<": NODE,
-        DEFAULT: TEXT
-    },
-    NODE: {
-        " ": ERROR,
-        "\n": NODE,
-        "\t": NODE,
-        "/": CLOSE_NODE_SLASH,
-        ">": ERROR,
-        DEFAULT: TAGNAME
-    },
-    CLOSE_NODE_SLASH: {
-        " ": ERROR,
-        DEFAULT: CLOSE_TAGNAME
-    },
-    TAGNAME: {
-        ">": NODE_CLOSED,
-        " ": NODE_SPACE,
-        "\n": NODE_SPACE,
-        "\t": NODE_SPACE,
-        "/": INDEPENDENT_NODE,
-        DEFAULT: TAGNAME
-    },
-    CLOSE_TAGNAME: {
-        ">": CLOSE_NODE_CLOSED,
-        " ": CLOSE_NODE_SPACE,
-        "\n": CLOSE_NODE_SPACE,
-        "\t": CLOSE_NODE_SPACE,
-        DEFAULT: CLOSE_TAGNAME
-    },
-    CLOSE_NODE_SPACE: {
-        ">": CLOSE_NODE_CLOSED,
-        DEFAULT: CLOSE_NODE_SPACE
-    },
-    INDEPENDENT_NODE: {
-        ">": INDEPENDENT_NODE_CLOSED,
-        DEFAULT: INDEPENDENT_NODE
-    },
-    NODE_CLOSED: {
-        "<": NODE,
-        DEFAULT: TEXT
-    },
-    CLOSE_NODE_CLOSED: {
-        "<": NODE,
-        DEFAULT: TEXT
-    },
-    INDEPENDENT_NODE_CLOSED: {
-        "<": NODE,
-        DEFAULT: TEXT
-    },
-    NODE_SPACE: {
-        ">": NODE_CLOSED,
-        " ": NODE_SPACE,
-        "\n": NODE_SPACE,
-        "\t": NODE_SPACE,
-        "/": INDEPENDENT_NODE,
-        DEFAULT: ATTRIBUTE
-    },
-    ATTRIBUTE: {
-        " ": NODE_SPACE,
-        "\n": NODE_SPACE,
-        "\t": NODE_SPACE,
-        "=": ATTRIBUTE_SETTER,
-        ">": NODE_CLOSED,
-        "/": INDEPENDENT_NODE,
-        DEFAULT: ATTRIBUTE
-    },
-    ATTRIBUTE_SETTER: {
-        '"': ATTRIBUTE_DECLARATION,
-        "\n": NODE_SPACE,
-        DEFAULT: NODE_SPACE
-    },
-    ATTRIBUTE_DECLARATION: {
-        '"': ATTRIBUTE_DECLARATION_CLOSE,
-        DEFAULT: ATTRIBUTE_VALUE
-    },
-    ATTRIBUTE_VALUE: {
-        '"': ATTRIBUTE_DECLARATION_CLOSE,
-        DEFAULT: ATTRIBUTE_VALUE
-    },
-    ATTRIBUTE_DECLARATION_CLOSE: {
-        ">": INDEPENDENT_NODE_CLOSED,
-        "/": INDEPENDENT_NODE,
-        DEFAULT: NODE_SPACE
-    }
-};
 const DEFAULT = "DEFAULT";
+const INIITAL_MAP = new Map([
+    [
+        "<",
+        NODE
+    ],
+    [
+        DEFAULT,
+        TEXT
+    ]
+]);
+const NODE_MAP = new Map([
+    [
+        " ",
+        ERROR
+    ],
+    [
+        "\n",
+        NODE
+    ],
+    [
+        "\t",
+        NODE
+    ],
+    [
+        "/",
+        CLOSE_NODE_SLASH
+    ],
+    [
+        ">",
+        ERROR
+    ],
+    [
+        DEFAULT,
+        TAGNAME
+    ]
+]);
+const CLOSE_NODE_SLASH_MAP = new Map([
+    [
+        " ",
+        ERROR
+    ],
+    [
+        DEFAULT,
+        CLOSE_TAGNAME
+    ]
+]);
+const TAGNAME_MAP = new Map([
+    [
+        ">",
+        NODE_CLOSED
+    ],
+    [
+        " ",
+        NODE_SPACE
+    ],
+    [
+        "\n",
+        NODE_SPACE
+    ],
+    [
+        "\t",
+        NODE_SPACE
+    ],
+    [
+        "/",
+        INDEPENDENT_NODE
+    ],
+    [
+        DEFAULT,
+        TAGNAME
+    ]
+]);
+const CLOSE_TAGNAME_MAP = new Map([
+    [
+        ">",
+        CLOSE_NODE_CLOSED
+    ],
+    [
+        " ",
+        CLOSE_NODE_SPACE
+    ],
+    [
+        "\n",
+        CLOSE_NODE_SPACE
+    ],
+    [
+        "\t",
+        CLOSE_NODE_SPACE
+    ],
+    [
+        DEFAULT,
+        CLOSE_TAGNAME
+    ]
+]);
+const CLOSE_NODE_SPACE_MAP = new Map([
+    [
+        ">",
+        CLOSE_NODE_CLOSED
+    ],
+    [
+        DEFAULT,
+        CLOSE_NODE_SPACE
+    ]
+]);
+const INDEPENDENT_NODE_MAP = new Map([
+    [
+        ">",
+        INDEPENDENT_NODE_CLOSED
+    ],
+    [
+        DEFAULT,
+        INDEPENDENT_NODE
+    ]
+]);
+const NODE_SPACE_MAP = new Map([
+    [
+        ">",
+        NODE_CLOSED
+    ],
+    [
+        " ",
+        NODE_SPACE
+    ],
+    [
+        "\n",
+        NODE_SPACE
+    ],
+    [
+        "\t",
+        NODE_SPACE
+    ],
+    [
+        "/",
+        INDEPENDENT_NODE
+    ],
+    [
+        DEFAULT,
+        ATTRIBUTE
+    ]
+]);
+const ATTRIBUTE_MAP = new Map([
+    [
+        " ",
+        NODE_SPACE
+    ],
+    [
+        "\n",
+        NODE_SPACE
+    ],
+    [
+        "\t",
+        NODE_SPACE
+    ],
+    [
+        "=",
+        ATTRIBUTE_SETTER
+    ],
+    [
+        ">",
+        NODE_CLOSED
+    ],
+    [
+        "/",
+        INDEPENDENT_NODE
+    ],
+    [
+        DEFAULT,
+        ATTRIBUTE
+    ]
+]);
+const ATTRIBUTE_SETTER_MAP = new Map([
+    [
+        '"',
+        ATTRIBUTE_DECLARATION
+    ],
+    [
+        "\n",
+        NODE_SPACE
+    ],
+    [
+        DEFAULT,
+        NODE_SPACE
+    ]
+]);
+const ATTRIBUTE_DECLARATION_MAP = new Map([
+    [
+        '"',
+        ATTRIBUTE_DECLARATION_CLOSE
+    ],
+    [
+        DEFAULT,
+        ATTRIBUTE_VALUE
+    ]
+]);
+const ATTRIBUTE_VALUE_MAP = new Map([
+    [
+        '"',
+        ATTRIBUTE_DECLARATION_CLOSE
+    ],
+    [
+        DEFAULT,
+        ATTRIBUTE_VALUE
+    ]
+]);
+const ATTRIBUTE_DECLARATION_CLOSE_MAP = new Map([
+    [
+        ">",
+        INDEPENDENT_NODE_CLOSED
+    ],
+    [
+        "/",
+        INDEPENDENT_NODE
+    ],
+    [
+        DEFAULT,
+        NODE_SPACE
+    ]
+]);
+const routes = new Map([
+    [
+        INITIAL,
+        INIITAL_MAP
+    ],
+    [
+        TEXT,
+        INIITAL_MAP
+    ],
+    [
+        NODE,
+        NODE_MAP
+    ],
+    [
+        CLOSE_NODE_SLASH,
+        CLOSE_NODE_SLASH_MAP
+    ],
+    [
+        TAGNAME,
+        TAGNAME_MAP
+    ],
+    [
+        CLOSE_TAGNAME,
+        CLOSE_TAGNAME_MAP
+    ],
+    [
+        CLOSE_NODE_SPACE,
+        CLOSE_NODE_SPACE_MAP
+    ],
+    [
+        INDEPENDENT_NODE,
+        INDEPENDENT_NODE_MAP
+    ],
+    [
+        NODE_CLOSED,
+        INIITAL_MAP
+    ],
+    [
+        CLOSE_NODE_CLOSED,
+        INIITAL_MAP
+    ],
+    [
+        INDEPENDENT_NODE_CLOSED,
+        INIITAL_MAP
+    ],
+    [
+        NODE_SPACE,
+        NODE_SPACE_MAP
+    ],
+    [
+        ATTRIBUTE,
+        ATTRIBUTE_MAP
+    ],
+    [
+        ATTRIBUTE_SETTER,
+        ATTRIBUTE_SETTER_MAP
+    ],
+    [
+        ATTRIBUTE_DECLARATION,
+        ATTRIBUTE_DECLARATION_MAP
+    ],
+    [
+        ATTRIBUTE_VALUE,
+        ATTRIBUTE_VALUE_MAP
+    ],
+    [
+        ATTRIBUTE_DECLARATION_CLOSE,
+        ATTRIBUTE_DECLARATION_CLOSE_MAP
+    ]
+]);
 const EMPTY = "";
 const injectionMap = new Map([
     [
@@ -210,9 +406,9 @@ function parse(template, builder, prev = INITIAL) {
         const __char = getChar(template, origin);
         if (__char !== undefined && __char !== EMPTY) {
             prevState = currState;
-            const route = routes[prevState];
+            const route = routes.get(prevState);
             if (route) {
-                currState = route[__char] ?? route[DEFAULT];
+                currState = route.get(__char) ?? route.get(DEFAULT) ?? ERROR;
             }
         }
         if (prevState !== currState) {
