@@ -71,7 +71,6 @@ String interpolation:
 
 ```
 ["<element", "attribute=", "/>", "</element>"]
-}
 ```
 
 String formatting:
