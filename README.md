@@ -24,9 +24,7 @@ import { parse, getText } from "https://raw.githubusercontent.com/herebythere/pa
 
 ### Templates
 
-Every build step in a `Template` is passed as an agurment to `Builder.step()` until an error is found.
-
-A template is simply an array of strings:
+A template is an array of strings:
 
 ```
 Template: []string
@@ -57,14 +55,9 @@ parse(
 ): void
 ```
 
-### Limitations
+### Injections
 
-Parsley provides limited support for xml syntax:
-
-- comments are not supported
-- misplaced template injections are ignored
-
-As in, the following template demonstrates three valid injections:
+The following template demonstrates three valid injections:
 
 String interpolation:
 
@@ -79,6 +72,13 @@ String formatting:
 "<element %s attribute="%s"/>%s</element>"
 ```
 
+### Limitations
+
+Parsley provides limited support for xml syntax:
+
+- comments are not supported
+- misplaced template injections are ignored
+
 ## License
 
-BSD 3-Clause License
+Parsley is released under the BSD 3-Clause License
