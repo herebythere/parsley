@@ -4,65 +4,79 @@ A good enough XML parser
 
 ## About
 
-Parsley provides the build steps of an xml document.
-
-It helps build documents from custom xml langauges.
-
-Parsley does not follow xml spec. However, xml-compliant documents will be
-successfully parsed.
-
-# TODO
-
-- add injection state to the routes map
-- simplify code base where possible
+Parsley deserializes a subset of xml to build documents from custom xml languages.
 
 ## Install
-
-Clone this repository and copy a version into your codebase.
 
 ### Deno
 
 ```ts
-import { parse } from "https://raw.githubusercontent.com/taylor-vann/parsley/main/deno/v0.1/mod.ts";
+import { parse, getText } from "https://raw.githubusercontent.com/herebythere/parsley/main/deno/v0.1/mod.ts";
+```
+
+### EMCAScript
+
+```js
+import { parse, getText } from "https://raw.githubusercontent.com/herebythere/parsley/main/es/v0.1/parsley.ts";
 ```
 
 ## How to use
 
-Parsely relies on three interfaces:
-
-- `Template` has properties
-- `Builder` accepts build steps and
-- `Delta`
-
 ### Templates
 
-Parsley expects an template interface including an array of xml and an array of
-injections.
+Every build step in a `Template` is passed as an agurment to `Builder.step()` until an error is found.
+
+A template is simply an array of strings:
 
 ```
-[]string
+Template: []string
 ```
 
 ### Builder
 
-Parsley uses a builder interface to
+Parsely relies on a user provided `Builder` structure with the following api:
 
 ```
 Builder {
 	push(step: BuildStep) {
-		...
+		... react to build step
 	}
 }
 ```
 
 ### Parse
 
+Pass a `Template` and a `Builder` to `parse`.
+
+Every build step in a `Template` is passed as an agurment to `Builder.push()` until the template is successfully parsed or an error is found.
+
 ```
 parse(
 	template: Template,
 	builder: Builder,
-	delta: Delta,
 ): void
+```
+
+### Limitations
+
+Parsley provides limited support for xml syntax:
+
+- comments are not supported
+- misplaced template injections are ignored
+
+As in, the following template demonstrates three valid injections:
+
+String interpolation:
+
+```
+["<element", "attribute=", "/>", "</element>"]
+}
+```
+
+String formatting:
+
+```
+"<element %s attribute="%s"/>%s</element>"
 ```
 
 ## License
