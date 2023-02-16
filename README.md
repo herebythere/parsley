@@ -4,20 +4,27 @@ A good enough XML parser
 
 ## About
 
-Parsley deserializes a subset of xml to build documents from custom xml languages.
+Parsley deserializes a subset of xml to build documents from custom xml
+languages.
 
 ## Install
 
 ### Deno
 
 ```ts
-import { parse, getText } from "https://raw.githubusercontent.com/herebythere/parsley/main/deno/v0.1/mod.ts";
+import {
+  getText,
+  parse,
+} from "https://raw.githubusercontent.com/herebythere/parsley/main/deno/v0.1/mod.ts";
 ```
 
 ### EMCAScript
 
 ```js
-import { parse, getText } from "https://raw.githubusercontent.com/herebythere/parsley/main/es/v0.1/parsley.ts";
+import {
+  getText,
+  parse,
+} from "https://raw.githubusercontent.com/herebythere/parsley/main/es/v0.1/parsley.ts";
 ```
 
 ## How to use
@@ -46,7 +53,8 @@ Builder {
 
 Pass a `Template` and a `Builder` to `parse`.
 
-Every build step in a `Template` is passed as an agurment to `Builder.push()` until the template is successfully parsed or an error is found.
+Every build step in a `Template` is passed as an agurment to `Builder.push()`
+until the template is successfully parsed or an error is found.
 
 ```
 parse(
