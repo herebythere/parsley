@@ -98,14 +98,6 @@ function parse(
 
   // get tail end
   if (prevState === currState) return;
-  if (currState === ERROR) {
-    builder.push({
-      type: ERROR,
-      vector: create(origin, origin),
-    });
-    return;
-  }
-
   builder.push({
     type: BUILD,
     state: currState,
