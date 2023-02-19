@@ -8,11 +8,11 @@ import {
   ATTRIBUTE_INJECTION_MAP,
   ATTRIBUTE_VALUE,
   BUILD,
+  CLOSE_NODE_CLOSED,
   DEFAULT,
   DESCENDANT_INJECTION,
   ERROR,
   INDEPENDENT_NODE_CLOSED,
-  CLOSE_NODE_CLOSED,
   INITIAL,
   INJECT,
   NODE_CLOSED,
@@ -26,7 +26,7 @@ import { create, getChar, increment } from "../text_vector/text_vector.ts";
 const EMPTY = "";
 
 const injectionMap = new Map([
-	// attributes
+  // attributes
   [ATTRIBUTE_DECLARATION, ATTRIBUTE_INJECTION],
   [ATTRIBUTE_VALUE, ATTRIBUTE_INJECTION],
   // attribute maps
@@ -60,13 +60,13 @@ function parse(
     //console.log("char:", char)
     if (char !== undefined) {
       prevState = currState;
-      
+
       let route = routes.get(prevState);
       if (route) {
         currState = route.get(char) ?? route.get(DEFAULT) ?? ERROR;
       }
     }
-    
+
     // build
     if (prevState !== currState || prevTarget.x < origin.x) {
       // if injection state change preious state

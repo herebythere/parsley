@@ -405,7 +405,7 @@ const injectionMap = new Map([
 ]);
 function parse(template, builder, prev = INITIAL) {
     let prevState = prev;
-    let currState = prevState;
+    let currState = prev;
     const origin = {
         x: 0,
         y: 0
@@ -427,7 +427,7 @@ function parse(template, builder, prev = INITIAL) {
                 currState = route.get(__char) ?? route.get(DEFAULT) ?? ERROR;
             }
         }
-        if (prevState !== currState) {
+        if (prevState !== currState || prevTarget.x < origin.x) {
             builder.push({
                 type: BUILD,
                 state: prevState,
@@ -451,7 +451,6 @@ function parse(template, builder, prev = INITIAL) {
         prevTarget.x = origin.x;
         prevTarget.y = origin.y;
     }while (increment(template, origin) && currState !== ERROR)
-    if (prevState === currState) return;
     builder.push({
         type: BUILD,
         state: currState,
