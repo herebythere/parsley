@@ -403,52 +403,6 @@ const injectionMap = new Map([
         DESCENDANT_INJECTION
     ]
 ]);
-const injectionStateMap = new Map([
-    [
-        ATTRIBUTE_DECLARATION,
-        ATTRIBUTE_VALUE
-    ],
-    [
-        ATTRIBUTE_VALUE,
-        ATTRIBUTE_DECLARATION
-    ],
-    [
-        TAGNAME,
-        NODE_SPACE
-    ],
-    [
-        ATTRIBUTE_DECLARATION_CLOSE,
-        NODE_SPACE
-    ],
-    [
-        NODE_SPACE,
-        NODE_SPACE
-    ],
-    [
-        DESCENDANT_INJECTION,
-        INITIAL
-    ],
-    [
-        CLOSE_NODE_CLOSED,
-        INITIAL
-    ],
-    [
-        INDEPENDENT_NODE_CLOSED,
-        INITIAL
-    ],
-    [
-        INITIAL,
-        INITIAL
-    ],
-    [
-        NODE_CLOSED,
-        INITIAL
-    ],
-    [
-        TEXT,
-        INITIAL
-    ]
-]);
 function parse(template, builder, prev = INITIAL) {
     let prevState = prev;
     let currState = prevState;
@@ -466,24 +420,14 @@ function parse(template, builder, prev = INITIAL) {
     };
     do {
         const __char = getChar(template, origin);
-        console.log("char:", __char);
         if (__char !== undefined) {
             prevState = currState;
             let route = routes.get(prevState);
             if (route) {
                 currState = route.get(__char) ?? route.get(DEFAULT) ?? ERROR;
             }
-            if (prevTarget.x < origin.x && prevState === currState) {
-                const stater = injectionStateMap.get(prevState);
-                if (stater) {
-                    let route1 = routes.get(stater);
-                    if (route1) {
-                        currState = route1.get(__char) ?? route1.get(DEFAULT) ?? ERROR;
-                    }
-                }
-            }
         }
-        if (prevState !== currState || prevTarget.x < origin.x) {
+        if (prevState !== currState) {
             builder.push({
                 type: BUILD,
                 state: prevState,
@@ -496,8 +440,6 @@ function parse(template, builder, prev = INITIAL) {
             const state = injectionMap.get(prevState);
             if (state === undefined) {
                 currState = ERROR;
-                console.log("found an error!");
-                console.log(prevState, state, __char);
             } else {
                 builder.push({
                     type: INJECT,

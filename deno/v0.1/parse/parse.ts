@@ -41,30 +41,19 @@ const injectionMap = new Map([
   [TEXT, DESCENDANT_INJECTION],
 ]);
 
-const injectionStateMap = new Map([
-	// attributes
-  [ATTRIBUTE_VALUE, ATTRIBUTE_DECLARATION],
-  // attribute maps
-  [TAGNAME, NODE_SPACE],
-  [NODE_SPACE, NODE_SPACE],
-  // descendants
-  [TEXT, INITIAL],
-]);
-
 function parse(
   template: TemplateStringsArray,
   builder: BuilderInterface,
   prev: string = INITIAL,
 ) {
   let prevState: string = prev;
-  let currState: string = prevState;
+  let currState: string = prev;
 
   const origin = { x: 0, y: 0 };
   const prevOrigin = { x: 0, y: 0 };
   const prevTarget = { x: 0, y: 0 };
 
   // iterate across text
-
   do {
     // skip empty strings or state swap
     const char = getChar(template, origin);
@@ -79,9 +68,7 @@ function parse(
     }
     
     // build
-    if (
-    	prevState !== currState
-    ) {
+    if (prevState !== currState || prevTarget.x < origin.x) {
       // if injection state change preious state
       builder.push({
         type: BUILD,
@@ -109,7 +96,7 @@ function parse(
   } while (increment(template, origin) && currState !== ERROR);
 
   // get tail end
-  if (prevState === currState) return;
+
   builder.push({
     type: BUILD,
     state: currState,
