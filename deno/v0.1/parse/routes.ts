@@ -29,8 +29,8 @@ const INIITAL_MAP = new Map<string, string>([
 
 const NODE_MAP = new Map<string, string>([
   [" ", ERROR],
-  ["\n", NODE],
-  ["\t", NODE],
+  ["\n", ERROR],
+  ["\t", ERROR],
   ["/", CLOSE_NODE_SLASH],
   [">", ERROR],
   [DEFAULT, TAGNAME],
@@ -38,6 +38,8 @@ const NODE_MAP = new Map<string, string>([
 
 const CLOSE_NODE_SLASH_MAP = new Map<string, string>([
   [" ", ERROR],
+  ["\n", ERROR],
+  ["\t", ERROR],
   [DEFAULT, CLOSE_TAGNAME],
 ]);
 
