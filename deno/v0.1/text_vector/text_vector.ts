@@ -28,7 +28,8 @@ function getChar(
   position: Position,
 ): string | undefined {
   const str = template[position.x];
-  if (str === undefined || str.length === 0) return;
+  if (str === undefined) return;
+  if (str.length === 0) return "";
 
   return str[position.y];
 }

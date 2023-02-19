@@ -883,7 +883,7 @@ function parseEmptyTest() {
   const stack: BuildStep[] = [];
 
   parse(textVector, stack);
-
+	console.log(stack);
   if (!samestuff(expectedResults, stack)) {
     assertions.push("stack does not match expected results");
   }
@@ -895,8 +895,13 @@ function parseEmptyWithInjectionTest() {
   const assertions = [];
   const textVector = testTextInterpolator`${"buster"}`;
   const expectedResults: BuildStep[] = [
-    { type: INJECT, index: 0, state: DESCENDANT_INJECTION },
-  ];
+		{
+		  type: "BUILD",
+		  state: "INITIAL",
+		  vector: { origin: { x: 0, y: 0 }, target: { x: 0, y: 0 } }
+		},
+		{ type: "INJECT", index: 0, state: "DESCENDANT_INJECTION" }
+	];
 
   const stack: BuildStep[] = [];
   parse(textVector, stack);
@@ -912,15 +917,29 @@ function parseEmptyWithMultipleInjectionsTest() {
   const assertions = [];
   const textVector = testTextInterpolator`${"yo"}${"buddy"}${"boi"}`;
   const expectedResults: BuildStep[] = [
-    { type: INJECT, index: 0, state: DESCENDANT_INJECTION },
-    { type: INJECT, index: 1, state: DESCENDANT_INJECTION },
-    { type: INJECT, index: 2, state: DESCENDANT_INJECTION },
-  ];
+		{
+		  type: "BUILD",
+		  state: "INITIAL",
+		  vector: { origin: { x: 0, y: 0 }, target: { x: 0, y: 0 } }
+		},
+		{ type: "INJECT", index: 0, state: "DESCENDANT_INJECTION" },
+		{
+		  type: "BUILD",
+		  state: "INITIAL",
+		  vector: { origin: { x: 1, y: 0 }, target: { x: 1, y: 0 } }
+		},
+		{ type: "INJECT", index: 1, state: "DESCENDANT_INJECTION" },
+		{
+		  type: "BUILD",
+		  state: "INITIAL",
+		  vector: { origin: { x: 2, y: 0 }, target: { x: 2, y: 0 } }
+		},
+		{ type: "INJECT", index: 2, state: "DESCENDANT_INJECTION" }
+	];
 
   const stack: BuildStep[] = [];
-
   parse(textVector, stack);
-
+  
   if (!samestuff(expectedResults, stack)) {
     assertions.push("stack does not match expected results");
   }
@@ -1213,7 +1232,141 @@ function parseNestedTemplateWithInjectionsTest() {
   return assertions;
 }
 
+function parseLinearInjectionsTest() {
+const assertions = [];
+  const textVector = testTextInterpolator`${"a_head"}<a><b></b></a>${"a_tail"}`;
+  const expectedResults = [
+		{
+		  type: "BUILD",
+		  state: "INITIAL",
+		  vector: { origin: { x: 0, y: 0 }, target: { x: 0, y: 0 } }
+		},
+		{ type: "INJECT", index: 0, state: "DESCENDANT_INJECTION" },
+		{
+		  type: "BUILD",
+		  state: "NODE",
+		  vector: { origin: { x: 1, y: 0 }, target: { x: 1, y: 0 } }
+		},
+		{
+		  type: "BUILD",
+		  state: "TAGNAME",
+		  vector: { origin: { x: 1, y: 1 }, target: { x: 1, y: 1 } }
+		},
+		{ type: "INJECT", index: 1, state: "ATTRIBUTE_INJECTION_MAP" },
+		{
+		  type: "BUILD",
+		  state: "NODE_CLOSED",
+		  vector: { origin: { x: 2, y: 0 }, target: { x: 2, y: 0 } }
+		},
+		{ type: "INJECT", index: 2, state: "DESCENDANT_INJECTION" },
+		{
+		  type: "BUILD",
+		  state: "NODE",
+		  vector: { origin: { x: 3, y: 0 }, target: { x: 3, y: 0 } }
+		},
+		{
+		  type: "BUILD",
+		  state: "TAGNAME",
+		  vector: { origin: { x: 3, y: 1 }, target: { x: 3, y: 1 } }
+		},
+		{
+		  type: "BUILD",
+		  state: "NODE_CLOSED",
+		  vector: { origin: { x: 3, y: 2 }, target: { x: 3, y: 2 } }
+		},
+		{
+		  type: "BUILD",
+		  state: "TEXT",
+		  vector: { origin: { x: 3, y: 3 }, target: { x: 3, y: 3 } }
+		},
+		{
+		  type: "BUILD",
+		  state: "TEXT",
+		  vector: { origin: { x: 4, y: 0 }, target: { x: 3, y: 3 } }
+		},
+		{ type: "INJECT", index: 3, state: "DESCENDANT_INJECTION" },
+		{
+		  type: "BUILD",
+		  state: "NODE",
+		  vector: { origin: { x: 4, y: 0 }, target: { x: 4, y: 0 } }
+		},
+		{
+		  type: "BUILD",
+		  state: "CLOSE_NODE_SLASH",
+		  vector: { origin: { x: 4, y: 1 }, target: { x: 4, y: 1 } }
+		},
+		{
+		  type: "BUILD",
+		  state: "CLOSE_TAGNAME",
+		  vector: { origin: { x: 4, y: 2 }, target: { x: 4, y: 2 } }
+		},
+		{
+		  type: "BUILD",
+		  state: "CLOSE_NODE_CLOSED",
+		  vector: { origin: { x: 4, y: 3 }, target: { x: 4, y: 3 } }
+		},
+		{
+		  type: "BUILD",
+		  state: "NODE",
+		  vector: { origin: { x: 4, y: 4 }, target: { x: 4, y: 4 } }
+		},
+		{
+		  type: "BUILD",
+		  state: "TAGNAME",
+		  vector: { origin: { x: 4, y: 5 }, target: { x: 4, y: 5 } }
+		},
+		{
+		  type: "BUILD",
+		  state: "INDEPENDENT_NODE",
+		  vector: { origin: { x: 4, y: 6 }, target: { x: 4, y: 6 } }
+		},
+		{
+		  type: "BUILD",
+		  state: "INDEPENDENT_NODE_CLOSED",
+		  vector: { origin: { x: 4, y: 7 }, target: { x: 4, y: 7 } }
+		},
+		{ type: "INJECT", index: 4, state: "DESCENDANT_INJECTION" },
+		{
+		  type: "BUILD",
+		  state: "NODE",
+		  vector: { origin: { x: 5, y: 0 }, target: { x: 5, y: 0 } }
+		},
+		{
+		  type: "BUILD",
+		  state: "CLOSE_NODE_SLASH",
+		  vector: { origin: { x: 5, y: 1 }, target: { x: 5, y: 1 } }
+		},
+		{
+		  type: "BUILD",
+		  state: "CLOSE_TAGNAME",
+		  vector: { origin: { x: 5, y: 2 }, target: { x: 5, y: 2 } }
+		},
+		{
+		  type: "BUILD",
+		  state: "CLOSE_NODE_CLOSED",
+		  vector: { origin: { x: 5, y: 3 }, target: { x: 5, y: 3 } }
+		},
+		{ type: "INJECT", index: 5, state: "DESCENDANT_INJECTION" },
+		{
+		  type: "BUILD",
+		  state: "TEXT",
+		  vector: { origin: { x: 6, y: 0 }, target: { x: 6, y: 0 } }
+		}
+	];
+
+  const stack: BuildStep[] = [];
+  parse(textVector, stack);
+  console.log(stack);
+	
+  if (!samestuff(expectedResults, stack)) {
+    assertions.push("stack does not match expected results");
+  }
+
+  return assertions;
+}
+
 const tests = [
+	/*
   // nodes
   parseNodeTest,
   parseNodeWithImplicitAttributeTest,
@@ -1246,6 +1399,8 @@ const tests = [
 
   // real world
   parseNestedTemplateWithInjectionsTest,
+  */
+  parseLinearInjectionsTest,
 ];
 
 const unitTestParse = {

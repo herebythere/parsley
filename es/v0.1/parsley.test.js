@@ -38,7 +38,8 @@ function increment(template, position) {
 }
 function getChar(template, position) {
     const str = template[position.x];
-    if (str === undefined || str.length === 0) return;
+    if (str === undefined) return;
+    if (str.length === 0) return "";
     return str[position.y];
 }
 function create(origin = DEFAULT_POSITION, target = origin) {
@@ -327,11 +328,11 @@ const NODE_MAP = new Map([
     ],
     [
         "\n",
-        NODE
+        ERROR
     ],
     [
         "\t",
-        NODE
+        ERROR
     ],
     [
         "/",
@@ -349,6 +350,14 @@ const NODE_MAP = new Map([
 const CLOSE_NODE_SLASH_MAP = new Map([
     [
         " ",
+        ERROR
+    ],
+    [
+        "\n",
+        ERROR
+    ],
+    [
+        "\t",
         ERROR
     ],
     [
@@ -598,7 +607,6 @@ const routes = new Map([
         ATTRIBUTE_DECLARATION_CLOSE_MAP
     ]
 ]);
-const EMPTY = "";
 const injectionMap = new Map([
     [
         ATTRIBUTE_DECLARATION,
@@ -609,19 +617,11 @@ const injectionMap = new Map([
         ATTRIBUTE_INJECTION
     ],
     [
-        INDEPENDENT_NODE_CLOSED,
-        DESCENDANT_INJECTION
-    ],
-    [
-        NODE_CLOSED,
-        DESCENDANT_INJECTION
-    ],
-    [
-        INITIAL,
-        DESCENDANT_INJECTION
-    ],
-    [
         NODE_SPACE,
+        ATTRIBUTE_INJECTION_MAP
+    ],
+    [
+        ATTRIBUTE_DECLARATION_CLOSE,
         ATTRIBUTE_INJECTION_MAP
     ],
     [
@@ -629,8 +629,70 @@ const injectionMap = new Map([
         ATTRIBUTE_INJECTION_MAP
     ],
     [
+        CLOSE_NODE_CLOSED,
+        DESCENDANT_INJECTION
+    ],
+    [
+        INDEPENDENT_NODE_CLOSED,
+        DESCENDANT_INJECTION
+    ],
+    [
+        INITIAL,
+        DESCENDANT_INJECTION
+    ],
+    [
+        NODE_CLOSED,
+        DESCENDANT_INJECTION
+    ],
+    [
         TEXT,
         DESCENDANT_INJECTION
+    ]
+]);
+const injectionStateMap = new Map([
+    [
+        ATTRIBUTE_DECLARATION,
+        ATTRIBUTE_VALUE
+    ],
+    [
+        ATTRIBUTE_VALUE,
+        ATTRIBUTE_DECLARATION
+    ],
+    [
+        TAGNAME,
+        NODE_SPACE
+    ],
+    [
+        ATTRIBUTE_DECLARATION_CLOSE,
+        NODE_SPACE
+    ],
+    [
+        NODE_SPACE,
+        NODE_SPACE
+    ],
+    [
+        DESCENDANT_INJECTION,
+        INITIAL
+    ],
+    [
+        CLOSE_NODE_CLOSED,
+        INITIAL
+    ],
+    [
+        INDEPENDENT_NODE_CLOSED,
+        INITIAL
+    ],
+    [
+        INITIAL,
+        INITIAL
+    ],
+    [
+        NODE_CLOSED,
+        INITIAL
+    ],
+    [
+        TEXT,
+        INITIAL
     ]
 ]);
 function parse(template, builder, prev = INITIAL) {
@@ -650,14 +712,24 @@ function parse(template, builder, prev = INITIAL) {
     };
     do {
         const __char = getChar(template, origin);
-        if (__char !== undefined && __char !== EMPTY) {
+        console.log("char:", __char);
+        if (__char !== undefined) {
             prevState = currState;
-            const route = routes.get(prevState);
+            let route = routes.get(prevState);
             if (route) {
                 currState = route.get(__char) ?? route.get(DEFAULT) ?? ERROR;
             }
+            if (prevTarget.x < origin.x && prevState === currState) {
+                const stater = injectionStateMap.get(prevState);
+                if (stater) {
+                    let route1 = routes.get(stater);
+                    if (route1) {
+                        currState = route1.get(__char) ?? route1.get(DEFAULT) ?? ERROR;
+                    }
+                }
+            }
         }
-        if (prevState !== currState) {
+        if (prevState !== currState || prevTarget.x < origin.x) {
             builder.push({
                 type: BUILD,
                 state: prevState,
@@ -667,18 +739,11 @@ function parse(template, builder, prev = INITIAL) {
             prevOrigin.y = origin.y;
         }
         if (prevTarget.x < origin.x) {
-            if (prevState === TEXT || prevState === ATTRIBUTE_VALUE) {
-                builder.push({
-                    type: BUILD,
-                    state: prevState,
-                    vector: create(prevOrigin, prevTarget)
-                });
-                prevOrigin.x = origin.x;
-                prevOrigin.y = origin.y;
-            }
             const state = injectionMap.get(prevState);
             if (state === undefined) {
                 currState = ERROR;
+                console.log("found an error!");
+                console.log(prevState, state, __char);
             } else {
                 builder.push({
                     type: INJECT,
@@ -2537,9 +2602,23 @@ function parseEmptyWithInjectionTest() {
     const textVector = testTextInterpolator1`${"buster"}`;
     const expectedResults = [
         {
-            type: INJECT,
+            type: "BUILD",
+            state: "INITIAL",
+            vector: {
+                origin: {
+                    x: 0,
+                    y: 0
+                },
+                target: {
+                    x: 0,
+                    y: 0
+                }
+            }
+        },
+        {
+            type: "INJECT",
             index: 0,
-            state: DESCENDANT_INJECTION
+            state: "DESCENDANT_INJECTION"
         }
     ];
     const stack = [];
@@ -2554,19 +2633,61 @@ function parseEmptyWithMultipleInjectionsTest() {
     const textVector = testTextInterpolator1`${"yo"}${"buddy"}${"boi"}`;
     const expectedResults = [
         {
-            type: INJECT,
+            type: "BUILD",
+            state: "INITIAL",
+            vector: {
+                origin: {
+                    x: 0,
+                    y: 0
+                },
+                target: {
+                    x: 0,
+                    y: 0
+                }
+            }
+        },
+        {
+            type: "INJECT",
             index: 0,
-            state: DESCENDANT_INJECTION
+            state: "DESCENDANT_INJECTION"
         },
         {
-            type: INJECT,
+            type: "BUILD",
+            state: "INITIAL",
+            vector: {
+                origin: {
+                    x: 1,
+                    y: 0
+                },
+                target: {
+                    x: 1,
+                    y: 0
+                }
+            }
+        },
+        {
+            type: "INJECT",
             index: 1,
-            state: DESCENDANT_INJECTION
+            state: "DESCENDANT_INJECTION"
         },
         {
-            type: INJECT,
+            type: "BUILD",
+            state: "INITIAL",
+            vector: {
+                origin: {
+                    x: 2,
+                    y: 0
+                },
+                target: {
+                    x: 2,
+                    y: 0
+                }
+            }
+        },
+        {
+            type: "INJECT",
             index: 2,
-            state: DESCENDANT_INJECTION
+            state: "DESCENDANT_INJECTION"
         }
     ];
     const stack = [];
@@ -3338,6 +3459,356 @@ function parseNestedTemplateWithInjectionsTest() {
     }
     return assertions;
 }
+function parseLinearInjectionsTest() {
+    const assertions = [];
+    const textVector = testTextInterpolator1`${"a_head"}<a><b></b></a>${"a_tail"}`;
+    const expectedResults = [
+        {
+            type: "BUILD",
+            state: "INITIAL",
+            vector: {
+                origin: {
+                    x: 0,
+                    y: 0
+                },
+                target: {
+                    x: 0,
+                    y: 0
+                }
+            }
+        },
+        {
+            type: "INJECT",
+            index: 0,
+            state: "DESCENDANT_INJECTION"
+        },
+        {
+            type: "BUILD",
+            state: "NODE",
+            vector: {
+                origin: {
+                    x: 1,
+                    y: 0
+                },
+                target: {
+                    x: 1,
+                    y: 0
+                }
+            }
+        },
+        {
+            type: "BUILD",
+            state: "TAGNAME",
+            vector: {
+                origin: {
+                    x: 1,
+                    y: 1
+                },
+                target: {
+                    x: 1,
+                    y: 1
+                }
+            }
+        },
+        {
+            type: "INJECT",
+            index: 1,
+            state: "ATTRIBUTE_INJECTION_MAP"
+        },
+        {
+            type: "BUILD",
+            state: "NODE_CLOSED",
+            vector: {
+                origin: {
+                    x: 2,
+                    y: 0
+                },
+                target: {
+                    x: 2,
+                    y: 0
+                }
+            }
+        },
+        {
+            type: "INJECT",
+            index: 2,
+            state: "DESCENDANT_INJECTION"
+        },
+        {
+            type: "BUILD",
+            state: "NODE",
+            vector: {
+                origin: {
+                    x: 3,
+                    y: 0
+                },
+                target: {
+                    x: 3,
+                    y: 0
+                }
+            }
+        },
+        {
+            type: "BUILD",
+            state: "TAGNAME",
+            vector: {
+                origin: {
+                    x: 3,
+                    y: 1
+                },
+                target: {
+                    x: 3,
+                    y: 1
+                }
+            }
+        },
+        {
+            type: "BUILD",
+            state: "NODE_CLOSED",
+            vector: {
+                origin: {
+                    x: 3,
+                    y: 2
+                },
+                target: {
+                    x: 3,
+                    y: 2
+                }
+            }
+        },
+        {
+            type: "BUILD",
+            state: "TEXT",
+            vector: {
+                origin: {
+                    x: 3,
+                    y: 3
+                },
+                target: {
+                    x: 3,
+                    y: 3
+                }
+            }
+        },
+        {
+            type: "BUILD",
+            state: "TEXT",
+            vector: {
+                origin: {
+                    x: 4,
+                    y: 0
+                },
+                target: {
+                    x: 3,
+                    y: 3
+                }
+            }
+        },
+        {
+            type: "INJECT",
+            index: 3,
+            state: "DESCENDANT_INJECTION"
+        },
+        {
+            type: "BUILD",
+            state: "NODE",
+            vector: {
+                origin: {
+                    x: 4,
+                    y: 0
+                },
+                target: {
+                    x: 4,
+                    y: 0
+                }
+            }
+        },
+        {
+            type: "BUILD",
+            state: "CLOSE_NODE_SLASH",
+            vector: {
+                origin: {
+                    x: 4,
+                    y: 1
+                },
+                target: {
+                    x: 4,
+                    y: 1
+                }
+            }
+        },
+        {
+            type: "BUILD",
+            state: "CLOSE_TAGNAME",
+            vector: {
+                origin: {
+                    x: 4,
+                    y: 2
+                },
+                target: {
+                    x: 4,
+                    y: 2
+                }
+            }
+        },
+        {
+            type: "BUILD",
+            state: "CLOSE_NODE_CLOSED",
+            vector: {
+                origin: {
+                    x: 4,
+                    y: 3
+                },
+                target: {
+                    x: 4,
+                    y: 3
+                }
+            }
+        },
+        {
+            type: "BUILD",
+            state: "NODE",
+            vector: {
+                origin: {
+                    x: 4,
+                    y: 4
+                },
+                target: {
+                    x: 4,
+                    y: 4
+                }
+            }
+        },
+        {
+            type: "BUILD",
+            state: "TAGNAME",
+            vector: {
+                origin: {
+                    x: 4,
+                    y: 5
+                },
+                target: {
+                    x: 4,
+                    y: 5
+                }
+            }
+        },
+        {
+            type: "BUILD",
+            state: "INDEPENDENT_NODE",
+            vector: {
+                origin: {
+                    x: 4,
+                    y: 6
+                },
+                target: {
+                    x: 4,
+                    y: 6
+                }
+            }
+        },
+        {
+            type: "BUILD",
+            state: "INDEPENDENT_NODE_CLOSED",
+            vector: {
+                origin: {
+                    x: 4,
+                    y: 7
+                },
+                target: {
+                    x: 4,
+                    y: 7
+                }
+            }
+        },
+        {
+            type: "INJECT",
+            index: 4,
+            state: "DESCENDANT_INJECTION"
+        },
+        {
+            type: "BUILD",
+            state: "NODE",
+            vector: {
+                origin: {
+                    x: 5,
+                    y: 0
+                },
+                target: {
+                    x: 5,
+                    y: 0
+                }
+            }
+        },
+        {
+            type: "BUILD",
+            state: "CLOSE_NODE_SLASH",
+            vector: {
+                origin: {
+                    x: 5,
+                    y: 1
+                },
+                target: {
+                    x: 5,
+                    y: 1
+                }
+            }
+        },
+        {
+            type: "BUILD",
+            state: "CLOSE_TAGNAME",
+            vector: {
+                origin: {
+                    x: 5,
+                    y: 2
+                },
+                target: {
+                    x: 5,
+                    y: 2
+                }
+            }
+        },
+        {
+            type: "BUILD",
+            state: "CLOSE_NODE_CLOSED",
+            vector: {
+                origin: {
+                    x: 5,
+                    y: 3
+                },
+                target: {
+                    x: 5,
+                    y: 3
+                }
+            }
+        },
+        {
+            type: "INJECT",
+            index: 5,
+            state: "DESCENDANT_INJECTION"
+        },
+        {
+            type: "BUILD",
+            state: "TEXT",
+            vector: {
+                origin: {
+                    x: 6,
+                    y: 0
+                },
+                target: {
+                    x: 6,
+                    y: 0
+                }
+            }
+        }
+    ];
+    const stack = [];
+    parse(textVector, stack);
+    if (!samestuff(expectedResults, stack)) {
+        assertions.push("stack does not match expected results");
+    }
+    return assertions;
+}
 const tests1 = [
     parseNodeTest,
     parseNodeWithImplicitAttributeTest,
@@ -3357,7 +3828,8 @@ const tests1 = [
     parseEmptyTest,
     parseEmptyWithInjectionTest,
     parseEmptyWithMultipleInjectionsTest,
-    parseNestedTemplateWithInjectionsTest
+    parseNestedTemplateWithInjectionsTest,
+    parseLinearInjectionsTest
 ];
 const unitTestParse = {
     title: title1,

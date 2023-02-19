@@ -3,6 +3,7 @@ import type { Position } from "../type_flyweight/text_vector.ts";
 
 import {
   ATTRIBUTE_DECLARATION,
+  ATTRIBUTE_DECLARATION_CLOSE,
   ATTRIBUTE_INJECTION,
   ATTRIBUTE_INJECTION_MAP,
   ATTRIBUTE_VALUE,
@@ -11,6 +12,7 @@ import {
   DESCENDANT_INJECTION,
   ERROR,
   INDEPENDENT_NODE_CLOSED,
+  CLOSE_NODE_CLOSED,
   INITIAL,
   INJECT,
   NODE_CLOSED,
@@ -24,14 +26,29 @@ import { create, getChar, increment } from "../text_vector/text_vector.ts";
 const EMPTY = "";
 
 const injectionMap = new Map([
+	// attributes
   [ATTRIBUTE_DECLARATION, ATTRIBUTE_INJECTION],
   [ATTRIBUTE_VALUE, ATTRIBUTE_INJECTION],
-  [INDEPENDENT_NODE_CLOSED, DESCENDANT_INJECTION],
-  [NODE_CLOSED, DESCENDANT_INJECTION],
-  [INITIAL, DESCENDANT_INJECTION],
+  // attribute maps
   [NODE_SPACE, ATTRIBUTE_INJECTION_MAP],
+  [ATTRIBUTE_DECLARATION_CLOSE, ATTRIBUTE_INJECTION_MAP],
   [TAGNAME, ATTRIBUTE_INJECTION_MAP],
+  // descendants
+  [CLOSE_NODE_CLOSED, DESCENDANT_INJECTION],
+  [INDEPENDENT_NODE_CLOSED, DESCENDANT_INJECTION],
+  [INITIAL, DESCENDANT_INJECTION],
+  [NODE_CLOSED, DESCENDANT_INJECTION],
   [TEXT, DESCENDANT_INJECTION],
+]);
+
+const injectionStateMap = new Map([
+	// attributes
+  [ATTRIBUTE_VALUE, ATTRIBUTE_DECLARATION],
+  // attribute maps
+  [TAGNAME, NODE_SPACE],
+  [NODE_SPACE, NODE_SPACE],
+  // descendants
+  [TEXT, INITIAL],
 ]);
 
 function parse(
@@ -47,19 +64,24 @@ function parse(
   const prevTarget = { x: 0, y: 0 };
 
   // iterate across text
+
   do {
     // skip empty strings or state swap
     const char = getChar(template, origin);
-    if (char !== undefined && char !== EMPTY) {
+    //console.log("char:", char)
+    if (char !== undefined) {
       prevState = currState;
-      const route = routes.get(prevState);
+      
+      let route = routes.get(prevState);
       if (route) {
         currState = route.get(char) ?? route.get(DEFAULT) ?? ERROR;
       }
     }
-
+    
     // build
-    if (prevState !== currState) {
+    if (
+    	prevState !== currState
+    ) {
       // if injection state change preious state
       builder.push({
         type: BUILD,
@@ -73,16 +95,6 @@ function parse(
 
     // inject
     if (prevTarget.x < origin.x) {
-      if (prevState === TEXT || prevState === ATTRIBUTE_VALUE) {
-        builder.push({
-          type: BUILD,
-          state: prevState,
-          vector: create(prevOrigin, prevTarget),
-        });
-
-        prevOrigin.x = origin.x;
-        prevOrigin.y = origin.y;
-      }
       const state = injectionMap.get(prevState);
       if (state === undefined) {
         currState = ERROR;
