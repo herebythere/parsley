@@ -306,7 +306,7 @@ const TAGNAME = "TAGNAME";
 const TEXT = "TEXT";
 const ATTRIBUTE_INJECTION = "ATTRIBUTE_INJECTION";
 const DESCENDANT_INJECTION = "DESCENDANT_INJECTION";
-const ATTRIBUTE_INJECTION_MAP = "ATTRIBUTE_INJECTION_MAP";
+const ATTRIBUTE_MAP_INJECTION = "ATTRIBUTE_MAP_INJECTION";
 const INITIAL = "INITIAL";
 const BUILD = "BUILD";
 const INJECT = "INJECT";
@@ -618,15 +618,15 @@ const injectionMap = new Map([
     ],
     [
         NODE_SPACE,
-        ATTRIBUTE_INJECTION_MAP
+        ATTRIBUTE_MAP_INJECTION
     ],
     [
         ATTRIBUTE_DECLARATION_CLOSE,
-        ATTRIBUTE_INJECTION_MAP
+        ATTRIBUTE_MAP_INJECTION
     ],
     [
         TAGNAME,
-        ATTRIBUTE_INJECTION_MAP
+        ATTRIBUTE_MAP_INJECTION
     ],
     [
         CLOSE_NODE_CLOSED,
@@ -684,9 +684,7 @@ function parse(template, builder, prev = INITIAL) {
         }
         if (prevTarget.x < origin.x) {
             const state = injectionMap.get(prevState);
-            if (state === undefined) {
-                currState = ERROR;
-            } else {
+            if (state !== undefined) {
                 builder.push({
                     type: INJECT,
                     index: prevTarget.x,
@@ -2367,7 +2365,7 @@ function parseNodeWithAttributeMapInjectionsTest() {
         {
             type: INJECT,
             index: 0,
-            state: ATTRIBUTE_INJECTION_MAP
+            state: ATTRIBUTE_MAP_INJECTION
         },
         {
             type: BUILD,
@@ -3026,7 +3024,7 @@ function parseNestedTemplateWithInjectionsTest() {
         {
             type: "INJECT",
             index: 2,
-            state: "ATTRIBUTE_INJECTION_MAP"
+            state: "ATTRIBUTE_MAP_INJECTION"
         },
         {
             type: "BUILD",

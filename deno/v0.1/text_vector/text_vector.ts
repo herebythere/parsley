@@ -6,7 +6,7 @@ const DEFAULT_POSITION: Position = {
 };
 
 function increment(
-  template: TemplateStringsArray,
+  template: Readonly<string[]>,
   position: Position,
 ): Position | undefined {
   const templateLength = template.length - 1;
@@ -24,7 +24,7 @@ function increment(
 }
 
 function getChar(
-  template: TemplateStringsArray,
+  template: Readonly<string[]>,
   position: Position,
 ): string | undefined {
   const str = template[position.x];
@@ -52,7 +52,7 @@ function copy(vector: Vector): Vector {
 }
 
 function getText(
-  template: TemplateStringsArray,
+  template: Readonly<string[]>,
   vector: Vector,
 ): string | undefined {
   const origin = vector.origin;

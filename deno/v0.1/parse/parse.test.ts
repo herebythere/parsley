@@ -9,7 +9,7 @@ import {
   ATTRIBUTE_DECLARATION,
   ATTRIBUTE_DECLARATION_CLOSE,
   ATTRIBUTE_INJECTION,
-  ATTRIBUTE_INJECTION_MAP,
+  ATTRIBUTE_MAP_INJECTION,
   ATTRIBUTE_SETTER,
   ATTRIBUTE_VALUE,
   BUILD,
@@ -781,7 +781,7 @@ function parseNodeWithAttributeMapInjectionsTest() {
       state: NODE_SPACE,
       vector: { origin: { x: 0, y: 6 }, target: { x: 0, y: 6 } },
     },
-    { type: INJECT, index: 0, state: ATTRIBUTE_INJECTION_MAP },
+    { type: INJECT, index: 0, state: ATTRIBUTE_MAP_INJECTION },
     {
       type: BUILD,
       state: INDEPENDENT_NODE,
@@ -1092,7 +1092,7 @@ function parseNestedTemplateWithInjectionsTest() {
       state: "NODE_SPACE",
       vector: { origin: { x: 2, y: 25 }, target: { x: 2, y: 25 } },
     },
-    { type: "INJECT", index: 2, state: "ATTRIBUTE_INJECTION_MAP" },
+    { type: "INJECT", index: 2, state: "ATTRIBUTE_MAP_INJECTION" },
     {
       type: "BUILD",
       state: "NODE_CLOSED",
