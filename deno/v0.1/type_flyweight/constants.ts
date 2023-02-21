@@ -22,7 +22,6 @@ const ATTRIBUTE_MAP_INJECTION = "ATTRIBUTE_MAP_INJECTION";
 const INITIAL = "INITIAL";
 const BUILD = "BUILD";
 const INJECT = "INJECT";
-
 const DEFAULT = "DEFAULT";
 
 export {

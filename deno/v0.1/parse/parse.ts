@@ -42,7 +42,7 @@ const injectionMap = new Map([
 ]);
 
 function parse(
-  template: TemplateStringsArray,
+  template: Readonly<string[]>,
   builder: BuilderInterface,
   prev: string = INITIAL,
 ) {

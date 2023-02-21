@@ -22,92 +22,101 @@ import {
   TEXT,
 } from "../type_flyweight/constants.ts";
 
+const LB = "<";
+const RB = ">";
+const SP = " ";
+const NL = "\n";
+const TB = "\t";
+const FS = "/";
+const QT = "\"";
+const EQ = "=";
+
 const INIITAL_MAP = new Map<string, string>([
-  ["<", NODE],
+  [LB, NODE],
   [DEFAULT, TEXT],
 ]);
 
 const NODE_MAP = new Map<string, string>([
-  [" ", ERROR],
-  ["\n", ERROR],
-  ["\t", ERROR],
-  ["/", CLOSE_NODE_SLASH],
-  [">", ERROR],
+  [SP, ERROR],
+  [NL, ERROR],
+  [TB, ERROR],
+  [FS, CLOSE_NODE_SLASH],
+  [RB, ERROR],
   [DEFAULT, TAGNAME],
 ]);
 
 const CLOSE_NODE_SLASH_MAP = new Map<string, string>([
-  [" ", ERROR],
-  ["\n", ERROR],
-  ["\t", ERROR],
+  [SP, ERROR],
+  [NL, ERROR],
+  [TB, ERROR],
   [DEFAULT, CLOSE_TAGNAME],
 ]);
 
 const TAGNAME_MAP = new Map<string, string>([
-  [">", NODE_CLOSED],
-  [" ", NODE_SPACE],
-  ["\n", NODE_SPACE],
-  ["\t", NODE_SPACE],
-  ["/", INDEPENDENT_NODE],
+  [RB, NODE_CLOSED],
+  [SP, NODE_SPACE],
+  [NL, NODE_SPACE],
+  [TB, NODE_SPACE],
+  [FS, INDEPENDENT_NODE],
   [DEFAULT, TAGNAME],
 ]);
 
 const CLOSE_TAGNAME_MAP = new Map<string, string>([
-  [">", CLOSE_NODE_CLOSED],
-  [" ", CLOSE_NODE_SPACE],
-  ["\n", CLOSE_NODE_SPACE],
-  ["\t", CLOSE_NODE_SPACE],
+  [RB, CLOSE_NODE_CLOSED],
+  [SP, CLOSE_NODE_SPACE],
+  [NL, CLOSE_NODE_SPACE],
+  [TB, CLOSE_NODE_SPACE],
   [DEFAULT, CLOSE_TAGNAME],
 ]);
 
 const CLOSE_NODE_SPACE_MAP = new Map<string, string>([
-  [">", CLOSE_NODE_CLOSED],
+  [RB, CLOSE_NODE_CLOSED],
   [DEFAULT, CLOSE_NODE_SPACE],
 ]);
 
 const INDEPENDENT_NODE_MAP = new Map<string, string>([
-  [">", INDEPENDENT_NODE_CLOSED],
+  [RB, INDEPENDENT_NODE_CLOSED],
   [DEFAULT, INDEPENDENT_NODE],
 ]);
 
 const NODE_SPACE_MAP = new Map<string, string>([
-  [">", NODE_CLOSED],
-  [" ", NODE_SPACE],
-  ["\n", NODE_SPACE],
-  ["\t", NODE_SPACE],
-  ["/", INDEPENDENT_NODE],
+  [RB, NODE_CLOSED],
+  [SP, NODE_SPACE],
+  [NL, NODE_SPACE],
+  [TB, NODE_SPACE],
+  [FS, INDEPENDENT_NODE],
   [DEFAULT, ATTRIBUTE],
 ]);
 
 const ATTRIBUTE_MAP = new Map<string, string>([
-  [" ", NODE_SPACE],
-  ["\n", NODE_SPACE],
-  ["\t", NODE_SPACE],
-  ["=", ATTRIBUTE_SETTER],
-  [">", NODE_CLOSED],
-  ["/", INDEPENDENT_NODE],
+  [SP, NODE_SPACE],
+  [NL, NODE_SPACE],
+  [TB, NODE_SPACE],
+  [EQ, ATTRIBUTE_SETTER],
+  [RB, NODE_CLOSED],
+  [FS, INDEPENDENT_NODE],
   [DEFAULT, ATTRIBUTE],
 ]);
 
 const ATTRIBUTE_SETTER_MAP = new Map<string, string>([
-  ['"', ATTRIBUTE_DECLARATION],
-  ["\n", NODE_SPACE],
+  [QT, ATTRIBUTE_DECLARATION],
+  [NL, NODE_SPACE],
   [DEFAULT, NODE_SPACE],
 ]);
 
 const ATTRIBUTE_DECLARATION_MAP = new Map<string, string>([
-  ['"', ATTRIBUTE_DECLARATION_CLOSE],
+  [QT, ATTRIBUTE_DECLARATION_CLOSE],
   [DEFAULT, ATTRIBUTE_VALUE],
 ]);
 
 const ATTRIBUTE_VALUE_MAP = new Map<string, string>([
-  ['"', ATTRIBUTE_DECLARATION_CLOSE],
+  [QT, ATTRIBUTE_DECLARATION_CLOSE],
   [DEFAULT, ATTRIBUTE_VALUE],
 ]);
 
 const ATTRIBUTE_DECLARATION_CLOSE_MAP = new Map<string, string>([
-  [">", INDEPENDENT_NODE_CLOSED],
-  ["/", INDEPENDENT_NODE],
+  [RB, NODE_CLOSED],
+  [FS, INDEPENDENT_NODE],
   [DEFAULT, NODE_SPACE],
 ]);
 
