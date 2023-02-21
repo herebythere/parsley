@@ -28,7 +28,7 @@ const SP = " ";
 const NL = "\n";
 const TB = "\t";
 const FS = "/";
-const QT = "\"";
+const QT = '"';
 const EQ = "=";
 
 const INIITAL_MAP = new Map<string, string>([

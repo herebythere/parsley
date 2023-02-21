@@ -536,7 +536,7 @@ function parseNodeInjectionsTest() {
 
 function parseNodeWithAttributeInjectionsTest() {
   const assertions = [];
-  const textVector = testTextInterpolator`<hello world="${"world"}"/>`;
+  const textVector = testTextInterpolator`<hello world="${"world"}">`;
   const expectedResults: BuildStep[] = [
     {
       type: BUILD,
@@ -581,13 +581,8 @@ function parseNodeWithAttributeInjectionsTest() {
     },
     {
       type: BUILD,
-      state: INDEPENDENT_NODE,
+      state: NODE_CLOSED,
       vector: { origin: { x: 1, y: 1 }, target: { x: 1, y: 1 } },
-    },
-    {
-      type: BUILD,
-      state: INDEPENDENT_NODE_CLOSED,
-      vector: { origin: { x: 1, y: 2 }, target: { x: 1, y: 2 } },
     },
   ];
 
