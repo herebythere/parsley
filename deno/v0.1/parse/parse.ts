@@ -5,7 +5,7 @@ import {
   ATTRIBUTE_DECLARATION,
   ATTRIBUTE_DECLARATION_CLOSE,
   ATTRIBUTE_INJECTION,
-  ATTRIBUTE_INJECTION_MAP,
+  ATTRIBUTE_MAP_INJECTION,
   ATTRIBUTE_VALUE,
   BUILD,
   CLOSE_NODE_CLOSED,
@@ -30,9 +30,9 @@ const injectionMap = new Map([
   [ATTRIBUTE_DECLARATION, ATTRIBUTE_INJECTION],
   [ATTRIBUTE_VALUE, ATTRIBUTE_INJECTION],
   // attribute maps
-  [NODE_SPACE, ATTRIBUTE_INJECTION_MAP],
-  [ATTRIBUTE_DECLARATION_CLOSE, ATTRIBUTE_INJECTION_MAP],
-  [TAGNAME, ATTRIBUTE_INJECTION_MAP],
+  [NODE_SPACE, ATTRIBUTE_MAP_INJECTION],
+  [ATTRIBUTE_DECLARATION_CLOSE, ATTRIBUTE_MAP_INJECTION],
+  [TAGNAME, ATTRIBUTE_MAP_INJECTION],
   // descendants
   [CLOSE_NODE_CLOSED, DESCENDANT_INJECTION],
   [INDEPENDENT_NODE_CLOSED, DESCENDANT_INJECTION],
@@ -83,9 +83,7 @@ function parse(
     // inject
     if (prevTarget.x < origin.x) {
       const state = injectionMap.get(prevState);
-      if (state === undefined) {
-        currState = ERROR;
-      } else {
+      if (state !== undefined) {
         builder.push({ type: INJECT, index: prevTarget.x, state });
       }
     }
@@ -96,7 +94,6 @@ function parse(
   } while (increment(template, origin) && currState !== ERROR);
 
   // get tail end
-
   builder.push({
     type: BUILD,
     state: currState,

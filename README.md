@@ -70,13 +70,13 @@ The following template demonstrates three valid injections:
 String interpolation:
 
 ```
-["<element", "attribute=", "/>", "</element>"]
+["<element", "/>", "</element>"]
 ```
 
 String formatting:
 
 ```
-"<element %s attribute="%s"/>%s</element>"
+"<element %s />%s</element>"
 ```
 
 ### Limitations
