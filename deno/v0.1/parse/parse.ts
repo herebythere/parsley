@@ -23,8 +23,6 @@ import {
 import { routes } from "./routes.ts";
 import { create, getChar, increment } from "../text_vector/text_vector.ts";
 
-const EMPTY = "";
-
 const injectionMap = new Map([
   // attributes
   [ATTRIBUTE_DECLARATION, ATTRIBUTE_INJECTION],
@@ -42,7 +40,7 @@ const injectionMap = new Map([
 ]);
 
 function parse(
-  template: TemplateStringsArray,
+  template: Readonly<string[]>,
   builder: BuilderInterface,
   prev: string = INITIAL,
 ) {
@@ -55,7 +53,7 @@ function parse(
 
   // iterate across text
   do {
-    // skip empty strings or state swap
+    // state swap
     const char = getChar(template, origin);
     //console.log("char:", char)
     if (char !== undefined) {

@@ -311,9 +311,17 @@ const INITIAL = "INITIAL";
 const BUILD = "BUILD";
 const INJECT = "INJECT";
 const DEFAULT = "DEFAULT";
+const LB = "<";
+const RB = ">";
+const SP = " ";
+const NL = "\n";
+const TB = "\t";
+const FS = "/";
+const QT = "\"";
+const EQ = "=";
 const INIITAL_MAP = new Map([
     [
-        "<",
+        LB,
         NODE
     ],
     [
@@ -323,23 +331,23 @@ const INIITAL_MAP = new Map([
 ]);
 const NODE_MAP = new Map([
     [
-        " ",
+        SP,
         ERROR
     ],
     [
-        "\n",
+        NL,
         ERROR
     ],
     [
-        "\t",
+        TB,
         ERROR
     ],
     [
-        "/",
+        FS,
         CLOSE_NODE_SLASH
     ],
     [
-        ">",
+        RB,
         ERROR
     ],
     [
@@ -349,15 +357,15 @@ const NODE_MAP = new Map([
 ]);
 const CLOSE_NODE_SLASH_MAP = new Map([
     [
-        " ",
+        SP,
         ERROR
     ],
     [
-        "\n",
+        NL,
         ERROR
     ],
     [
-        "\t",
+        TB,
         ERROR
     ],
     [
@@ -367,23 +375,23 @@ const CLOSE_NODE_SLASH_MAP = new Map([
 ]);
 const TAGNAME_MAP = new Map([
     [
-        ">",
+        RB,
         NODE_CLOSED
     ],
     [
-        " ",
+        SP,
         NODE_SPACE
     ],
     [
-        "\n",
+        NL,
         NODE_SPACE
     ],
     [
-        "\t",
+        TB,
         NODE_SPACE
     ],
     [
-        "/",
+        FS,
         INDEPENDENT_NODE
     ],
     [
@@ -393,19 +401,19 @@ const TAGNAME_MAP = new Map([
 ]);
 const CLOSE_TAGNAME_MAP = new Map([
     [
-        ">",
+        RB,
         CLOSE_NODE_CLOSED
     ],
     [
-        " ",
+        SP,
         CLOSE_NODE_SPACE
     ],
     [
-        "\n",
+        NL,
         CLOSE_NODE_SPACE
     ],
     [
-        "\t",
+        TB,
         CLOSE_NODE_SPACE
     ],
     [
@@ -415,7 +423,7 @@ const CLOSE_TAGNAME_MAP = new Map([
 ]);
 const CLOSE_NODE_SPACE_MAP = new Map([
     [
-        ">",
+        RB,
         CLOSE_NODE_CLOSED
     ],
     [
@@ -425,7 +433,7 @@ const CLOSE_NODE_SPACE_MAP = new Map([
 ]);
 const INDEPENDENT_NODE_MAP = new Map([
     [
-        ">",
+        RB,
         INDEPENDENT_NODE_CLOSED
     ],
     [
@@ -435,23 +443,23 @@ const INDEPENDENT_NODE_MAP = new Map([
 ]);
 const NODE_SPACE_MAP = new Map([
     [
-        ">",
+        RB,
         NODE_CLOSED
     ],
     [
-        " ",
+        SP,
         NODE_SPACE
     ],
     [
-        "\n",
+        NL,
         NODE_SPACE
     ],
     [
-        "\t",
+        TB,
         NODE_SPACE
     ],
     [
-        "/",
+        FS,
         INDEPENDENT_NODE
     ],
     [
@@ -461,27 +469,27 @@ const NODE_SPACE_MAP = new Map([
 ]);
 const ATTRIBUTE_MAP = new Map([
     [
-        " ",
+        SP,
         NODE_SPACE
     ],
     [
-        "\n",
+        NL,
         NODE_SPACE
     ],
     [
-        "\t",
+        TB,
         NODE_SPACE
     ],
     [
-        "=",
+        EQ,
         ATTRIBUTE_SETTER
     ],
     [
-        ">",
+        RB,
         NODE_CLOSED
     ],
     [
-        "/",
+        FS,
         INDEPENDENT_NODE
     ],
     [
@@ -491,11 +499,11 @@ const ATTRIBUTE_MAP = new Map([
 ]);
 const ATTRIBUTE_SETTER_MAP = new Map([
     [
-        '"',
+        QT,
         ATTRIBUTE_DECLARATION
     ],
     [
-        "\n",
+        NL,
         NODE_SPACE
     ],
     [
@@ -505,7 +513,7 @@ const ATTRIBUTE_SETTER_MAP = new Map([
 ]);
 const ATTRIBUTE_DECLARATION_MAP = new Map([
     [
-        '"',
+        QT,
         ATTRIBUTE_DECLARATION_CLOSE
     ],
     [
@@ -515,7 +523,7 @@ const ATTRIBUTE_DECLARATION_MAP = new Map([
 ]);
 const ATTRIBUTE_VALUE_MAP = new Map([
     [
-        '"',
+        QT,
         ATTRIBUTE_DECLARATION_CLOSE
     ],
     [
@@ -525,11 +533,11 @@ const ATTRIBUTE_VALUE_MAP = new Map([
 ]);
 const ATTRIBUTE_DECLARATION_CLOSE_MAP = new Map([
     [
-        ">",
-        INDEPENDENT_NODE_CLOSED
+        RB,
+        NODE_CLOSED
     ],
     [
-        "/",
+        FS,
         INDEPENDENT_NODE
     ],
     [
@@ -1772,7 +1780,7 @@ function parseNodeInjectionsTest() {
 }
 function parseNodeWithAttributeInjectionsTest() {
     const assertions = [];
-    const textVector = testTextInterpolator1`<hello world="${"world"}"/>`;
+    const textVector = testTextInterpolator1`<hello world="${"world"}">`;
     const expectedResults = [
         {
             type: BUILD,
@@ -1893,7 +1901,7 @@ function parseNodeWithAttributeInjectionsTest() {
         },
         {
             type: BUILD,
-            state: INDEPENDENT_NODE,
+            state: NODE_CLOSED,
             vector: {
                 origin: {
                     x: 1,
@@ -1902,20 +1910,6 @@ function parseNodeWithAttributeInjectionsTest() {
                 target: {
                     x: 1,
                     y: 1
-                }
-            }
-        },
-        {
-            type: BUILD,
-            state: INDEPENDENT_NODE_CLOSED,
-            vector: {
-                origin: {
-                    x: 1,
-                    y: 2
-                },
-                target: {
-                    x: 1,
-                    y: 2
                 }
             }
         }
