@@ -55,10 +55,10 @@ function getText(
   template: Readonly<string[]>,
   vector: Vector,
 ): string | undefined {
-  const origin = vector.origin;
-  let templateText = template[origin.x];
-  if (templateText) {
-    return templateText.substr(origin.y, vector.target.y - origin.y + 1);
+  const { origin } = vector;
+  let text = template[origin.x];
+  if (text) {
+    return text.substr(origin.y, vector.target.y - origin.y + 1);
   }
 }
 

@@ -1,20 +1,16 @@
 import type { Position, Vector } from "./text_vector.ts";
 
-type RouterMap = Record<string, string> & {
-  DEFAULT: string;
-};
-
-type Routes = Record<string, RouterMap>;
+type Routes = Record<string, string>;
 
 interface NodeStep {
-  type: "BUILD";
-  state: string;
+  type: "NODE";
+  kind: string;
   vector: Vector;
 }
 
 interface InjectionStep {
   type: "INJECT";
-  state: string;
+  kind: string;
   index: number;
 }
 

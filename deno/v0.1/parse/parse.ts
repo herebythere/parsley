@@ -7,7 +7,7 @@ import {
   ATTRIBUTE_INJECTION,
   ATTRIBUTE_MAP_INJECTION,
   ATTRIBUTE_VALUE,
-  BUILD,
+  NODE,
   CLOSE_NODE_CLOSED,
   DEFAULT,
   DESCENDANT_INJECTION,
@@ -44,8 +44,8 @@ function parse(
   builder: BuilderInterface,
   prev: string = INITIAL,
 ) {
-  let prevState: string = prev;
-  let currState: string = prev;
+  let prevKind: string = prev;
+  let currKind: string = prev;
 
   const origin = { x: 0, y: 0 };
   const prevOrigin = { x: 0, y: 0 };
@@ -57,20 +57,21 @@ function parse(
     const char = getChar(template, origin);
     //console.log("char:", char)
     if (char !== undefined) {
-      prevState = currState;
+      prevKind = currKind;
 
-      let route = routes.get(prevState);
+      let route = routes.get(prevKind);
       if (route) {
-        currState = route.get(char) ?? route.get(DEFAULT) ?? ERROR;
+        currKind = route.get(char) ?? route.get(DEFAULT) ?? ERROR;
       }
     }
 
     // build
-    if (prevState !== currState || prevTarget.x < origin.x) {
+    // do we send tagname attribute attribute value as text?
+    if (prevKind !== currKind || prevTarget.x < origin.x) {
       // if injection state change preious state
       builder.push({
-        type: BUILD,
-        state: prevState,
+        type: NODE,
+        kind: prevKind,
         vector: create(prevOrigin, prevTarget),
       });
 
@@ -80,21 +81,21 @@ function parse(
 
     // inject
     if (prevTarget.x < origin.x) {
-      const state = injectionMap.get(prevState);
-      if (state !== undefined) {
-        builder.push({ type: INJECT, index: prevTarget.x, state });
+      const kind = injectionMap.get(prevKind);
+      if (kind !== undefined) {
+        builder.push({ type: INJECT, index: prevTarget.x, kind });
       }
     }
 
     // set previous
     prevTarget.x = origin.x;
     prevTarget.y = origin.y;
-  } while (increment(template, origin) && currState !== ERROR);
+  } while (increment(template, origin) && currKind !== ERROR);
 
   // get tail end
   builder.push({
-    type: BUILD,
-    state: currState,
+    type: NODE,
+    kind: currKind,
     vector: create(origin, origin),
   });
 }

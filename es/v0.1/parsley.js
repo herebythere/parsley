@@ -35,10 +35,10 @@ function create(origin = DEFAULT_POSITION, target = origin) {
     };
 }
 function getText(template, vector) {
-    const origin = vector.origin;
-    let templateText = template[origin.x];
-    if (templateText) {
-        return templateText.substr(origin.y, vector.target.y - origin.y + 1);
+    const { origin  } = vector;
+    let text = template[origin.x];
+    if (text) {
+        return text.substr(origin.y, vector.target.y - origin.y + 1);
     }
 }
 const ATTRIBUTE = "ATTRIBUTE";
@@ -62,7 +62,6 @@ const ATTRIBUTE_INJECTION = "ATTRIBUTE_INJECTION";
 const DESCENDANT_INJECTION = "DESCENDANT_INJECTION";
 const ATTRIBUTE_MAP_INJECTION = "ATTRIBUTE_MAP_INJECTION";
 const INITIAL = "INITIAL";
-const BUILD = "BUILD";
 const INJECT = "INJECT";
 const DEFAULT = "DEFAULT";
 const LB = "<";
@@ -71,7 +70,7 @@ const SP = " ";
 const NL = "\n";
 const TB = "\t";
 const FS = "/";
-const QT = "\"";
+const QT = '"';
 const EQ = "=";
 const INIITAL_MAP = new Map([
     [
@@ -412,8 +411,8 @@ const injectionMap = new Map([
     ]
 ]);
 function parse(template, builder, prev = INITIAL) {
-    let prevState = prev;
-    let currState = prev;
+    let prevKind = prev;
+    let currKind = prev;
     const origin = {
         x: 0,
         y: 0
@@ -429,40 +428,40 @@ function parse(template, builder, prev = INITIAL) {
     do {
         const __char = getChar(template, origin);
         if (__char !== undefined) {
-            prevState = currState;
-            let route = routes.get(prevState);
+            prevKind = currKind;
+            let route = routes.get(prevKind);
             if (route) {
-                currState = route.get(__char) ?? route.get(DEFAULT) ?? ERROR;
+                currKind = route.get(__char) ?? route.get(DEFAULT) ?? ERROR;
             }
         }
-        if (prevState !== currState || prevTarget.x < origin.x) {
+        if (prevKind !== currKind || prevTarget.x < origin.x) {
             builder.push({
-                type: BUILD,
-                state: prevState,
+                type: NODE,
+                kind: prevKind,
                 vector: create(prevOrigin, prevTarget)
             });
             prevOrigin.x = origin.x;
             prevOrigin.y = origin.y;
         }
         if (prevTarget.x < origin.x) {
-            const state = injectionMap.get(prevState);
-            if (state !== undefined) {
+            const kind = injectionMap.get(prevKind);
+            if (kind !== undefined) {
                 builder.push({
                     type: INJECT,
                     index: prevTarget.x,
-                    state
+                    kind
                 });
             }
         }
         prevTarget.x = origin.x;
         prevTarget.y = origin.y;
-    }while (increment(template, origin) && currState !== ERROR)
+    }while (increment(template, origin) && currKind !== ERROR)
     builder.push({
-        type: BUILD,
-        state: currState,
+        type: NODE,
+        kind: currKind,
         vector: create(origin, origin)
     });
 }
 export { getText as getText };
 export { parse as parse };
-export { ATTRIBUTE as ATTRIBUTE, ATTRIBUTE_DECLARATION as ATTRIBUTE_DECLARATION, ATTRIBUTE_DECLARATION_CLOSE as ATTRIBUTE_DECLARATION_CLOSE, ATTRIBUTE_INJECTION as ATTRIBUTE_INJECTION, ATTRIBUTE_MAP_INJECTION as ATTRIBUTE_MAP_INJECTION, ATTRIBUTE_SETTER as ATTRIBUTE_SETTER, ATTRIBUTE_VALUE as ATTRIBUTE_VALUE, BUILD as BUILD, CLOSE_NODE_CLOSED as CLOSE_NODE_CLOSED, CLOSE_NODE_SLASH as CLOSE_NODE_SLASH, CLOSE_NODE_SPACE as CLOSE_NODE_SPACE, CLOSE_TAGNAME as CLOSE_TAGNAME, DEFAULT as DEFAULT, DESCENDANT_INJECTION as DESCENDANT_INJECTION, ERROR as ERROR, INDEPENDENT_NODE as INDEPENDENT_NODE, INDEPENDENT_NODE_CLOSED as INDEPENDENT_NODE_CLOSED, INITIAL as INITIAL, INJECT as INJECT, NODE as NODE, NODE_CLOSED as NODE_CLOSED, NODE_SPACE as NODE_SPACE, TAGNAME as TAGNAME, TEXT as TEXT };
+export { ATTRIBUTE as ATTRIBUTE, ATTRIBUTE_DECLARATION as ATTRIBUTE_DECLARATION, ATTRIBUTE_DECLARATION_CLOSE as ATTRIBUTE_DECLARATION_CLOSE, ATTRIBUTE_INJECTION as ATTRIBUTE_INJECTION, ATTRIBUTE_MAP_INJECTION as ATTRIBUTE_MAP_INJECTION, ATTRIBUTE_SETTER as ATTRIBUTE_SETTER, ATTRIBUTE_VALUE as ATTRIBUTE_VALUE, CLOSE_NODE_CLOSED as CLOSE_NODE_CLOSED, CLOSE_NODE_SLASH as CLOSE_NODE_SLASH, CLOSE_NODE_SPACE as CLOSE_NODE_SPACE, CLOSE_TAGNAME as CLOSE_TAGNAME, DEFAULT as DEFAULT, DESCENDANT_INJECTION as DESCENDANT_INJECTION, ERROR as ERROR, INDEPENDENT_NODE as INDEPENDENT_NODE, INDEPENDENT_NODE_CLOSED as INDEPENDENT_NODE_CLOSED, INITIAL as INITIAL, INJECT as INJECT, NODE as NODE, NODE_CLOSED as NODE_CLOSED, NODE_SPACE as NODE_SPACE, TAGNAME as TAGNAME, TEXT as TEXT };
