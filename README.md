@@ -49,6 +49,36 @@ Builder {
 }
 ```
 
+### Build Steps
+
+A `BuildStep` provides details about the xml inside a `Template`.
+
+There are two kinds of build steps:
+- NodeStep
+- InjectionStep
+
+`NodeStep` schema:
+```
+NodeStep {
+  type: "BUILD";
+  state: string;
+  vector: Vector;
+}
+```
+
+A `Vector` provides an `[x, y]` coordinate of `Template` text related to the `NodeStep`.
+
+Use `getText(template, vector)` to get the text represented by a `Vector`
+
+`InjectionStep` schema:
+```
+InjectionStep {
+  type: "INJECT";
+  state: string;
+  index: number;
+}
+```
+
 ### Parse
 
 Pass a `Template` and a `Builder` to `parse`.
