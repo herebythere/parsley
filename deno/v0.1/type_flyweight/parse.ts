@@ -20,4 +20,4 @@ interface BuilderInterface {
   push(buildStep: BuildStep): void;
 }
 
-export type { BuilderInterface, BuildStep, Routes };
+export type { BuilderInterface, BuildStep, NodeStep, InjectionStep, Routes };
