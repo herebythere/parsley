@@ -41,24 +41,24 @@ const EQ: &str = "=";
 pub fn route<'a>(chr: &'a str, prev_state: &'a str) -> &'a str {
 	match prev_state {
 		// prevoius state
-		INITIAL => get_state_from_initial(chr),
-		TEXT => get_state_from_initial(chr),
+		// INITIAL => get_state_from_initial(chr),
+		// TEXT => get_state_from_initial(chr),
 		NODE => get_state_from_node(chr),
 		CLOSE_NODE_SLASH => get_state_from_close_node_slash(chr),
 		TAGNAME => get_state_from_tagname(chr),
   	CLOSE_TAGNAME => get_state_from_close_tagname(chr),
 		CLOSE_NODE_SPACE => get_state_from_close_node_space(chr),
 		INDEPENDENT_NODE => get_state_from_independent_node(chr),
-		NODE_CLOSED => get_state_from_initial(chr),
-		CLOSE_NODE_CLOSED => get_state_from_initial(chr),
-		INDEPENDENT_NODE_CLOSED => get_state_from_initial(chr),
+		// NODE_CLOSED => get_state_from_initial(chr),
+		// CLOSE_NODE_CLOSED => get_state_from_initial(chr),
+		// INDEPENDENT_NODE_CLOSED => get_state_from_initial(chr),
 		NODE_SPACE => get_state_from_node_space(chr),
 		ATTRIBUTE => get_state_from_attribute(chr),
 		ATTRIBUTE_SETTER => get_state_from_attribute_setter(chr),
 		ATTRIBUTE_DECLARATION => get_state_from_attribute_declaration(chr),
 		ATTRIBUTE_VALUE => get_state_from_attribute_value(chr),
 		ATTRIBUTE_DECLARATION_CLOSE => get_state_from_attribute_declaration_close(chr),
-		_ => TEXT
+		_ => get_state_from_initial(chr)
 	}
 }
 

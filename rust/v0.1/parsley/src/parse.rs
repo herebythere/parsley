@@ -19,3 +19,7 @@ pub struct InjectionStep {
   index: number;
 }
 
+
+// parse string
+
+// parse reader
