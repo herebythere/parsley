@@ -1,5 +1,6 @@
 
 pub mod constants;
+pub mod builder;
 pub mod routes;
 
 pub fn add(left: usize, right: usize) -> usize {
