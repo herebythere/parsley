@@ -29,16 +29,16 @@ use crate::constants::{
   TEXT,
 };
 
-const LB: &str = "<";
-const RB: &str = ">";
-const SP: &str = " ";
-const NL: &str = "\n";
-const TB: &str = "\t";
-const FS: &str = "/";
-const QT: &str = "\"";
-const EQ: &str = "=";
+const LB: &char = &'<';
+const RB: &char = &'>';
+const SP: &char = &' ';
+const NL: &char = &'\n';
+const TB: &char = &'\t';
+const FS: &char = &'/';
+const QT: &char = &'\'';
+const EQ: &char = &'=';
 
-pub fn route<'a>(chr: &'a str, prev_state: &'a str) -> &'a str {
+pub fn route<'a>(chr: &char, prev_state: &'a str) -> &'a str {
 	match prev_state {
 		// prevoius state
 		// INITIAL => get_state_from_initial(chr),
@@ -62,116 +62,116 @@ pub fn route<'a>(chr: &'a str, prev_state: &'a str) -> &'a str {
 	}
 }
 
-fn get_state_from_initial<'a>(chr: &'a str) -> &'a str {
+fn get_state_from_initial<'a>(chr: &char) -> &'a str {
 	match chr {
-		"<" => NODE,
+		'<' => NODE,
 		_ => TEXT,
 	}
 }
 
-fn get_state_from_node<'a>(chr: &'a str) -> &'a str {
+fn get_state_from_node<'a>(chr: &char) -> &'a str {
 	match chr {
-		" " => ERROR,
-		"\n" => ERROR,
-		"\t" => ERROR,
-		"/" => CLOSE_NODE_SLASH,
-		">" => ERROR,
+		' ' => ERROR,
+		'\n' => ERROR,
+		'\t' => ERROR,
+		'/' => CLOSE_NODE_SLASH,
+		'>' => ERROR,
 		_ => TAGNAME,
 	}
 }
 
-fn get_state_from_close_node_slash<'a>(chr: &'a str) -> &'a str {
+fn get_state_from_close_node_slash<'a>(chr: &char) -> &'a str {
 	match chr {
-		" " => ERROR,
-		"\n" => ERROR,
-		"\t" => ERROR,
+		' ' => ERROR,
+		'\n' => ERROR,
+		'\t' => ERROR,
 		_ => CLOSE_TAGNAME,
 	}
 }
 
-fn get_state_from_tagname<'a>(chr: &'a str) -> &'a str {
+fn get_state_from_tagname<'a>(chr: &char) -> &'a str {
 	match chr {
-		">" => NODE_CLOSED,
-		" " => NODE_SPACE,
-		"\n" => NODE_SPACE,
-		"\t" => NODE_SPACE,
-		"/" => INDEPENDENT_NODE,
+		'>' => NODE_CLOSED,
+		' ' => NODE_SPACE,
+		'\n' => NODE_SPACE,
+		'\t' => NODE_SPACE,
+		'/' => INDEPENDENT_NODE,
 		_ => TAGNAME,
 	}
 }
 
-fn get_state_from_close_tagname<'a>(chr: &'a str) -> &'a str {
+fn get_state_from_close_tagname<'a>(chr: &char) -> &'a str {
 	match chr {
-		">" => CLOSE_NODE_CLOSED,
-		" " => CLOSE_NODE_SPACE,
-		"\n" => CLOSE_NODE_SPACE,
-		"\t" => CLOSE_NODE_SPACE,
+		'>' => CLOSE_NODE_CLOSED,
+		' ' => CLOSE_NODE_SPACE,
+		'\n' => CLOSE_NODE_SPACE,
+		'\t' => CLOSE_NODE_SPACE,
 		_ => CLOSE_TAGNAME,
 	}
 }
 
-fn get_state_from_close_node_space<'a>(chr: &'a str) -> &'a str {
+fn get_state_from_close_node_space<'a>(chr: &char) -> &'a str {
 	match chr {
-		">" => CLOSE_NODE_CLOSED,
+		'>' => CLOSE_NODE_CLOSED,
 		_ => CLOSE_NODE_SPACE,
 	}
 }
 
-pub fn get_state_from_independent_node<'a>(chr: &'a str) -> &'a str {
+pub fn get_state_from_independent_node<'a>(chr: &char) -> &'a str {
 	match chr {
-		">" => INDEPENDENT_NODE_CLOSED,
+		'>' => INDEPENDENT_NODE_CLOSED,
 		_ => INDEPENDENT_NODE,
 	}
 }
 
-fn get_state_from_node_space<'a>(chr: &'a str) -> &'a str {
+fn get_state_from_node_space<'a>(chr: &char) -> &'a str {
 	match chr {
-		">" => NODE_CLOSED,
-		" " => NODE_SPACE,
-		"\n" => NODE_SPACE,
-		"\t" => NODE_SPACE,
-		"/" => INDEPENDENT_NODE,
+		'>' => NODE_CLOSED,
+		' ' => NODE_SPACE,
+		'\n' => NODE_SPACE,
+		'\t' => NODE_SPACE,
+		'/' => INDEPENDENT_NODE,
 		_ => ATTRIBUTE,
 	}
 }
 
-fn get_state_from_attribute<'a>(chr: &'a str) -> &'a str {
+fn get_state_from_attribute<'a>(chr: &char) -> &'a str {
 	match chr {
-		" " => NODE_SPACE,
-		"\n" => NODE_SPACE,
-		"\t" => NODE_SPACE,
-		"=" => ATTRIBUTE_SETTER,
-		">" => NODE_CLOSED, 
-		"/" => INDEPENDENT_NODE,
+		' ' => NODE_SPACE,
+		'\n' => NODE_SPACE,
+		'\t' => NODE_SPACE,
+		'=' => ATTRIBUTE_SETTER,
+		'>' => NODE_CLOSED, 
+		'/' => INDEPENDENT_NODE,
 		_ => ATTRIBUTE,
 	}
 }
 
-fn get_state_from_attribute_setter<'a>(chr: &'a str) -> &'a str {
+fn get_state_from_attribute_setter<'a>(chr: &char) -> &'a str {
 	match chr {
-		"\"" => ATTRIBUTE_DECLARATION_CLOSE,
+		'\'' => ATTRIBUTE_DECLARATION_CLOSE,
 		_ => ATTRIBUTE_VALUE,
 	}
 }
 
-fn get_state_from_attribute_declaration<'a>(chr: &'a str) -> &'a str {
+fn get_state_from_attribute_declaration<'a>(chr: &char) -> &'a str {
 	match chr {
-		"\"" => ATTRIBUTE_DECLARATION_CLOSE,
+		'\'' => ATTRIBUTE_DECLARATION_CLOSE,
 		_ => ATTRIBUTE_VALUE,
 	}
 }
 
-fn get_state_from_attribute_value<'a>(chr: &'a str) -> &'a str {
+fn get_state_from_attribute_value<'a>(chr: &char) -> &'a str {
 	match chr {
-		"\"" => ATTRIBUTE_DECLARATION_CLOSE,
+		'\'' => ATTRIBUTE_DECLARATION_CLOSE,
 		_ => ATTRIBUTE_VALUE,
 	}
 }
 
-fn get_state_from_attribute_declaration_close<'a>(chr: &'a str) -> &'a str {
+fn get_state_from_attribute_declaration_close<'a>(chr: &char) -> &'a str {
 	match chr {
-		">" => NODE_CLOSED,
-		"/" => INDEPENDENT_NODE,
+		'>' => NODE_CLOSED,
+		'/' => INDEPENDENT_NODE,
 		_ => NODE_SPACE,
 	}
 }
