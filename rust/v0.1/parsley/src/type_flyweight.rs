@@ -1,7 +1,7 @@
 #[derive(Debug, Clone)]
 pub struct Vector {
-	pub origin: u32,
-	pub target: u32,	
+	pub origin: usize,
+	pub target: usize,	
 }
 
 #[derive(Debug, Clone)]
@@ -13,6 +13,6 @@ pub struct NodeStep {
 #[derive(Debug, Clone)]
 pub struct InjectionStep {
   pub kind: String,
-  pub index: u32,
+  pub index: usize,
 }
 

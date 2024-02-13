@@ -50,21 +50,27 @@ pub fn parse_str<T: Builder>(
 	let mut currKind = INITIAL;
 	
 	let mut origin = 0;
-	let mut target = 0;
 	
 	for (index, glyph) in template.char_indices() {
 		//
 		println!("{}{}", &index, &glyph);
+		prevKind = currKind;
 		currKind = routes::route(&glyph, prevKind);
 		
 		if prevKind != currKind {
 			builder = builder.add_node_step(NodeStep{
 				kind: prevKind.to_string(),
-				vector: Vector{origin: origin, target: target},
+				vector: Vector{origin: origin, target: index},
 			});
+			
+			origin = index;
 		}
 	}
 	
-	builder
+	// get last one
+	builder.add_node_step(NodeStep{
+		kind: prevKind.to_string(),
+		vector: Vector{origin: origin, target: template.len()},
+	})
 }
 
