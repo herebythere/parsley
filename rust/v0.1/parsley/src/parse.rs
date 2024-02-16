@@ -15,6 +15,7 @@ use crate::constants::{
 	POST_INJECTION,
 	INJECTION_FOUND,
 	INJECTION_CONFIRMED,
+	INJECTION,
 };
 use crate::type_flyweight::{
 	NodeStep,
@@ -86,7 +87,7 @@ pub fn parse_str<T: Builder>(
 			
 			// add injection step
 			builder = builder.add_step(NodeStep{
-				kind: "INJECTION".to_string(),
+				kind: INJECTION.to_string(),
 				vector: Vector{origin: inj_origin, target: index},
 			});
 			
@@ -105,19 +106,13 @@ pub fn parse_str<T: Builder>(
 			origin = index;
 		}
 		
-		
 		if curr_inj_kind == INJECTION_FOUND {
 			inj_origin = index
 		}
-		
 	}
-	
-	
-	
-	
+
 	// get last one
 	// don't forget injection
-	
 	if curr_inj_kind == INJECTION_CONFIRMED {
 		// new start, bring both origins to cursor
 		// add node step
@@ -130,7 +125,7 @@ pub fn parse_str<T: Builder>(
 
 		// add injection step
 		return builder.add_step(NodeStep{
-			kind: "INJECTION".to_string(),
+			kind: INJECTION.to_string(),
 			vector: Vector{origin: inj_origin, target: template.len()},
 		});
 	}

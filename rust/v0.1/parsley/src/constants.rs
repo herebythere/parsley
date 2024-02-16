@@ -29,5 +29,5 @@ pub const INJECTION_FOUND: &str = "INJECTION_FOUND";
 // could be last in tempalte "<p>{}>/p>{}"
 pub const INJECTION_CONFIRMED: &str = "INJECTION_CONFIRMED";
 pub const POST_INJECTION: &str = "POST_INJECTION";
-
+pub const INJECTION: &str = "INJECTION";
 
