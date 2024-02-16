@@ -149,21 +149,21 @@ fn get_state_from_attribute<'a>(chr: &char) -> &'a str {
 
 fn get_state_from_attribute_setter<'a>(chr: &char) -> &'a str {
 	match chr {
-		'\'' => ATTRIBUTE_DECLARATION_CLOSE,
+		'"' => ATTRIBUTE_DECLARATION,
 		_ => ATTRIBUTE_VALUE,
 	}
 }
 
 fn get_state_from_attribute_declaration<'a>(chr: &char) -> &'a str {
 	match chr {
-		'\'' => ATTRIBUTE_DECLARATION_CLOSE,
+		'"' => ATTRIBUTE_DECLARATION_CLOSE,
 		_ => ATTRIBUTE_VALUE,
 	}
 }
 
 fn get_state_from_attribute_value<'a>(chr: &char) -> &'a str {
 	match chr {
-		'\'' => ATTRIBUTE_DECLARATION_CLOSE,
+		'"' => ATTRIBUTE_DECLARATION_CLOSE,
 		_ => ATTRIBUTE_VALUE,
 	}
 }

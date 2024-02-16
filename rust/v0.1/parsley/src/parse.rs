@@ -12,14 +12,18 @@ use crate::constants::{
 	ATTRIBUTE_INJECTION,
 	ATTRIBUTE_MAP_INJECTION,
 	DESCENDANT_INJECTION,
+	POST_INJECTION,
+	INJECTION_FOUND,
+	INJECTION_CONFIRMED,
 };
 use crate::type_flyweight::{
 	NodeStep,
-	InjectionStep,
 	Vector,
+	Builder,
 };
-use crate::builder::Builder;
+
 use crate::routes;
+use crate::injection_routes;
 
 // cache build steps
 
@@ -42,34 +46,98 @@ fn get_injection_type(build_step: &str) -> Option<&str> {
 	}
 }
 
+
+// essentially keep track of yet another watch
+// routes for {}
+// when INJECTION_FOUND (prev_kind != curr_kind && INJECTION_FOUND)
+// if INJECTION FOUND
+//   add injection_step
+
 pub fn parse_str<T: Builder>(
 	mut builder: T,
 	template: &str,
 ) -> T {
-	let mut prevKind = INITIAL;
-	let mut currKind = INITIAL;
-	
+	let mut prev_kind = INITIAL;
+	let mut curr_kind = INITIAL;
 	let mut origin = 0;
 	
+	let mut prev_inj_kind = INITIAL;
+	let mut curr_inj_kind = INITIAL;
+	let mut inj_origin = 0;
+	
 	for (index, glyph) in template.char_indices() {
-		//
 		println!("{}{}", &index, &glyph);
-		prevKind = currKind;
-		currKind = routes::route(&glyph, prevKind);
+		prev_kind = curr_kind;
+		curr_kind = routes::route(&glyph, prev_kind);
 		
-		if prevKind != currKind {
-			builder = builder.add_node_step(NodeStep{
-				kind: prevKind.to_string(),
+		prev_inj_kind = curr_inj_kind;
+		curr_inj_kind = injection_routes::route(&glyph, prev_inj_kind);
+		
+		
+		if prev_inj_kind == INJECTION_CONFIRMED {
+			// new start, bring both origins to cursor
+			// add node step
+			if origin < inj_origin {
+					builder = builder.add_step(NodeStep{
+					kind: prev_kind.to_string(),
+					vector: Vector{origin: origin, target: inj_origin},
+				});
+			}
+			
+			// add injection step
+			builder = builder.add_step(NodeStep{
+				kind: "INJECTION".to_string(),
+				vector: Vector{origin: inj_origin, target: index},
+			});
+			
+			origin = inj_origin;
+			
+			prev_kind = curr_kind;
+		}
+		
+
+		if prev_kind != curr_kind {
+			builder = builder.add_step(NodeStep{
+				kind: prev_kind.to_string(),
 				vector: Vector{origin: origin, target: index},
 			});
 			
 			origin = index;
 		}
+		
+		
+		if curr_inj_kind == INJECTION_FOUND {
+			inj_origin = index
+		}
+		
 	}
 	
+	
+	
+	
 	// get last one
-	builder.add_node_step(NodeStep{
-		kind: prevKind.to_string(),
+	// don't forget injection
+	
+	if curr_inj_kind == INJECTION_CONFIRMED {
+		// new start, bring both origins to cursor
+		// add node step
+		if origin < inj_origin {
+			builder = builder.add_step(NodeStep{
+				kind: prev_kind.to_string(),
+				vector: Vector{origin: origin, target: inj_origin},
+			});
+		}
+
+		// add injection step
+		return builder.add_step(NodeStep{
+			kind: "INJECTION".to_string(),
+			vector: Vector{origin: inj_origin, target: template.len()},
+		});
+	}
+	
+	
+	builder.add_step(NodeStep{
+		kind: prev_kind.to_string(),
 		vector: Vector{origin: origin, target: template.len()},
 	})
 }

@@ -10,9 +10,6 @@ pub struct NodeStep {
 	pub vector: Vector,
 }
 
-#[derive(Debug, Clone)]
-pub struct InjectionStep {
-  pub kind: String,
-  pub index: usize,
+pub trait Builder {
+  fn add_step(self, step: NodeStep) -> Self;
 }
-
