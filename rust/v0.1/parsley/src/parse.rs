@@ -81,6 +81,8 @@ pub fn parse_str<T: Builder>(
 		if prev_inj_kind == INJECTION_CONFIRMED {
 			// new start, bring both origins to cursor
 			// add node step
+			
+			// chunk from here
 			if origin < inj_origin {
 					builder = builder.add_step(NodeStep{
 					kind: inj_found_kind.to_string(),
@@ -99,6 +101,7 @@ pub fn parse_str<T: Builder>(
 				kind: injection_kind.to_string(),
 				vector: Vector{origin: inj_origin, target: index},
 			});
+			// to here
 
 			origin = inj_origin;
 			prev_kind = curr_kind;
