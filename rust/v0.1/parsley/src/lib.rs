@@ -1,10 +1,9 @@
-
 pub mod constants;
 pub mod parse;
 pub mod type_flyweight;
 
-mod routes;
 mod injection_routes;
+mod routes;
 
 // "<p>${}</p>"
 
@@ -22,5 +21,3 @@ mod tests {
         assert_eq!(result, 4);
     }
 }
-
-
