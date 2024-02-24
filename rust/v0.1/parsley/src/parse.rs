@@ -149,3 +149,17 @@ pub fn parse_str<T: Builder>(mut builder: T, template: &str) -> T {
         },
     })
 }
+
+// generator like
+
+pub struct Parser {
+	template: String,
+}
+
+impl Parser {
+    fn new(template: String) -> Parser {
+        Parser {
+            template: template,
+        }
+    }
+}

@@ -1,5 +1,5 @@
 use parsley::parse;
-use parsley::type_flyweight::{Builder, NodeStep};
+use parsley::type_flyweight::{Builder, NodeStep, Results};
 
 #[derive(Debug)]
 pub struct TestBuilder {
@@ -19,10 +19,16 @@ impl Builder for TestBuilder {
         self.node_steps.push(step);
         self
     }
+    
+    fn build(self) -> Results {
+    	self.node_steps
+    }
 }
 
 #[test]
 fn parse_something() {
+		let control_builder = TestBuilder::new();
+
     let mut builder = TestBuilder::new();
 
     builder = parse::parse_str(builder, "<p>{}</p>");

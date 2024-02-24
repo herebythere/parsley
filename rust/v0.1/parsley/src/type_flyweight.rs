@@ -12,4 +12,7 @@ pub struct NodeStep {
 
 pub trait Builder {
     fn add_step(self, step: NodeStep) -> Self;
+    fn build(self) -> Results;
 }
+
+pub type Results = Vec<NodeStep>;
