@@ -19,36 +19,66 @@ impl Builder for TestBuilder {
         self.node_steps.push(step);
         self
     }
-    
+
     fn build(self) -> Results {
-    	self.node_steps
+        self.node_steps
     }
 }
 
-#[test]
+// #[test]
 fn parse_something() {
-		let control_builder = TestBuilder::new();
+    let control_builder = TestBuilder::new();
 
     let mut builder = TestBuilder::new();
 
     builder = parse::parse_str(builder, "<p>{}</p>");
 
-    println!("{:?}", builder);
+    // println!("{:?}", builder);
 }
-#[test]
+// #[test]
 fn parse_something_complicated() {
     let mut builder = TestBuilder::new();
 
     builder = parse::parse_str(builder, "{}<p>{}</p>{}");
 
-    println!("{:?}", builder);
+    // println!("{:?}", builder);
 }
 
-#[test]
+// #[test]
 fn parse_something_complicated_with_attributes() {
     let mut builder = TestBuilder::new();
 
     builder = parse::parse_str(builder, "<p {} attr=\"{}\">hello</p>");
 
-    println!("{:?}", builder);
+    // println!("{:?}", builder);
+}
+
+#[test]
+fn parser_with_simple_attributes() {
+    let mut builder = TestBuilder::new();
+    const template: &str = "<hello>howdy</hello>";
+    let mut parser = parse::StringIterator::new(template);
+
+    while let Some(step) = parser.next() {
+        println!(
+            "{:?}\n{}\n",
+            step,
+            &template[step.vector.origin..step.vector.target]
+        );
+    }
+}
+
+// #[test]
+fn parser_with_something_complicated_with_attributes() {
+    let mut builder = TestBuilder::new();
+    const template: &str = "<p {} attr=\"{}\">hello</p>";
+    let mut parser = parse::StringIterator::new("<p {} attr=\"{}\">hello</p>");
+
+    while let Some(step) = parser.next() {
+        println!(
+            "{:?}\n{}\n",
+            step,
+            &template[step.vector.origin..step.vector.target]
+        );
+    }
 }

@@ -48,6 +48,9 @@ pub fn route<'a>(chr: &char, prev_state: &'a str) -> &'a str {
     }
 }
 
+// need to add injection logic here
+// and can create an error node
+
 fn get_state_from_initial<'a>(chr: &char) -> &'a str {
     match chr {
         '<' => NODE,

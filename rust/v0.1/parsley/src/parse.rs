@@ -1,3 +1,6 @@
+use std::collections::LinkedList;
+use std::str::CharIndices;
+
 use crate::constants::{
     ATTRIBUTE_DECLARATION, ATTRIBUTE_DECLARATION_CLOSE, ATTRIBUTE_INJECTION,
     ATTRIBUTE_MAP_INJECTION, ATTRIBUTE_VALUE, CLOSE_NODE_CLOSED, DESCENDANT_INJECTION,
@@ -151,15 +154,88 @@ pub fn parse_str<T: Builder>(mut builder: T, template: &str) -> T {
 }
 
 // generator like
+/*
+    <p>&</p>
+    <p>&hello;</p>
+    <p>&1708;<p>
+*/
+/*
+    There could be multiple steps parsed between a bad injection.
+    Eventually there might be a need for named injections.
+    <p>&</p>
+    <p>{comment}</p>, {comment: "hello"}
+    This is complicated and dumb but it's going to be an ask
 
-pub struct Parser {
-	template: String,
+    either syntax needs to have a kind of next() attribute.
+    I hate generators but this feels rust-like. I hate eating crow.
+
+    This also lets a buffer read through files, index of the file
+    itself is converted
+*/
+
+pub struct StringIterator<'a> {
+    queue: LinkedList<NodeStep>,
+    template: &'a str,
+    template_indices: CharIndices<'a>,
 }
 
-impl Parser {
-    fn new(template: String) -> Parser {
-        Parser {
+impl StringIterator<'_> {
+    pub fn new(template: &'_ str) -> StringIterator {
+        StringIterator {
             template: template,
+            template_indices: template.char_indices(),
+            queue: LinkedList::<NodeStep>::from([NodeStep {
+                kind: INITIAL.to_string(),
+                vector: Vector {
+                    origin: 0,
+                    target: 0,
+                },
+            }]),
         }
+    }
+
+    pub fn next(&mut self) -> Option<NodeStep> {
+        println!("get next");
+        if self.queue.len() == 1 {
+            self.get_next_step();
+        }
+
+        self.queue.pop_back()
+    }
+
+    fn get_next_step(&mut self) {
+        while let Some((index, glyph)) = &self.template_indices.next() {
+            self.update_front(&index);
+
+            let front = match self.queue.front() {
+                Some(f) => f,
+                None => return,
+            };
+            
+            // separate queue for injection?
+            
+            let curr_kind = routes::route(&glyph, &front.kind);
+            if curr_kind != &front.kind {
+                self.queue.push_front(NodeStep {
+                    kind: curr_kind.to_string(),
+                    vector: Vector {
+                        origin: index.clone(),
+                        target: index.clone(),
+                    },
+                });
+                return;
+            }
+        }
+
+        // for tail end of the string
+        // something akin to EOF
+        self.update_front(&self.template.len());
+    }
+
+    fn update_front(&mut self, number: &usize) {
+        let _ = match self.queue.front_mut() {
+            Some(f) => f.vector.target = number.clone(),
+            None => return,
+        };
     }
 }
