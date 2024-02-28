@@ -41,6 +41,9 @@ fn get_injection_type(build_step: &str) -> Option<&str> {
 
 // keep previously found kind at injection
 
+// parse string should return steps
+// DONE
+
 pub fn parse_str<T: Builder>(mut builder: T, template: &str) -> T {
     let mut prev_kind = INITIAL;
     let mut curr_kind = INITIAL;
