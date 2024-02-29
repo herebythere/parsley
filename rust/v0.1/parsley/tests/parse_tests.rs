@@ -56,7 +56,7 @@ fn parse_something_complicated_with_attributes() {
 #[test]
 fn parser_with_simple_attributes() {
     let mut builder = TestBuilder::new();
-    const template: &str = "<hello>howdy</hello>";
+    const template: &str = "<hello>{   }</hello>";
     let mut parser = parse::StringIterator::new(template);
 
     while let Some(step) = parser.next() {

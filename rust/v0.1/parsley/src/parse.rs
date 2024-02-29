@@ -181,6 +181,7 @@ pub struct StringIterator<'a> {
     queue: LinkedList<NodeStep>,
     template: &'a str,
     template_indices: CharIndices<'a>,
+    prev_inj_kind: String,
 }
 
 impl StringIterator<'_> {
@@ -188,6 +189,7 @@ impl StringIterator<'_> {
         StringIterator {
             template: template,
             template_indices: template.char_indices(),
+            prev_inj_kind: INITIAL.to_string(),
             queue: LinkedList::<NodeStep>::from([NodeStep {
                 kind: INITIAL.to_string(),
                 vector: Vector {
@@ -215,11 +217,23 @@ impl StringIterator<'_> {
                 Some(f) => f,
                 None => return,
             };
-            
+
             // separate queue for injection?
-            
-            let curr_kind = routes::route(&glyph, &front.kind);
+            let mut front_kind = front.kind.clone();
+            if front_kind == INJECTION_CONFIRMED {
+                front_kind = self.prev_inj_kind.clone();
+            }
+
+            let mut curr_kind = routes::route(&glyph, &front_kind);
+
+            if curr_kind == INJECTION_FOUND {
+                self.prev_inj_kind = front.kind.to_string();
+            }
+
             if curr_kind != &front.kind {
+                // if injection found, get injection type
+                // then injection close
+
                 self.queue.push_front(NodeStep {
                     kind: curr_kind.to_string(),
                     vector: Vector {
@@ -227,6 +241,7 @@ impl StringIterator<'_> {
                         target: index.clone(),
                     },
                 });
+
                 return;
             }
         }

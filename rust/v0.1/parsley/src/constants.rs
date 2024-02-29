@@ -27,3 +27,4 @@ pub const SPACE: &str = "SPACE";
 pub const INJECTION_FOUND: &str = "INJECTION_FOUND";
 pub const INJECTION_CONFIRMED: &str = "INJECTION_CONFIRMED";
 pub const INJECTION: &str = "INJECTION";
+pub const INJECTION_SPACE: &str = "INJECTION_SPACE";

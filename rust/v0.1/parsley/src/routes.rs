@@ -11,9 +11,11 @@
 use crate::constants::{
     ATTRIBUTE, ATTRIBUTE_DECLARATION, ATTRIBUTE_DECLARATION_CLOSE, ATTRIBUTE_SETTER,
     ATTRIBUTE_VALUE, CLOSE_NODE_CLOSED, CLOSE_NODE_SLASH, CLOSE_NODE_SPACE, CLOSE_TAGNAME, ERROR,
-    INDEPENDENT_NODE, INDEPENDENT_NODE_CLOSED, INITIAL, NODE, NODE_CLOSED, NODE_SPACE, TAGNAME,
-    TEXT,
+    INDEPENDENT_NODE, INDEPENDENT_NODE_CLOSED, INITIAL, INJECTION, NODE, NODE_CLOSED, NODE_SPACE,
+    TAGNAME, TEXT,
 };
+
+use crate::constants::{INJECTION_CONFIRMED, INJECTION_FOUND, INJECTION_SPACE};
 
 const LB: &char = &'<';
 const RB: &char = &'>';
@@ -23,6 +25,8 @@ const TB: &char = &'\t';
 const FS: &char = &'/';
 const QT: &char = &'\'';
 const EQ: &char = &'=';
+
+// rust enums might be easier but more obscured
 
 pub fn route<'a>(chr: &char, prev_state: &'a str) -> &'a str {
     match prev_state {
@@ -44,6 +48,9 @@ pub fn route<'a>(chr: &char, prev_state: &'a str) -> &'a str {
         ATTRIBUTE_DECLARATION => get_state_from_attribute_declaration(chr),
         ATTRIBUTE_VALUE => get_state_from_attribute_value(chr),
         ATTRIBUTE_DECLARATION_CLOSE => get_state_from_attribute_declaration_close(chr),
+        INJECTION_FOUND => get_state_from_injection_found(chr),
+        INJECTION_SPACE => get_state_from_injection_space(chr),
+        // INJECTION_CONFIRMED => get_state_from_injection_CONFIRMED(chr),
         _ => get_state_from_initial(chr),
     }
 }
@@ -54,6 +61,7 @@ pub fn route<'a>(chr: &char, prev_state: &'a str) -> &'a str {
 fn get_state_from_initial<'a>(chr: &char) -> &'a str {
     match chr {
         '<' => NODE,
+        '{' => INJECTION_FOUND,
         _ => TEXT,
     }
 }
@@ -85,6 +93,7 @@ fn get_state_from_tagname<'a>(chr: &char) -> &'a str {
         '\n' => NODE_SPACE,
         '\t' => NODE_SPACE,
         '/' => INDEPENDENT_NODE,
+        '{' => INJECTION_FOUND,
         _ => TAGNAME,
     }
 }
@@ -120,6 +129,7 @@ fn get_state_from_node_space<'a>(chr: &char) -> &'a str {
         '\n' => NODE_SPACE,
         '\t' => NODE_SPACE,
         '/' => INDEPENDENT_NODE,
+        '{' => INJECTION_FOUND,
         _ => ATTRIBUTE,
     }
 }
@@ -132,6 +142,7 @@ fn get_state_from_attribute<'a>(chr: &char) -> &'a str {
         '=' => ATTRIBUTE_SETTER,
         '>' => NODE_CLOSED,
         '/' => INDEPENDENT_NODE,
+        '{' => INJECTION_FOUND,
         _ => ATTRIBUTE,
     }
 }
@@ -153,6 +164,7 @@ fn get_state_from_attribute_declaration<'a>(chr: &char) -> &'a str {
 fn get_state_from_attribute_value<'a>(chr: &char) -> &'a str {
     match chr {
         '"' => ATTRIBUTE_DECLARATION_CLOSE,
+        '{' => INJECTION_FOUND,
         _ => ATTRIBUTE_VALUE,
     }
 }
@@ -162,5 +174,19 @@ fn get_state_from_attribute_declaration_close<'a>(chr: &char) -> &'a str {
         '>' => NODE_CLOSED,
         '/' => INDEPENDENT_NODE,
         _ => NODE_SPACE,
+    }
+}
+
+fn get_state_from_injection_found<'a>(chr: &char) -> &'a str {
+    match chr {
+        '}' => INJECTION_CONFIRMED,
+        _ => INJECTION_SPACE,
+    }
+}
+
+fn get_state_from_injection_space<'a>(chr: &char) -> &'a str {
+    match chr {
+        '}' => INJECTION_CONFIRMED,
+        _ => INJECTION_SPACE,
     }
 }
