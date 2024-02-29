@@ -52,6 +52,7 @@ const CLOSE_NODE_SLASH_MAP = new Map<string, string>([
   [DEFAULT, CLOSE_TAGNAME],
 ]);
 
+
 const TAGNAME_MAP = new Map<string, string>([
   [RB, NODE_CLOSED],
   [SP, NODE_SPACE],
@@ -60,6 +61,7 @@ const TAGNAME_MAP = new Map<string, string>([
   [FS, INDEPENDENT_NODE],
   [DEFAULT, TAGNAME],
 ]);
+
 
 const CLOSE_TAGNAME_MAP = new Map<string, string>([
   [RB, CLOSE_NODE_CLOSED],

@@ -15,6 +15,12 @@ Parsley provides limited support for xml syntax:
 - comments are not supported
 - misplaced template injections are ignored
 
+## Implementations
+
+Parsley is available for:
+- JS / TS / ECMAScript
+- Rust
+
 ## License
 
 Parsley is released under the BSD 3-Clause License.
