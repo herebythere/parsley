@@ -67,43 +67,45 @@ fn get_state_from_initial<'a>(chr: &char) -> &'a str {
 }
 
 fn get_state_from_node<'a>(chr: &char) -> &'a str {
+		if chr.is_whitespace() {
+			return ERROR;
+		}
+		
     match chr {
-        ' ' => ERROR,
-        '\n' => ERROR,
-        '\t' => ERROR,
         '/' => CLOSE_NODE_SLASH,
         '>' => ERROR,
         _ => TAGNAME,
     }
 }
 
-fn get_state_from_close_node_slash<'a>(chr: &char) -> &'a str {
-    match chr {
-        ' ' => ERROR,
-        '\n' => ERROR,
-        '\t' => ERROR,
-        _ => CLOSE_TAGNAME,
-    }
-}
-
 fn get_state_from_tagname<'a>(chr: &char) -> &'a str {
+		if chr.is_whitespace() {
+			return NODE_SPACE;
+		}
+		
     match chr {
         '>' => NODE_CLOSED,
-        ' ' => NODE_SPACE,
-        '\n' => NODE_SPACE,
-        '\t' => NODE_SPACE,
         '/' => INDEPENDENT_NODE,
         '{' => INJECTION_FOUND,
         _ => TAGNAME,
     }
 }
 
+fn get_state_from_close_node_slash<'a>(chr: &char) -> &'a str {
+		if chr.is_whitespace() {
+			return ERROR;
+		}
+		
+		CLOSE_TAGNAME
+}
+
 fn get_state_from_close_tagname<'a>(chr: &char) -> &'a str {
+		if chr.is_whitespace() {
+			return CLOSE_NODE_SPACE;
+		}
+		
     match chr {
         '>' => CLOSE_NODE_CLOSED,
-        ' ' => CLOSE_NODE_SPACE,
-        '\n' => CLOSE_NODE_SPACE,
-        '\t' => CLOSE_NODE_SPACE,
         _ => CLOSE_TAGNAME,
     }
 }
@@ -123,11 +125,12 @@ pub fn get_state_from_independent_node<'a>(chr: &char) -> &'a str {
 }
 
 fn get_state_from_node_space<'a>(chr: &char) -> &'a str {
+		if chr.is_whitespace() {
+			return NODE_SPACE;
+		}
+		
     match chr {
         '>' => NODE_CLOSED,
-        ' ' => NODE_SPACE,
-        '\n' => NODE_SPACE,
-        '\t' => NODE_SPACE,
         '/' => INDEPENDENT_NODE,
         '{' => INJECTION_FOUND,
         _ => ATTRIBUTE,
@@ -135,10 +138,11 @@ fn get_state_from_node_space<'a>(chr: &char) -> &'a str {
 }
 
 fn get_state_from_attribute<'a>(chr: &char) -> &'a str {
+		if chr.is_whitespace() {
+			return NODE_SPACE;
+		}
+		
     match chr {
-        ' ' => NODE_SPACE,
-        '\n' => NODE_SPACE,
-        '\t' => NODE_SPACE,
         '=' => ATTRIBUTE_SETTER,
         '>' => NODE_CLOSED,
         '/' => INDEPENDENT_NODE,
