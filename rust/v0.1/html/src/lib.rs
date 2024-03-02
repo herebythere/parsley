@@ -13,7 +13,8 @@
 // 
 use std::collections::HashMap;
 use parsley::parse::StringIterator;
-use parsley::type_flyweight::Results;
+use parsley::constants::{TAGNAME, CLOSE_TAGNAME, TEXT};
+use parsley::type_flyweight::{Results, Vector};
 
 #[derive(Clone, Debug)]
 pub enum Injection<'a> {
@@ -37,13 +38,14 @@ pub struct StackBit<'a> {
 
 pub struct HtmlWriter<'a> {
 	html_result: String,
-	builds: HashMap<String, Results>,
+	builds: HashMap<String, Results<'a>>,
 	tab_count: usize,
+	index_count: usize,
 	stack: Vec<StackBit<'a>>,
 }
 
 impl HtmlWriter<'_> {
-	pub fn build<'a>(&'a mut self, template: &'_ Template) {
+	pub fn build(template: &'_ Template) {
 		// get template iterator
 		let mut stack = Vec::<StackBit>::new();
 		
@@ -53,7 +55,44 @@ impl HtmlWriter<'_> {
 			inj_index: 0,
 		});
 		
-		println!("{:?}", template);
+		let mut result = String::from("");
+		let mut tab_count = 0;
+		
+		while stack.len() != 0 {
+			let mut stack_bit = match stack.pop() {
+				Some(n) => n,
+				_ => return,
+			};
+			
+			while let Some(node_step) = stack_bit.iterator.next() {
+				match node_step.kind {
+					TAGNAME => {
+						result.push_str(&"\t".repeat(tab_count));
+						result.push_str("<");
+						result.push_str(get_chunk(&stack_bit.template, &node_step.vector));
+						result.push_str(">\n");
+						tab_count += 1;
+					},
+					TEXT => {
+						let text_iterator = get_chunk(&stack_bit.template, &node_step.vector).split("\n");
+						for text in text_iterator {
+							result.push_str(&"\t".repeat(tab_count));
+							result.push_str(text);
+							result.push_str("\n");
+						}
+					}
+					CLOSE_TAGNAME => {
+						tab_count -= 1;
+						result.push_str(&"\t".repeat(tab_count));
+						result.push_str("</");
+						result.push_str(get_chunk(&stack_bit.template, &node_step.vector));
+						result.push_str(">\n");
+					},
+					_ => {},
+				}
+			}
+		}
+		
 		// add to html result by step
 	
 		// while loop. while 
@@ -64,7 +103,13 @@ impl HtmlWriter<'_> {
 		
 		// if injection, add current back to stack
 		//  add new stack bit to stack.
+		
+		println!("{}", result)
 	}
+}
+
+fn get_chunk<'a>(template: &Template<'a>, vector: &Vector) -> &'a str {
+	&template.template[vector.origin..vector.target]
 }
 
 // standalone

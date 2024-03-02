@@ -1,11 +1,22 @@
-use html::html;
+use html::{html, HtmlWriter};
 
-const template0: &str = "<hello>world</hello>";
+const template_str_0: &str = "<hello>world</hello>";
+const template_str_1: &str = "<hello>{}</hello>";
+
+const text_injection: &str = "";
+
 
 #[test]
 fn it_works() {
-		let template1 = html(template0, Vec::new());
+		let template1 = html(template_str_0, Vec::new());
 		
-		let other_template = "<hello>".to_string() + "world</hello>";
-		let template2 = html(&other_template, Vec::new());
+		let finished_template = HtmlWriter::build(&template1);
 }
+
+#[test]
+fn it_works_with_injections() {
+		let template1 = html(template_str_1, Vec::new());
+		
+		let finished_template = HtmlWriter::build(&template1);
+}
+
