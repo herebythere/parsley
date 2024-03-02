@@ -67,10 +67,10 @@ fn get_state_from_initial<'a>(chr: &char) -> &'a str {
 }
 
 fn get_state_from_node<'a>(chr: &char) -> &'a str {
-		if chr.is_whitespace() {
-			return ERROR;
-		}
-		
+    if chr.is_whitespace() {
+        return ERROR;
+    }
+
     match chr {
         '/' => CLOSE_NODE_SLASH,
         '>' => ERROR,
@@ -79,10 +79,10 @@ fn get_state_from_node<'a>(chr: &char) -> &'a str {
 }
 
 fn get_state_from_tagname<'a>(chr: &char) -> &'a str {
-		if chr.is_whitespace() {
-			return NODE_SPACE;
-		}
-		
+    if chr.is_whitespace() {
+        return NODE_SPACE;
+    }
+
     match chr {
         '>' => NODE_CLOSED,
         '/' => INDEPENDENT_NODE,
@@ -92,18 +92,18 @@ fn get_state_from_tagname<'a>(chr: &char) -> &'a str {
 }
 
 fn get_state_from_close_node_slash<'a>(chr: &char) -> &'a str {
-		if chr.is_whitespace() {
-			return ERROR;
-		}
-		
-		CLOSE_TAGNAME
+    if chr.is_whitespace() {
+        return ERROR;
+    }
+
+    CLOSE_TAGNAME
 }
 
 fn get_state_from_close_tagname<'a>(chr: &char) -> &'a str {
-		if chr.is_whitespace() {
-			return CLOSE_NODE_SPACE;
-		}
-		
+    if chr.is_whitespace() {
+        return CLOSE_NODE_SPACE;
+    }
+
     match chr {
         '>' => CLOSE_NODE_CLOSED,
         _ => CLOSE_TAGNAME,
@@ -125,10 +125,10 @@ pub fn get_state_from_independent_node<'a>(chr: &char) -> &'a str {
 }
 
 fn get_state_from_node_space<'a>(chr: &char) -> &'a str {
-		if chr.is_whitespace() {
-			return NODE_SPACE;
-		}
-		
+    if chr.is_whitespace() {
+        return NODE_SPACE;
+    }
+
     match chr {
         '>' => NODE_CLOSED,
         '/' => INDEPENDENT_NODE,
@@ -138,10 +138,10 @@ fn get_state_from_node_space<'a>(chr: &char) -> &'a str {
 }
 
 fn get_state_from_attribute<'a>(chr: &char) -> &'a str {
-		if chr.is_whitespace() {
-			return NODE_SPACE;
-		}
-		
+    if chr.is_whitespace() {
+        return NODE_SPACE;
+    }
+
     match chr {
         '=' => ATTRIBUTE_SETTER,
         '>' => NODE_CLOSED,

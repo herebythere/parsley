@@ -1,7 +1,6 @@
 use parsley::parse;
 use parsley::type_flyweight::{NodeStep, Results};
 
-
 #[test]
 fn parser_with_simple_attributes() {
     const template: &str = "<hello>{   }</hello>";
@@ -16,7 +15,7 @@ fn parser_with_simple_attributes() {
     }
 }
 
-// #[test]
+#[test]
 fn parser_with_something_complicated_with_attributes() {
     const template: &str = "<p {} attr=\"{}\">hello</p>";
     let mut parser = parse::StringIterator::new("<p {} attr=\"{}\">hello</p>");

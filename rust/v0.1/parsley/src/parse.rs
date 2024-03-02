@@ -1,14 +1,14 @@
 use std::collections::LinkedList;
 use std::str::CharIndices;
 
-use crate::type_flyweight::{NodeStep, Vector};
-use crate::routes;
 use crate::constants::{
     ATTRIBUTE_DECLARATION, ATTRIBUTE_DECLARATION_CLOSE, ATTRIBUTE_INJECTION,
     ATTRIBUTE_MAP_INJECTION, ATTRIBUTE_VALUE, CLOSE_NODE_CLOSED, DESCENDANT_INJECTION,
     INDEPENDENT_NODE_CLOSED, INITIAL, INJECTION, INJECTION_CONFIRMED, INJECTION_FOUND, NODE_CLOSED,
     NODE_SPACE, TAGNAME, TEXT,
 };
+use crate::routes;
+use crate::type_flyweight::{NodeStep, Vector};
 
 // cache build steps
 
@@ -71,9 +71,9 @@ impl StringIterator<'_> {
                 None => return,
             };
 
-            let curr_kind = match front.kind == INJECTION_CONFIRMED{
-            	true => routes::route(&glyph, &self.prev_inj_kind),
-            	_ => routes::route(&glyph, &front.kind),
+            let curr_kind = match front.kind == INJECTION_CONFIRMED {
+                true => routes::route(&glyph, &self.prev_inj_kind),
+                _ => routes::route(&glyph, &front.kind),
             };
 
             if curr_kind == INJECTION_FOUND {
