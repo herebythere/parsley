@@ -104,6 +104,7 @@ impl HtmlWriter<'_> {
                     }
                     INJECTION_FOUND => {
                         let injection = &stack_bit.template.injections[stack_bit.inj_index];
+                        stack_bit.inj_index += 1;
 
                         // need to match injection enum with injection type
                         match injection {
@@ -114,6 +115,17 @@ impl HtmlWriter<'_> {
                                     result.push_str(text.trim());
                                     result.push_str("\n");
                                 }
+                            }
+                            Injection::Template(template) => {
+                                let next_stack_bit = StackBit {
+                                    iterator: StringIterator::new(&template.template),
+                                    template: template,
+                                    inj_index: 0,
+                                };
+
+                                stack.push(stack_bit);
+                                stack.push(next_stack_bit);
+                                break;
                             }
                             _ => {}
                         }
@@ -151,9 +163,7 @@ pub fn html<'a>(template: &'a str, injections: Vec<Injection<'a>>) -> Template<'
 }
 
 /*
-
 fn document_component = (ctx, args) => {
     ctx.html("<i>", []);
 }
-
 */
