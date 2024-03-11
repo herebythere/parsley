@@ -5,14 +5,9 @@ pub struct Vector {
 }
 
 #[derive(Debug, Clone)]
-pub struct NodeStep {
-    pub kind: String,
+pub struct NodeStep<'a> {
+    pub kind: &'a str,
     pub vector: Vector,
 }
 
-pub trait Builder {
-    fn add_step(self, step: NodeStep) -> Self;
-    fn build(self) -> Results;
-}
-
-pub type Results = Vec<NodeStep>;
+pub type Results<'a> = Vec<NodeStep<'a>>;

@@ -6,19 +6,4 @@ An implementation of parsley for rust.
 
 `Parsley` generates steps to build a subset of xml from `template strings`;
 
-It's used to generate static html documents and components
-
-## Builder-ish Pattern
-
-Provide a `Builder` and a `template string` to `parsley::parse`
-
-```Rust
-let builder = new MyBuilder();
-builder = parsley::parse_str(
-	builder,
-	"<p>hello, {}</p>",
-);
-```
-
-
-
+Those steps can be used to generate document structures and scene graphs.

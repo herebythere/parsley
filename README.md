@@ -6,8 +6,6 @@ A good enough XML parser.
 
 Parsley provides the build steps required to deserialize a subset of xml.
 
-This enables developers to build custom document structures via xml.
-
 ### Limitations
 
 Parsley provides limited support for xml syntax:
