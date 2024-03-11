@@ -10,12 +10,17 @@ fn parse_with_simple_attributes() {
     let target = Vec::<NodeStep>::new();
     let mut parser = parse::iter(template_str);
     while let Some(step) = parser.next() {
+        /*
         println!(
             "{:?}\n{}\n",
             step,
             parse::get_chunk(&template_str, &step.vector),
         );
+        */
     }
+    
+    let steps = parse::parse_steps(template_str);
+    println!("{:?}", steps);
 }
 
 #[test]
