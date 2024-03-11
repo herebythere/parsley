@@ -34,6 +34,15 @@ fn get_state_from_initial<'a>(chr: &char) -> &'a str {
     }
 }
 
+// dont really need errors? leaves space for syntax like:
+// AND it don't hurt nobody
+/*
+    <
+        hello
+            howdy
+            another-attr
+    >
+*/
 fn get_state_from_node<'a>(chr: &char) -> &'a str {
     if chr.is_whitespace() {
         return ERROR;

@@ -8,11 +8,12 @@ use crate::constants::{
 use crate::routes;
 use crate::type_flyweight::{NodeStep, Vector};
 
-// can I replace linked list with a curr, prev as an option<NodeStep>
-// if curr_node_step is not None, get next step\
-// return curr node, set curr node as next step
-
-// handling errors
+/*
+    Currently uses a linked list to avoid memory headaches.
+    Alternative is to clone a node every iteration.
+    I don't know what would be simpler or faster.
+    Need to investigate if a swap could be in order.
+*/
 
 pub struct StringIterator<'a> {
     queue: LinkedList<NodeStep<'a>>,
@@ -23,27 +24,19 @@ pub struct StringIterator<'a> {
 
 impl StringIterator<'_> {
     pub fn next(&mut self) -> Option<NodeStep> {
-        // get next step
-        // if next step, swap current and next
-        // current could be none
-        // return current
         if self.queue.len() == 1 {
             self.get_next_step();
-        }
+        };
 
         self.queue.pop_back()
     }
 
     fn get_next_step(&mut self) {
         while let Some((index, glyph)) = &self.template_indices.next() {
-            self.update_front(&index);
-
             let front = match self.queue.front() {
                 Some(f) => f,
                 None => return,
             };
-
-            // if error return
 
             let prev_kind = match front.kind == INJECTION_CONFIRMED {
                 true => &self.prev_inj_kind,
@@ -52,12 +45,12 @@ impl StringIterator<'_> {
 
             let curr_kind = routes::route(&glyph, prev_kind);
 
-            // set it everytime?
             if is_injection_kind(curr_kind) {
                 self.prev_inj_kind = front.kind;
             }
 
             if curr_kind != front.kind {
+                self.update_front(&index);
                 self.queue.push_front(NodeStep {
                     kind: curr_kind,
                     vector: Vector {
@@ -70,8 +63,7 @@ impl StringIterator<'_> {
             }
         }
 
-        // for tail end of the string
-        // something akin to EOF
+        // for tail end of the string, akin to EOF
         self.update_front(&self.template.len());
     }
 
@@ -88,7 +80,6 @@ fn is_injection_kind(build_step: &str) -> bool {
         ATTRIBUTE_INJECTION => true,
         ATTRIBUTE_MAP_INJECTION => true,
         DESCENDANT_INJECTION => true,
-        // default
         _ => false,
     }
 }
