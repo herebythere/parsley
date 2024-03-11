@@ -21,10 +21,7 @@ pub const DESCENDANT_INJECTION: &str = "DESCENDANT_INJECTION";
 pub const ATTRIBUTE_MAP_INJECTION: &str = "ATTRIBUTE_MAP_INJECTION";
 pub const INITIAL: &str = "INITIAL";
 pub const INJECT: &str = "INJECT";
-pub const DEFAULT: &str = "DEFAULT";
 
 pub const SPACE: &str = "SPACE";
-pub const INJECTION_FOUND: &str = "INJECTION_FOUND";
 pub const INJECTION_CONFIRMED: &str = "INJECTION_CONFIRMED";
-pub const INJECTION: &str = "INJECTION";
 pub const INJECTION_SPACE: &str = "INJECTION_SPACE";
