@@ -18,7 +18,7 @@ fn parse_with_simple_attributes() {
         );
         */
     }
-    
+
     let steps = parse::parse_steps(template_str);
     println!("{:?}", steps);
 }
