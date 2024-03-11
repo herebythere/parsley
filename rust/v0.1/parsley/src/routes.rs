@@ -22,6 +22,7 @@ pub fn route<'a>(chr: &char, prev_state: &'a str) -> &'a str {
         ATTRIBUTE_MAP_INJECTION => get_state_from_injection_found(chr),
         DESCENDANT_INJECTION => get_state_from_injection_found(chr),
         INJECTION_SPACE => get_state_from_injection_space(chr),
+        ERROR => get_state_from_error(chr),
         _ => get_state_from_initial(chr),
     }
 }
@@ -168,4 +169,8 @@ fn get_state_from_injection_space<'a>(chr: &char) -> &'a str {
         '}' => INJECTION_CONFIRMED,
         _ => INJECTION_SPACE,
     }
+}
+
+fn get_state_from_error<'a>(_chr: &char) -> &'a str {
+    ERROR
 }
