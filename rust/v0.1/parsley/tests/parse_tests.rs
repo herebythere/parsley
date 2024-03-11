@@ -2,10 +2,13 @@ use parsley::parse;
 use parsley::type_flyweight::{NodeStep, Results};
 
 //#[test]
-fn parser_with_simple_attributes() {
+fn parse_with_simple_attributes() {
     const template_str: &str = "<hello>{   }</hello>";
-    let mut parser = parse::iter(template_str);
 
+    let source = Vec::<NodeStep>::from([]);
+
+    let target = Vec::<NodeStep>::new();
+    let mut parser = parse::iter(template_str);
     while let Some(step) = parser.next() {
         println!(
             "{:?}\n{}\n",
@@ -16,10 +19,10 @@ fn parser_with_simple_attributes() {
 }
 
 #[test]
-fn parser_with_something_complicated_with_attributes() {
-    const template_str: &str = "<p {} attr=\"{}\">{}hello{}</p>";
-    let mut parser = parse::iter(template_str);
+fn parse_with_something_complicated_with_attributes() {
+    const template_str: &str = "<p {} attr=\"howdy!\">{}hello{}</p>";
 
+    let mut parser = parse::iter(template_str);
     while let Some(step) = parser.next() {
         println!(
             "{:?}\n{}\n",
@@ -28,8 +31,3 @@ fn parser_with_something_complicated_with_attributes() {
         );
     }
 }
-
-// add injection types
-
-// descendant injection
-// attribute map injection

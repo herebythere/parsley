@@ -10,11 +10,11 @@ use crate::constants::{
 use crate::routes;
 use crate::type_flyweight::{NodeStep, Vector};
 
-/*
-	is it better to translate in and out of the parser?
-	we already do one injection, why not others?
-	descendant or attribute injection
-*/
+// can I replace linked list with a curr, prev as an option<NodeStep>
+// if curr_node_step is not None, get next step\
+// return curr node, set curr node as next step
+
+// handling errors
 
 pub struct StringIterator<'a> {
     queue: LinkedList<NodeStep<'a>>,
@@ -24,22 +24,11 @@ pub struct StringIterator<'a> {
 }
 
 impl StringIterator<'_> {
-    pub fn new(template: &'_ str) -> StringIterator {
-        StringIterator {
-            template: template,
-            template_indices: template.char_indices(),
-            prev_inj_kind: INITIAL,
-            queue: LinkedList::<NodeStep<'_>>::from([NodeStep {
-                kind: INITIAL,
-                vector: Vector {
-                    origin: 0,
-                    target: 0,
-                },
-            }]),
-        }
-    }
-
     pub fn next(&mut self) -> Option<NodeStep> {
+        // get next step
+        // if next step, swap current and next
+        // current could be none
+        // return current
         if self.queue.len() == 1 {
             self.get_next_step();
         }
@@ -56,14 +45,16 @@ impl StringIterator<'_> {
                 None => return,
             };
 
-						let prev_kind = match front.kind == INJECTION_CONFIRMED {
-							true => &self.prev_inj_kind,
-							_ => &front.kind,
-						};
-						
-						let curr_kind = routes::route(&glyph, prev_kind);
-						
-						// set it everytime?
+            // if error return
+
+            let prev_kind = match front.kind == INJECTION_CONFIRMED {
+                true => &self.prev_inj_kind,
+                _ => &front.kind,
+            };
+
+            let curr_kind = routes::route(&glyph, prev_kind);
+
+            // set it everytime?
             if is_injection_kind(curr_kind) {
                 self.prev_inj_kind = front.kind;
             }
@@ -94,10 +85,6 @@ impl StringIterator<'_> {
     }
 }
 
-pub fn iter<'a>(template_str: &'a str) -> StringIterator<'a> {
-	StringIterator::new(template_str)
-}
-
 fn is_injection_kind(build_step: &str) -> bool {
     match build_step {
         ATTRIBUTE_INJECTION => true,
@@ -108,7 +95,21 @@ fn is_injection_kind(build_step: &str) -> bool {
     }
 }
 
+pub fn iter<'a>(template_str: &'a str) -> StringIterator<'a> {
+    StringIterator {
+        template: template_str,
+        template_indices: template_str.char_indices(),
+        prev_inj_kind: INITIAL,
+        queue: LinkedList::<NodeStep<'_>>::from([NodeStep {
+            kind: INITIAL,
+            vector: Vector {
+                origin: 0,
+                target: 0,
+            },
+        }]),
+    }
+}
+
 pub fn get_chunk<'a>(template_str: &'a str, vector: &Vector) -> &'a str {
     &template_str[vector.origin..vector.target]
 }
-
