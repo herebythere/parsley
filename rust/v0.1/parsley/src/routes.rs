@@ -12,7 +12,7 @@ use crate::constants::{
     ATTRIBUTE, ATTRIBUTE_DECLARATION, ATTRIBUTE_DECLARATION_CLOSE, ATTRIBUTE_SETTER,
     ATTRIBUTE_VALUE, CLOSE_NODE_CLOSED, CLOSE_NODE_SLASH, CLOSE_NODE_SPACE, CLOSE_TAGNAME, ERROR,
     INDEPENDENT_NODE, INDEPENDENT_NODE_CLOSED, INITIAL, INJECTION, NODE, NODE_CLOSED, NODE_SPACE,
-    TAGNAME, TEXT,
+    TAGNAME, TEXT, ATTRIBUTE_MAP_INJECTION, ATTRIBUTE_INJECTION, DESCENDANT_INJECTION
 };
 
 use crate::constants::{INJECTION_CONFIRMED, INJECTION_FOUND, INJECTION_SPACE};
@@ -48,7 +48,11 @@ pub fn route<'a>(chr: &char, prev_state: &'a str) -> &'a str {
         ATTRIBUTE_DECLARATION => get_state_from_attribute_declaration(chr),
         ATTRIBUTE_VALUE => get_state_from_attribute_value(chr),
         ATTRIBUTE_DECLARATION_CLOSE => get_state_from_attribute_declaration_close(chr),
-        INJECTION_FOUND => get_state_from_injection_found(chr),
+        // 
+        ATTRIBUTE_MAP_INJECTION => get_state_from_injection_found(chr),
+        // ATTRIBUTE_INJECTION => get_state_from_injection_found(chr),
+        DESCENDANT_INJECTION => get_state_from_injection_found(chr),
+        //INJECTION_FOUND => get_state_from_injection_found(chr),
         INJECTION_SPACE => get_state_from_injection_space(chr),
         // INJECTION_CONFIRMED => get_state_from_injection_CONFIRMED(chr),
         _ => get_state_from_initial(chr),
@@ -61,7 +65,7 @@ pub fn route<'a>(chr: &char, prev_state: &'a str) -> &'a str {
 fn get_state_from_initial<'a>(chr: &char) -> &'a str {
     match chr {
         '<' => NODE,
-        '{' => INJECTION_FOUND,
+        '{' => DESCENDANT_INJECTION,  // DESCENDANT_INJECTION
         _ => TEXT,
     }
 }
@@ -86,7 +90,6 @@ fn get_state_from_tagname<'a>(chr: &char) -> &'a str {
     match chr {
         '>' => NODE_CLOSED,
         '/' => INDEPENDENT_NODE,
-        '{' => INJECTION_FOUND,
         _ => TAGNAME,
     }
 }
@@ -132,7 +135,7 @@ fn get_state_from_node_space<'a>(chr: &char) -> &'a str {
     match chr {
         '>' => NODE_CLOSED,
         '/' => INDEPENDENT_NODE,
-        '{' => INJECTION_FOUND,
+        '{' => ATTRIBUTE_MAP_INJECTION,
         _ => ATTRIBUTE,
     }
 }

@@ -12,21 +12,22 @@
 
 //
 use parsley::constants::{
-    ATTRIBUTE, ATTRIBUTE_VALUE, CLOSE_TAGNAME, INJECTION_FOUND, NODE_CLOSED, TAGNAME, TEXT,
+    ATTRIBUTE, ATTRIBUTE_VALUE, CLOSE_TAGNAME, INJECTION_FOUND, NODE_CLOSED, TAGNAME, TEXT, INDEPENDENT_NODE_CLOSED
 };
 use parsley::parse::{get_injection_type, StringIterator};
 use parsley::type_flyweight::{Results, Vector};
 use std::collections::HashMap;
 
-#[derive(Clone, Debug)]
+#[derive(Debug)]
 pub enum Injection<'a> {
-    Str(&'a str),
-    VecString(Vec<String>),
-    VecStringTuple(Vec<(String, String)>),
+    Text(&'a str),
+    Attrs(Vec<String>),
+    AttrMap(Vec<(String, String)>),
     Template(Template<'a>),
+    Templates(Vec<Template<'a>>),
 }
 
-#[derive(Clone, Debug)]
+#[derive(Debug)]
 pub struct Template<'a> {
     injections: Vec<Injection<'a>>,
     template: &'a str,
@@ -77,6 +78,10 @@ impl HtmlWriter<'_> {
                         result.push_str(">\n");
                         tab_count += 1;
                     }
+                    INDEPENDENT_NODE_CLOSED => {
+                        result.push_str("/>\n");
+                    		tab_count -=1;
+                    }
                     ATTRIBUTE => {
                         result.push_str(" ");
                         result.push_str(get_chunk(&stack_bit.template, &node_step.vector));
@@ -105,16 +110,37 @@ impl HtmlWriter<'_> {
                     INJECTION_FOUND => {
                         let injection = &stack_bit.template.injections[stack_bit.inj_index];
                         stack_bit.inj_index += 1;
+                        
+                        // could just be an array of injections, same type
+                        // [text, template, template, text]
+                        // [(attribute, value)
 
+												// for each injection
                         // need to match injection enum with injection type
+                        
                         match injection {
-                            Injection::Str(inj_str) => {
+                            Injection::Text(inj_str) => {
                                 let text_iterator = inj_str.split("\n");
                                 for text in text_iterator {
                                     result.push_str(&"\t".repeat(tab_count));
                                     result.push_str(text.trim());
                                     result.push_str("\n");
                                 }
+                            }
+                            Injection::Attrs(attrs) => {
+                              for attr in attrs {
+                                  result.push_str(" ");
+                                  result.push_str(attr);
+                              }
+                            }
+                            Injection::AttrMap(attr_map) => {
+                              for (attr, value) in attr_map {
+                                  result.push_str(" ");
+                                  result.push_str(attr);
+                                  result.push_str("=\"");
+                                  result.push_str(value);
+                                  result.push_str("\"");
+                              }
                             }
                             Injection::Template(template) => {
                                 let next_stack_bit = StackBit {
@@ -127,6 +153,27 @@ impl HtmlWriter<'_> {
                                 stack.push(next_stack_bit);
                                 break;
                             }
+                            Injection::Templates(templates) => {
+                              stack.push(stack_bit);
+                              
+                              let mut index = templates.len() - 1;
+                              while index > -1 {
+                              	let template = templates[index];
+                              	
+                              	index -= 1;
+                              }
+                            	for template in templates {
+                                let next_stack_bit = StackBit {
+                                    iterator: StringIterator::new(&template.template),
+                                    template: template,
+                                    inj_index: 0,
+                                };
+
+
+                                stack.push(next_stack_bit);
+                            	}
+  	                          break;                            	
+                            }
                             _ => {}
                         }
                     }
@@ -134,17 +181,6 @@ impl HtmlWriter<'_> {
                 }
             }
         }
-
-        // add to html result by step
-
-        // while loop. while
-
-        // if attribute injection, get text
-
-        // if attribute map, add each attribute, if multiple on multiple lines
-
-        // if injection, add current back to stack
-        //  add new stack bit to stack.
 
         println!("{}", result)
     }
@@ -161,9 +197,3 @@ pub fn html<'a>(template: &'a str, injections: Vec<Injection<'a>>) -> Template<'
         injections: injections,
     }
 }
-
-/*
-fn document_component = (ctx, args) => {
-    ctx.html("<i>", []);
-}
-*/

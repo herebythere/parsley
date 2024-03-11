@@ -10,26 +10,11 @@ use crate::constants::{
 use crate::routes;
 use crate::type_flyweight::{NodeStep, Vector};
 
-// cache build steps
-
-pub fn get_injection_type(build_step: &str) -> Option<&str> {
-    match build_step {
-        ATTRIBUTE_DECLARATION => Some(ATTRIBUTE_INJECTION),
-        ATTRIBUTE_VALUE => Some(ATTRIBUTE_INJECTION),
-        // attribute maps
-        NODE_SPACE => Some(ATTRIBUTE_MAP_INJECTION),
-        ATTRIBUTE_DECLARATION_CLOSE => Some(ATTRIBUTE_MAP_INJECTION),
-        TAGNAME => Some(ATTRIBUTE_MAP_INJECTION),
-        // descendants
-        CLOSE_NODE_CLOSED => Some(DESCENDANT_INJECTION),
-        INDEPENDENT_NODE_CLOSED => Some(DESCENDANT_INJECTION),
-        INITIAL => Some(DESCENDANT_INJECTION),
-        NODE_CLOSED => Some(DESCENDANT_INJECTION),
-        TEXT => Some(DESCENDANT_INJECTION),
-        // default
-        _ => None,
-    }
-}
+/*
+	is it better to translate in and out of the parser?
+	we already do one injection, why not others?
+	descendant or attribute injection
+*/
 
 pub struct StringIterator<'a> {
     queue: LinkedList<NodeStep<'a>>,
@@ -71,12 +56,15 @@ impl StringIterator<'_> {
                 None => return,
             };
 
-            let curr_kind = match front.kind == INJECTION_CONFIRMED {
-                true => routes::route(&glyph, &self.prev_inj_kind),
-                _ => routes::route(&glyph, &front.kind),
-            };
-
-            if curr_kind == INJECTION_FOUND {
+						let prev_kind = match front.kind == INJECTION_CONFIRMED {
+							true => &self.prev_inj_kind,
+							_ => &front.kind,
+						};
+						
+						let curr_kind = routes::route(&glyph, prev_kind);
+						
+						// set it everytime?
+            if is_injection_kind(curr_kind) {
                 self.prev_inj_kind = front.kind;
             }
 
@@ -105,3 +93,22 @@ impl StringIterator<'_> {
         };
     }
 }
+
+pub fn iter<'a>(template_str: &'a str) -> StringIterator<'a> {
+	StringIterator::new(template_str)
+}
+
+fn is_injection_kind(build_step: &str) -> bool {
+    match build_step {
+        ATTRIBUTE_INJECTION => true,
+        ATTRIBUTE_MAP_INJECTION => true,
+        DESCENDANT_INJECTION => true,
+        // default
+        _ => false,
+    }
+}
+
+pub fn get_chunk<'a>(template_str: &'a str, vector: &Vector) -> &'a str {
+    &template_str[vector.origin..vector.target]
+}
+

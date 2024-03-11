@@ -14,15 +14,18 @@ fn it_works() {
 
 #[test]
 fn it_works_with_str_injections() {
-    let inj = Injection::Str(text_injection);
-    let template1 = html("<hello mygood=\"sir\">{}</hello>", Vec::from([inj]));
+    let inj = Injection::Text(text_injection);
+    let template1 = html(
+    	"<hello mygood=\"sir\">{}</hello>",
+    	Vec::from([inj]),
+    );
 
     let finished_template = HtmlWriter::build(&template1);
 }
 
 #[test]
 fn it_works_with_template_injections() {
-    let inj = Injection::Str(text_injection);
+    let inj = Injection::Text(text_injection);
     let template = html(injection_template_0, Vec::from([inj]));
 
     let temp_inj = Injection::Template(template);
@@ -30,3 +33,17 @@ fn it_works_with_template_injections() {
 
     let finished_template = HtmlWriter::build(&template1);
 }
+
+#[test]
+fn it_works_with_multiple_injections() {
+    let inj = Injection::Text(text_injection);
+    let template = html(template_str_0, Vec::from([]));
+    let temp_inj = Injection::Template(template);
+    let template1 = html("<hello>{}</hello>{}", Vec::from([temp_inj, inj]));
+
+    let finished_template = HtmlWriter::build(&template1);
+}
+
+// [text]
+
+// [templates]
