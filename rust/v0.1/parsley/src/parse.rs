@@ -18,8 +18,8 @@ pub fn parse_str<'a>(template_str: &'a str) -> Vec<NodeStep> {
     }]);
 
     let mut prev_inj_kind = INITIAL;
-
     let mut indices = template_str.char_indices();
+
     while let Some((index, glyph)) = indices.next() {
         let mut front_step = match steps.pop() {
             Some(step) => step,
@@ -32,15 +32,15 @@ pub fn parse_str<'a>(template_str: &'a str) -> Vec<NodeStep> {
         };
 
         let curr_kind = routes::route(&glyph, prev_kind);
-
+        let has_changed = curr_kind != front_step.kind;
         if is_injection_kind(curr_kind) {
             prev_inj_kind = front_step.kind;
         }
 
-        if curr_kind != front_step.kind {
-            front_step.vector.target = index.clone();
-            steps.push(front_step);
+        front_step.vector.target = index.clone();
+        steps.push(front_step);
 
+        if has_changed {
             steps.push(NodeStep {
                 kind: curr_kind,
                 vector: Vector {
