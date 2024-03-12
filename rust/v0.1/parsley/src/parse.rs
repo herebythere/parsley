@@ -1,4 +1,4 @@
-use std::collections::LinkedList;
+use std::collections::{HashMap, LinkedList};
 use std::str::CharIndices;
 
 use crate::constants::{
@@ -8,14 +8,68 @@ use crate::constants::{
 use crate::routes;
 use crate::type_flyweight::{NodeStep, Vector};
 
-/*
-    Currently uses a linked list to avoid memory headaches.
-    Alternative is to clone a node every iteration.
-    I don't know what would be simpler or faster.
-    Need to investigate if a swap could be in order.
-*/
+pub fn parse_str<'a>(template_str: &'a str) -> Vec<NodeStep> {
+    let mut steps = Vec::from([NodeStep {
+        kind: INITIAL,
+        vector: Vector {
+            origin: 0,
+            target: 0,
+        },
+    }]);
 
-pub struct StringIterator<'a> {
+    let mut prev_inj_kind = INITIAL;
+    let mut indices = template_str.char_indices();
+
+    while let Some((index, glyph)) = indices.next() {
+        let mut front_step = match steps.pop() {
+            Some(step) => step,
+            None => return steps,
+        };
+
+        let prev_kind = match front_step.kind == INJECTION_CONFIRMED {
+            true => &prev_inj_kind,
+            _ => &front_step.kind,
+        };
+
+        let curr_kind = routes::route(&glyph, prev_kind);
+        let has_changed = curr_kind != front_step.kind;
+        if is_injection_kind(curr_kind) {
+            prev_inj_kind = front_step.kind;
+        }
+
+        front_step.vector.target = index.clone();
+        steps.push(front_step);
+
+        if has_changed {
+            steps.push(NodeStep {
+                kind: curr_kind,
+                vector: Vector {
+                    origin: index.clone(),
+                    target: index.clone(),
+                },
+            });
+        }
+    }
+
+    match steps.pop() {
+        Some(mut step) => {
+            step.vector.target = template_str.len();
+            steps.push(step);
+            steps
+        }
+        None => steps,
+    }
+}
+
+pub fn get_chunk<'a>(template_str: &'a str, vector: &Vector) -> &'a str {
+    &template_str[vector.origin..vector.target]
+}
+
+/* Below is drafting for other implementations */
+
+// this would be beneficial for parsing large files
+// not in scope, redesigned above
+struct StringIterator<'a> {
     queue: LinkedList<NodeStep<'a>>,
     template: &'a str,
     template_indices: CharIndices<'a>,
@@ -84,7 +138,7 @@ fn is_injection_kind(build_step: &str) -> bool {
     }
 }
 
-pub fn iter<'a>(template_str: &'a str) -> StringIterator<'a> {
+fn iter<'a>(template_str: &'a str) -> StringIterator<'a> {
     StringIterator {
         template: template_str,
         template_indices: template_str.char_indices(),
@@ -97,8 +151,4 @@ pub fn iter<'a>(template_str: &'a str) -> StringIterator<'a> {
             },
         }]),
     }
-}
-
-pub fn get_chunk<'a>(template_str: &'a str, vector: &Vector) -> &'a str {
-    &template_str[vector.origin..vector.target]
 }
