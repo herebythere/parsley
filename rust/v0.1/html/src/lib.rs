@@ -77,7 +77,10 @@ pub fn build<'a>(template: &'a Template) -> String {
                         TAGNAME => {
                             result.push_str(&"\t".repeat(tab_count));
                             result.push_str("<");
-                            result.push_str(get_chunk(&stack_bit.template, &node_step.vector));
+                            result.push_str(parse::get_chunk(
+                                &stack_bit.template.template,
+                                &node_step.vector,
+                            ));
                         }
                         NODE_CLOSED => {
                             result.push_str(">\n");
@@ -89,16 +92,23 @@ pub fn build<'a>(template: &'a Template) -> String {
                         }
                         ATTRIBUTE => {
                             result.push_str(" ");
-                            result.push_str(get_chunk(&stack_bit.template, &node_step.vector));
+                            result.push_str(parse::get_chunk(
+                                &stack_bit.template.template,
+                                &node_step.vector,
+                            ));
                         }
                         ATTRIBUTE_VALUE => {
                             result.push_str("=\"");
-                            result.push_str(get_chunk(&stack_bit.template, &node_step.vector));
+                            result.push_str(parse::get_chunk(
+                                &stack_bit.template.template,
+                                &node_step.vector,
+                            ));
                             result.push_str("\"");
                         }
                         TEXT => {
                             let text_iterator =
-                                get_chunk(&stack_bit.template, &node_step.vector).split("\n");
+                                parse::get_chunk(&stack_bit.template.template, &node_step.vector)
+                                    .split("\n");
                             for text in text_iterator {
                                 result.push_str(&"\t".repeat(tab_count));
                                 result.push_str(text.trim());
@@ -109,7 +119,10 @@ pub fn build<'a>(template: &'a Template) -> String {
                             tab_count -= 1;
                             result.push_str(&"\t".repeat(tab_count));
                             result.push_str("</");
-                            result.push_str(get_chunk(&stack_bit.template, &node_step.vector));
+                            result.push_str(parse::get_chunk(
+                                &stack_bit.template.template,
+                                &node_step.vector,
+                            ));
                             result.push_str(">\n");
                         }
                         ATTRIBUTE_MAP_INJECTION => {
@@ -134,9 +147,6 @@ pub fn build<'a>(template: &'a Template) -> String {
                             }
                         }
                         DESCENDANT_INJECTION => {
-                            // create vec array
-                            // add injections at each step
-                            // then pop each back into the stack
                             let injections = &stack_bit.template.injections[stack_bit.inj_index];
                             stack_bit.inj_index += 1;
 
@@ -172,10 +182,6 @@ pub fn build<'a>(template: &'a Template) -> String {
 
     println!("{}", result);
     result
-}
-
-fn get_chunk<'a>(template: &Template<'a>, vector: &Vector) -> &'a str {
-    &template.template[vector.origin..vector.target]
 }
 
 // standalone
