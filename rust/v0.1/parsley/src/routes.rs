@@ -46,7 +46,7 @@ fn get_state_from_initial<'a>(chr: &char) -> &'a str {
 */
 fn get_state_from_node<'a>(chr: &char) -> &'a str {
     if chr.is_whitespace() {
-        return ERROR;
+        return NODE;
     }
 
     match chr {
@@ -70,7 +70,7 @@ fn get_state_from_tagname<'a>(chr: &char) -> &'a str {
 
 fn get_state_from_close_node_slash<'a>(chr: &char) -> &'a str {
     if chr.is_whitespace() {
-        return ERROR;
+        return CLOSE_NODE_SLASH;
     }
 
     CLOSE_TAGNAME
