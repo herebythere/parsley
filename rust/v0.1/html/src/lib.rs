@@ -1,11 +1,24 @@
 use parsley::constants::{
     ATTRIBUTE, ATTRIBUTE_MAP_INJECTION, ATTRIBUTE_VALUE, CLOSE_TAGNAME, DESCENDANT_INJECTION,
-    INDEPENDENT_NODE_CLOSED, NODE_CLOSED, TAGNAME, TEXT,
+    ERROR, INDEPENDENT_NODE_CLOSED, NODE_CLOSED, TAGNAME, TEXT,
 };
 use parsley::parse;
 use parsley::type_flyweight::{NodeStep, Results, Vector};
 use std::collections::HashMap;
 use std::vec;
+
+/*
+    handle void elements
+
+    don't add closing slashes (not valid html)
+
+    do not add "on" events to elements,
+
+    this will require knowing parent element and last attribute
+
+    should there be an all or nothing quit attidue? if one wrong thing happens
+    than nothing is built
+*/
 
 #[derive(Debug)]
 pub enum Injection<'a> {
@@ -22,31 +35,20 @@ pub struct Template<'a> {
 }
 
 pub enum StackBits<'a> {
-    Template(StackBit<'a>),
+    Template(TemplateBit<'a>),
     Text(&'a str),
 }
 
-pub struct StackBit<'a> {
+pub struct TemplateBit<'a> {
     template: &'a Template<'a>,
     iterator: vec::IntoIter<NodeStep<'a>>,
     inj_index: usize,
 }
 
-pub struct HtmlWriter<'a> {
-    html_result: String,
-    builds: HashMap<String, Results<'a>>,
-    tab_count: usize,
-    index_count: usize,
-    stack: Vec<StackBit<'a>>,
-}
-
-impl HtmlWriter<'_> {}
-
 pub fn build<'a>(template: &'a Template) -> String {
     let mut stack = Vec::<StackBits>::new();
 
-    // possible enum for StackBit and TextBit
-    stack.push(StackBits::Template(StackBit {
+    stack.push(StackBits::Template(TemplateBit {
         iterator: parse::parse_str(&template.template).into_iter(),
         template: template,
         inj_index: 0,
@@ -71,10 +73,14 @@ pub fn build<'a>(template: &'a Template) -> String {
                 }
             }
             StackBits::Template(mut stack_bit) => {
-                // do something
                 while let Some(node_step) = stack_bit.iterator.next() {
                     match node_step.kind {
+                        ERROR => {
+                            return result;
+                        }
                         TAGNAME => {
+                            // check here if tagname allowed
+                            // or if last parent was a script?
                             result.push_str(&"\t".repeat(tab_count));
                             result.push_str("<");
                             result.push_str(parse::get_chunk(
@@ -91,6 +97,7 @@ pub fn build<'a>(template: &'a Template) -> String {
                             tab_count -= 1;
                         }
                         ATTRIBUTE => {
+                            // if attribute is blocked, skip
                             result.push_str(" ");
                             result.push_str(parse::get_chunk(
                                 &stack_bit.template.template,
@@ -98,6 +105,7 @@ pub fn build<'a>(template: &'a Template) -> String {
                             ));
                         }
                         ATTRIBUTE_VALUE => {
+                            // if attribute is blocked, skip
                             result.push_str("=\"");
                             result.push_str(parse::get_chunk(
                                 &stack_bit.template.template,
@@ -132,10 +140,12 @@ pub fn build<'a>(template: &'a Template) -> String {
                             for injection in injections {
                                 match injection {
                                     Injection::Attr(attr) => {
+                                        // if attribute is blocked, skip
                                         result.push_str(" ");
                                         result.push_str(attr);
                                     }
                                     Injection::AttrValue(attr, value) => {
+                                        // if attribute is blocked, skip
                                         result.push_str(" ");
                                         result.push_str(attr);
                                         result.push_str("=\"");
@@ -147,6 +157,7 @@ pub fn build<'a>(template: &'a Template) -> String {
                             }
                         }
                         DESCENDANT_INJECTION => {
+                            // if parent is SCRIPT or STYLE, skip
                             let injections = &stack_bit.template.injections[stack_bit.inj_index];
                             stack_bit.inj_index += 1;
 
@@ -154,25 +165,23 @@ pub fn build<'a>(template: &'a Template) -> String {
 
                             for injection in injections.iter().rev() {
                                 match injection {
-                                    Injection::Text(text) => {
-                                        // push text bit
-                                        stack.push(StackBits::Text(text));
-                                    }
+                                    Injection::Text(text) => stack.push(StackBits::Text(text)),
                                     Injection::Template(template) => {
-                                        // push template bit
-                                        stack.push(StackBits::Template(StackBit {
+                                        stack.push(StackBits::Template(TemplateBit {
                                             iterator: parse::parse_str(&template.template)
                                                 .into_iter(),
                                             template: template,
                                             inj_index: 0,
-                                        }));
+                                        }))
                                     }
                                     _ => continue,
                                 }
                             }
 
+                            // skip to the top of the stack after descendant injection
                             break;
                         }
+                        // all other steps silently pass through
                         _ => {}
                     }
                 }
@@ -180,11 +189,10 @@ pub fn build<'a>(template: &'a Template) -> String {
         }
     }
 
-    println!("{}", result);
     result
 }
 
-// standalone
+//
 pub fn html<'a>(template: &'a str, injections: Vec<Vec<Injection<'a>>>) -> Template<'a> {
     Template {
         template: template,

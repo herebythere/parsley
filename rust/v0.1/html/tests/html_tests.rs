@@ -1,4 +1,4 @@
-use html::{build, html, HtmlWriter, Injection};
+use html::{build, html, Injection};
 
 const template_str_0: &str = "<hello>world</hello>";
 const template_str_1: &str = "<hello mygood=\"sir\">{}</hello>";
@@ -39,6 +39,7 @@ fn it_works_with_template_injections() {
     );
 
     let finished_template = build(&template1);
+    println!("{}", finished_template);
 }
 
 #[test]
@@ -61,4 +62,5 @@ fn it_works_with_multiple_injections() {
     );
 
     let finished_template = build(&template1);
+    println!("{}", finished_template);
 }
