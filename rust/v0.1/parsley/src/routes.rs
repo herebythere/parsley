@@ -1,8 +1,9 @@
 use crate::constants::{
     ATTRIBUTE, ATTRIBUTE_DECLARATION, ATTRIBUTE_DECLARATION_CLOSE, ATTRIBUTE_MAP_INJECTION,
-    ATTRIBUTE_SETTER, ATTRIBUTE_VALUE, CLOSE_NODE_CLOSED, CLOSE_NODE_SLASH, CLOSE_NODE_SPACE,
-    CLOSE_TAGNAME, DESCENDANT_INJECTION, ERROR, INDEPENDENT_NODE, INDEPENDENT_NODE_CLOSED,
-    INJECTION_CONFIRMED, INJECTION_SPACE, NODE, NODE_CLOSED, NODE_SPACE, TAGNAME, TEXT,
+    ATTRIBUTE_SETTER, ATTRIBUTE_VALUE, CLOSE_FRAGMENT, CLOSE_NODE_CLOSED, CLOSE_NODE_SLASH,
+    CLOSE_NODE_SPACE, CLOSE_TAGNAME, DESCENDANT_INJECTION, ERROR, FRAGMENT, INDEPENDENT_NODE,
+    INDEPENDENT_NODE_CLOSED, INJECTION_CONFIRMED, INJECTION_SPACE, NODE, NODE_CLOSED, NODE_SPACE,
+    TAGNAME, TEXT,
 };
 
 pub fn route<'a>(chr: &char, prev_state: &'a str) -> &'a str {
@@ -35,23 +36,14 @@ fn get_state_from_initial<'a>(chr: &char) -> &'a str {
     }
 }
 
-// dont really need errors? leaves space for syntax like:
-// AND it don't hurt nobody
-/*
-    <
-        hello
-            howdy
-            another-attr
-    >
-*/
 fn get_state_from_node<'a>(chr: &char) -> &'a str {
     if chr.is_whitespace() {
-        return ERROR;
+        return NODE;
     }
 
     match chr {
         '/' => CLOSE_NODE_SLASH,
-        '>' => ERROR,
+        '>' => FRAGMENT,
         _ => TAGNAME,
     }
 }
@@ -70,10 +62,13 @@ fn get_state_from_tagname<'a>(chr: &char) -> &'a str {
 
 fn get_state_from_close_node_slash<'a>(chr: &char) -> &'a str {
     if chr.is_whitespace() {
-        return ERROR;
+        return CLOSE_NODE_SLASH;
     }
 
-    CLOSE_TAGNAME
+    match chr {
+        '>' => CLOSE_FRAGMENT,
+        _ => CLOSE_TAGNAME,
+    }
 }
 
 fn get_state_from_close_tagname<'a>(chr: &char) -> &'a str {

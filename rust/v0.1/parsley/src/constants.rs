@@ -22,3 +22,5 @@ pub const NODE: &str = "NODE";
 pub const SPACE: &str = "SPACE";
 pub const TAGNAME: &str = "TAGNAME";
 pub const TEXT: &str = "TEXT";
+pub const FRAGMENT: &str = "FRAGMENT";
+pub const CLOSE_FRAGMENT: &str = "CLOSE_FRAGMENT";

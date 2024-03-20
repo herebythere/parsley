@@ -8,7 +8,7 @@ use crate::constants::{
 use crate::routes;
 use crate::type_flyweight::{NodeStep, Vector};
 
-pub fn parse_str<'a>(template_str: &'a str) -> Vec<NodeStep> {
+pub fn parse_str<'a>(template_str: &'a str) -> Vec<NodeStep<'a>> {
     let mut steps = Vec::from([NodeStep {
         kind: INITIAL,
         vector: Vector {
