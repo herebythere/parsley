@@ -1,6 +1,5 @@
 pub const ATTRIBUTE_DECLARATION_CLOSE: &str = "ATTRIBUTE_DECLARATION_CLOSE";
 pub const ATTRIBUTE_DECLARATION: &str = "ATTRIBUTE_DECLARATION";
-pub const ATTRIBUTE_INJECTION: &str = "ATTRIBUTE_INJECTION";
 pub const ATTRIBUTE_MAP_INJECTION: &str = "ATTRIBUTE_MAP_INJECTION";
 pub const ATTRIBUTE_SETTER: &str = "ATTRIBUTE_SETTER";
 pub const ATTRIBUTE: &str = "ATTRIBUTE";
@@ -11,6 +10,8 @@ pub const CLOSE_NODE_SPACE: &str = "CLOSE_NODE_SPACE";
 pub const CLOSE_TAGNAME: &str = "CLOSE_TAGNAME";
 pub const DESCENDANT_INJECTION: &str = "DESCENDANT_INJECTION";
 pub const ERROR: &str = "ERROR";
+pub const FRAGMENT_CLOSE: &str = "FRAGMENT_CLOSE";
+pub const FRAGMENT: &str = "FRAGMENT";
 pub const INDEPENDENT_NODE_CLOSED: &str = "INDEPENDENT_NODE_CLOSED";
 pub const INDEPENDENT_NODE: &str = "INDEPENDENT_NODE";
 pub const INITIAL: &str = "INITIAL";
@@ -22,5 +23,4 @@ pub const NODE: &str = "NODE";
 pub const SPACE: &str = "SPACE";
 pub const TAGNAME: &str = "TAGNAME";
 pub const TEXT: &str = "TEXT";
-pub const FRAGMENT: &str = "FRAGMENT";
-pub const CLOSE_FRAGMENT: &str = "CLOSE_FRAGMENT";
+

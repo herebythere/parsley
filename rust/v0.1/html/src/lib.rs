@@ -45,6 +45,11 @@ pub struct TemplateBit<'a> {
     inj_index: usize,
 }
 
+
+// rules
+// no fallback elements, no content: style, script
+// skip html listeners "onclick"
+
 pub fn build<'a>(template: &'a Template) -> String {
     let mut stack = Vec::<StackBits>::new();
 
@@ -75,9 +80,6 @@ pub fn build<'a>(template: &'a Template) -> String {
             StackBits::Template(mut stack_bit) => {
                 while let Some(node_step) = stack_bit.iterator.next() {
                     match node_step.kind {
-                        ERROR => {
-                            return result;
-                        }
                         TAGNAME => {
                             // check here if tagname allowed
                             // or if last parent was a script?
