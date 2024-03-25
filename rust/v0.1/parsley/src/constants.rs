@@ -23,4 +23,3 @@ pub const NODE: &str = "NODE";
 pub const SPACE: &str = "SPACE";
 pub const TAGNAME: &str = "TAGNAME";
 pub const TEXT: &str = "TEXT";
-

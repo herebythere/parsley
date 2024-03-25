@@ -73,4 +73,3 @@ fn is_injection_kind(build_step: &str) -> bool {
         _ => false,
     }
 }
-

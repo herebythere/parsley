@@ -4,7 +4,7 @@ use parsley::type_flyweight::{NodeStep, Results};
 #[test]
 fn parse_with_simple_attributes() {
     const template_str: &str = "<hello>{   }</hello>";
-    
+
     let steps = parse::parse_str(template_str);
     println!("{:?}", steps);
 }
