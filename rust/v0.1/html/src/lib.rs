@@ -1,6 +1,6 @@
 use parsley::constants::{
     ATTRIBUTE, ATTRIBUTE_MAP_INJECTION, ATTRIBUTE_VALUE, CLOSE_TAGNAME, DESCENDANT_INJECTION,
-    ERROR, INDEPENDENT_NODE_CLOSED, NODE_CLOSED, TAGNAME, TEXT,
+    INDEPENDENT_NODE_CLOSED, NODE_CLOSED, TAGNAME, TEXT,
 };
 use parsley::parse;
 use parsley::type_flyweight::{NodeStep, Results, Vector};
@@ -26,6 +26,7 @@ pub enum Injection<'a> {
     Attr(&'a str),
     AttrValue(&'a str, &'a str),
     Template(Template<'a>),
+    List(Vec::<Injection<'a>>),
 }
 
 #[derive(Debug)]
@@ -63,7 +64,7 @@ pub fn build<'a>(template: &'a Template) -> String {
     let mut tab_count = 0;
 
     while stack.len() != 0 {
-        let mut stack_bit = match stack.pop() {
+        let stack_bit = match stack.pop() {
             Some(n) => n,
             _ => return result,
         };
