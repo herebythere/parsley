@@ -1,7 +1,7 @@
 use crate::constants::{
     ATTRIBUTE, ATTRIBUTE_DECLARATION, ATTRIBUTE_DECLARATION_CLOSE, ATTRIBUTE_MAP_INJECTION,
     ATTRIBUTE_SETTER, ATTRIBUTE_VALUE, CLOSE_NODE_CLOSED, CLOSE_NODE_SLASH, CLOSE_NODE_SPACE,
-    CLOSE_TAGNAME, DESCENDANT_INJECTION, ERROR, FRAGMENT, FRAGMENT_CLOSE, INDEPENDENT_NODE,
+    CLOSE_TAGNAME, DESCENDANT_INJECTION, FRAGMENT, FRAGMENT_CLOSE, INDEPENDENT_NODE,
     INDEPENDENT_NODE_CLOSED, INJECTION_CONFIRMED, INJECTION_SPACE, NODE, NODE_CLOSED, NODE_SPACE,
     TAGNAME, TEXT,
 };
@@ -22,8 +22,7 @@ pub fn route<'a>(chr: &char, prev_state: &'a str) -> &'a str {
         ATTRIBUTE_DECLARATION_CLOSE => get_state_from_attribute_declaration_close(chr),
         ATTRIBUTE_MAP_INJECTION => get_state_from_injection_found(chr),
         DESCENDANT_INJECTION => get_state_from_injection_found(chr),
-        INJECTION_SPACE => get_state_from_injection_space(chr),
-        ERROR => get_state_from_error(chr),
+        INJECTION_SPACE => get_state_from_injection_found(chr),
         _ => get_state_from_initial(chr),
     }
 }
@@ -157,15 +156,4 @@ fn get_state_from_injection_found<'a>(chr: &char) -> &'a str {
         '}' => INJECTION_CONFIRMED,
         _ => INJECTION_SPACE,
     }
-}
-
-fn get_state_from_injection_space<'a>(chr: &char) -> &'a str {
-    match chr {
-        '}' => INJECTION_CONFIRMED,
-        _ => INJECTION_SPACE,
-    }
-}
-
-fn get_state_from_error<'a>(_chr: &char) -> &'a str {
-    ERROR
 }

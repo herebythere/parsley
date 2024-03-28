@@ -9,7 +9,6 @@ pub const CLOSE_NODE_SLASH: &str = "CLOSE_NODE_SLASH";
 pub const CLOSE_NODE_SPACE: &str = "CLOSE_NODE_SPACE";
 pub const CLOSE_TAGNAME: &str = "CLOSE_TAGNAME";
 pub const DESCENDANT_INJECTION: &str = "DESCENDANT_INJECTION";
-pub const ERROR: &str = "ERROR";
 pub const FRAGMENT_CLOSE: &str = "FRAGMENT_CLOSE";
 pub const FRAGMENT: &str = "FRAGMENT";
 pub const INDEPENDENT_NODE_CLOSED: &str = "INDEPENDENT_NODE_CLOSED";

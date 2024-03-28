@@ -1,9 +1,5 @@
-use std::collections::{HashMap, LinkedList};
-use std::str::CharIndices;
-
 use crate::constants::{
-    ATTRIBUTE_INJECTION, ATTRIBUTE_MAP_INJECTION, DESCENDANT_INJECTION, INITIAL,
-    INJECTION_CONFIRMED,
+    ATTRIBUTE_MAP_INJECTION, DESCENDANT_INJECTION, INITIAL, INJECTION_CONFIRMED,
 };
 use crate::routes;
 use crate::type_flyweight::{NodeStep, Vector};
@@ -67,7 +63,6 @@ pub fn get_chunk<'a>(template_str: &'a str, vector: &Vector) -> &'a str {
 
 fn is_injection_kind(build_step: &str) -> bool {
     match build_step {
-        ATTRIBUTE_INJECTION => true,
         ATTRIBUTE_MAP_INJECTION => true,
         DESCENDANT_INJECTION => true,
         _ => false,
